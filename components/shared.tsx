@@ -241,6 +241,14 @@ export function Footer() {
             <p style={{ fontSize: '.8rem', color: 'rgba(244,236,223,.35)', marginTop: '.3rem' }}>
               © 2026 CapyABA · Francesca Ramírez Bontá · Hecho con 💛 desde Perú
             </p>
+            <div style={{ display: 'flex', gap: '1.2rem', marginTop: '.5rem' }}>
+              <Link href="/privacidad" style={{ fontSize: '.78rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none' }}>
+                Política de Privacidad
+              </Link>
+              <Link href="/terminos" style={{ fontSize: '.78rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none' }}>
+                Términos y Condiciones
+              </Link>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '1.5rem', paddingBottom: '.2rem' }}>
             {[

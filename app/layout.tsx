@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: 'CapyABA — Francesca Ramírez Bontá · IBA / IBT',
   description: 'Análisis Conductual Aplicado basado en evidencia para niños y familias. Terapia infantil, formación IBT/IBA y supervisiones profesionales.',
   icons: { icon: '/favicon.png' },
+  verification: {
+    google: 'qvYPyU1sEQ1V8YzW38iPnAy6CHez-HFhOecA5vkniKA',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
