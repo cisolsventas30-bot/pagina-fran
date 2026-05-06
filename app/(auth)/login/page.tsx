@@ -110,6 +110,17 @@ export default function LoginPage() {
               ¿No tienes cuenta?{' '}
               <Link href="/register" className="auth-link">Regístrate gratis</Link>
             </p>
+
+            <p style={{ textAlign: 'center', fontSize: '12px', color: '#9ca3af', marginTop: '16px', lineHeight: '1.6' }}>
+              Al ingresar aceptas nuestros{' '}
+              <Link href="/terminos" className="auth-link" style={{ fontSize: '12px' }}>
+                Términos y Condiciones
+              </Link>
+              {' '}y la{' '}
+              <Link href="/privacidad" className="auth-link" style={{ fontSize: '12px' }}>
+                Política de Privacidad
+              </Link>
+            </p>
           </div>
         </div>
       </div>
