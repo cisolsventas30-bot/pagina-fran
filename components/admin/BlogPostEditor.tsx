@@ -39,6 +39,7 @@ interface Post {
   id?: string; title?: string; excerpt?: string; content?: any
   category?: string; cover_url?: string
   is_published?: boolean; read_time?: number; slug?: string
+  author_name?: string; tags?: string[]
 }
 
 function uid() { return Math.random().toString(36).slice(2, 9) }

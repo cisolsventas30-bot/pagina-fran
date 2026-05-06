@@ -98,7 +98,7 @@ export default async function CoursesListPage() {
               >
                 {/* Thumb */}
                 <div style={{ flexShrink: 0 }}>
-                  <CourseThumb coverUrl={course.cover_url} size={52} />
+                  <CourseThumb coverUrl={course.cover_url} title={course.title} size={52} />
                 </div>
 
                 {/* Info */}
