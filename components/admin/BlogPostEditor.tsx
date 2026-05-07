@@ -592,9 +592,10 @@ function BlockMenu({ onSelect, onClose, anchorRef }: {
     let left = r.left + r.width / 2 - menuW / 2
     if (left < 12) left = 12
     if (left + menuW > window.innerWidth - 12) left = window.innerWidth - menuW - 12
-    const menuH = 380
+    const menuH = Math.min(380, window.innerHeight - 24)
     let top = r.bottom + 10
     if (top + menuH > window.innerHeight - 12) top = r.top - menuH - 10
+    if (top < 12) top = 12
     setPos({ top, left })
   }, [])
 
@@ -607,6 +608,8 @@ function BlockMenu({ onSelect, onClose, anchorRef }: {
         background:'#fff', border:'1.5px solid #e8e4dd',
         borderRadius:18, boxShadow:'0 20px 60px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.08)',
         padding:16,
+        maxHeight: `calc(100vh - 24px)`,
+        overflowY: 'auto',
       }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12, paddingBottom:10, borderBottom:'1px solid #f0ece6' }}>
           <span style={{ fontSize:11, fontWeight:800, letterSpacing:'.1em', textTransform:'uppercase', color:'#aaa', fontFamily:'system-ui' }}>
