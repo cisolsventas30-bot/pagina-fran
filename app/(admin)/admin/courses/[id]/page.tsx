@@ -269,7 +269,7 @@ export default async function EditCoursePage({
             Foros <span className="count">{allForumsFlat.length}</span>
           </TabLink>
           <TabLink href={`/admin/courses/${course.id}?tab=comments`} active={activeTab === 'comments'}>
-            Comentarios <span className="count">{totalLessons}</span>
+            Comentarios
           </TabLink>
           <TabLink href={`/admin/courses/${course.id}?tab=settings`} active={activeTab === 'settings'}>
             Configuración
