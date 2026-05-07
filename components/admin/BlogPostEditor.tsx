@@ -161,7 +161,7 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
   return (
     <div
       style={{ display:'flex', alignItems:'center', gap:2, flexWrap:'wrap', padding:'5px 8px', marginBottom:8, background:'#fff', border:'1px solid #e0dbd4', borderRadius:10, boxShadow:'0 2px 16px rgba(0,0,0,.1)' }}
-      onMouseDown={e => { e.preventDefault(); onSaveRange() }}
+      onMouseDown={e => { e.preventDefault() }}
     >
       <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('bold') }}><b>B</b></button>
       <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('italic') }}><i>I</i></button>
@@ -174,8 +174,8 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
       <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
       <select
         value={fontSize}
-        onChange={e => { const v = e.target.value; setFontSize(''); if (v) applyFontSize(v) }}
         onMouseDown={e => { e.stopPropagation(); onSaveRange() }}
+        onChange={e => { const v = e.target.value; setFontSize(''); if (v) applyFontSize(v) }}
         style={{ height:28, fontSize:11, border:'1px solid #e0dbd4', borderRadius:6, background:'#fff', color:'#444', padding:'0 4px', cursor:'pointer' }}>
         <option value="">Tamaño</option>
         <option value="12px">Pequeño</option>
@@ -238,11 +238,14 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: {
   const lastId = useRef('')
   const [focused, setFocused] = useState(false)
   const [empty, setEmpty] = useState(!initialHtml)
-  const [savedRange, setSavedRange] = useState<Range | null>(null)
+  const savedRangeRef = useRef<Range | null>(null)
+  const [, forceUpdate] = useState(0)
 
   const saveRange = () => {
     const sel = window.getSelection()
-    if (sel && sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0).cloneRange())
+    if (sel && sel.rangeCount > 0) {
+      savedRangeRef.current = sel.getRangeAt(0).cloneRange()
+    }
   }
 
   useLayoutEffect(() => {
@@ -253,12 +256,12 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: {
   }, [blockId, initialHtml])
 
   return (
-    <div style={{ position:'relative' }}>
+    <div style={{ position:'relative' }} data-editor-root="1">
       {focused && (
         <FormatBar
           target={ref.current}
-          onFormat={() => ref.current && onCommit(ref.current.innerHTML)}
-          savedRange={savedRange}
+          onFormat={() => { forceUpdate(n=>n+1); if (ref.current) onCommit(ref.current.innerHTML) }}
+          savedRange={savedRangeRef.current}
           onSaveRange={saveRange}
         />
       )}
@@ -269,7 +272,13 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: {
       )}
       <div ref={ref} contentEditable suppressContentEditableWarning
         onFocus={() => setFocused(true)}
-        onBlur={() => { setFocused(false); if (ref.current) onCommit(ref.current.innerHTML) }}
+        onBlur={e => {
+          // Si el foco va a la FormatBar, no ocultarla
+          const related = e.relatedTarget as HTMLElement | null
+          if (related && e.currentTarget.closest('[data-editor-root]')?.contains(related)) return
+          setFocused(false)
+          if (ref.current) onCommit(ref.current.innerHTML)
+        }}
         onInput={() => { const v = ref.current?.innerHTML || ''; setEmpty(v==='' || v==='<br>') }}
         onMouseUp={saveRange}
         onKeyUp={saveRange}
