@@ -33,7 +33,7 @@ export async function GET(request: Request) {
         const { data: profile } = await supabase
           .from('profiles').select('role, full_name').eq('id', user.id).single()
 
-        // Si el nombre está vacío o es genérico, sincronizar desde Google
+        // Sincronizar nombre desde Google si es necesario
         const googleName =
           user.user_metadata?.full_name ||
           user.user_metadata?.name ||
@@ -49,8 +49,24 @@ export async function GET(request: Request) {
         if (needsNameUpdate) {
           await supabase
             .from('profiles')
-            .update({ full_name: googleName, updated_at: new Date().toISOString() })
-            .eq('id', user.id)
+            .upsert({
+              id: user.id,
+              full_name: googleName,
+              email: user.email,
+              role: profile?.role || 'student',
+              updated_at: new Date().toISOString()
+            })
+        } else if (!profile) {
+          // Crear perfil si no existe (usuario nuevo con Google)
+          await supabase
+            .from('profiles')
+            .upsert({
+              id: user.id,
+              full_name: googleName || user.email?.split('@')[0] || 'Alumno',
+              email: user.email,
+              role: 'student',
+              updated_at: new Date().toISOString()
+            })
         }
 
         const redirectTo = profile?.role === 'admin' ? '/admin' : '/dashboard'
