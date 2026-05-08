@@ -30,7 +30,7 @@ export default async function EditCoursePage({
     .from('courses')
     .select(`
       id, title, description, cover_url, passing_score, is_published, created_at, updated_at,
-      intro_title, intro_video_url, intro_content, cert_preview_url,
+      intro_title, intro_video_url, intro_content, cert_preview_url, price, price_label,
       certificate_template, certificate_hours, certificate_ceus,
       certificate_modality, certificate_area, certificate_event_date,
       modules ( id, title, description, "order",
@@ -305,6 +305,8 @@ export default async function EditCoursePage({
             intro_video_url: course.intro_video_url || null,
             intro_content: course.intro_content || null,
             cert_preview_url: course.cert_preview_url || null,
+            price: course.price ?? null,
+            price_label: course.price_label ?? null,
             modules: sortedModules,
             quizzesByModule,
             assignmentsByModule,

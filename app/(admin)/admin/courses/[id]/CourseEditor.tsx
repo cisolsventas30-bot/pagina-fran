@@ -39,10 +39,10 @@ type Course = {
   id: string; title: string; description: string; cover_url: string | null
   passing_score: number; is_published: boolean; modules: Module[]
   intro_title: string | null; intro_video_url: string | null; intro_content: string | null; cert_preview_url: string | null
+  price: number | null; price_label: string | null
   quizzesByModule: Record<string, QuizItem[]>; assignmentsByModule: Record<string, AssignmentItem[]>
   resourcesByModule: Record<string, ResourceItem[]>; forumsByModule: Record<string, ForumItem[]>
-  courseLevelQuizzes: QuizItem[]; courseLevelAssignments: AssignmentItem[]
-  courseLevelResources: ResourceItem[]; courseLevelForums: ForumItem[]
+  courseLevelQuizzes: QuizItem[]; courseLevelAssignments: AssignmentItem[]; courseLevelResources: ResourceItem[]; courseLevelForums: ForumItem[]
 }
 
 function buildUnifiedItems(mod: Module, quizzes: QuizItem[], assignments: AssignmentItem[], resources: ResourceItem[], forums: ForumItem[]): UnifiedItem[] {
