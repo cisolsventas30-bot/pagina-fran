@@ -2,14 +2,21 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 /**
- * Middleware ligero que añade el pathname actual como header
- * para que los layouts/server components puedan saber en qué ruta están.
- *
- * Es necesario porque Next.js 14 no expone `usePathname` ni equivalente
- * en server components. Sin esto, no podemos detectar si el admin está
- * navegando a /learn/[id] (vista previa) o a otra ruta.
+ * Middleware que:
+ * 1. Redirige HTTP → HTTPS en producción (requerido por Culqi: SSL en todas las URLs)
+ * 2. Añade el pathname actual como header para layouts/server components
  */
 export function middleware(request: NextRequest) {
+  // ── HTTPS redirect (Culqi requirement: SSL en todas las URLs) ──
+  // En producción, si la petición llega por HTTP, redirigir a HTTPS
+  const proto = request.headers.get('x-forwarded-proto')
+  if (proto === 'http' && process.env.NODE_ENV === 'production') {
+    const httpsUrl = request.nextUrl.clone()
+    httpsUrl.protocol = 'https:'
+    return NextResponse.redirect(httpsUrl, { status: 301 })
+  }
+
+  // ── Pathname header para server components ──
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
 
