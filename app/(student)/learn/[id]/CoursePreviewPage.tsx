@@ -78,6 +78,7 @@ export default function CoursePreviewPage(props: Props) {
               userEmail={userEmail}
               waUrl={waUrl}
             />
+          </div>
         </div>
       </div>
 
