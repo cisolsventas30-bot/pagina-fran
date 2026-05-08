@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { ChevronLeft, ChevronDown, Lock, BookOpen, Award, Monitor, MessageCircle, PlayCircle, CheckCircle2, GraduationCap } from 'lucide-react'
+import BuyButton from '@/components/BuyButton'
 
 function toEmbedUrl(url: string): string | null {
   try {
@@ -34,10 +35,14 @@ type Props = {
   certPreviewUrl: string | null
   modules: Module[]
   waUrl: string
+  courseId: string
+  price: number | null
+  priceLabel: string | null
+  userEmail: string
 }
 
 export default function CoursePreviewPage(props: Props) {
-  const { title, description, coverUrl, introTitle, introVideoUrl, introContent, certPreviewUrl, modules, waUrl } = props
+  const { title, description, coverUrl, introTitle, introVideoUrl, introContent, certPreviewUrl, modules, waUrl, courseId, price, priceLabel, userEmail } = props
   const [openIds, setOpenIds] = useState<string[]>(modules.map(m => m.id))
   const embedUrl = introVideoUrl ? toEmbedUrl(introVideoUrl) : null
   const totalLessons = modules.reduce((n, m) => n + m.lessons.length, 0)
@@ -59,10 +64,20 @@ export default function CoursePreviewPage(props: Props) {
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1F1710', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textAlign: 'center' }}>
             {title}
           </span>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#25D366', color: '#fff', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 700, textDecoration: 'none', flexShrink: 0, whiteSpace: 'nowrap' }}>
-            <MessageCircle size={14} />
-            Solicitar acceso
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            {price != null && (
+              <span style={{ fontSize: 15, fontWeight: 800, color: '#5F4D36' }}>
+                {priceLabel ?? `S/ ${price.toFixed(2)}`}
+              </span>
+            )}
+            <BuyButton
+              courseId={courseId}
+              courseTitle={title}
+              price={price ?? 0}
+              priceLabel={priceLabel ?? undefined}
+              userEmail={userEmail}
+              waUrl={waUrl}
+            />
         </div>
       </div>
 
@@ -119,13 +134,22 @@ export default function CoursePreviewPage(props: Props) {
               ¿Te interesa este curso?
             </div>
             <div style={{ fontSize: 13, color: '#6B5E4E' }}>
-              Escríbenos por WhatsApp y te asignamos acceso completo a la brevedad.
+              {price != null
+                ? `Acceso completo por ${priceLabel ?? `S/ ${price.toFixed(2)}`} · Pago seguro con Culqi`
+                : 'Escríbenos por WhatsApp y te asignamos acceso completo a la brevedad.'
+              }
             </div>
           </div>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#25D366', color: '#fff', borderRadius: 12, padding: '14px 28px', fontSize: 15, fontWeight: 800, textDecoration: 'none', boxShadow: '0 4px 18px rgba(37,211,102,0.4)', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
-            <MessageCircle size={18} />
-            Solicitar acceso por WhatsApp
-          </a>
+          <div style={{ minWidth: 260 }}>
+            <BuyButton
+              courseId={courseId}
+              courseTitle={title}
+              price={price ?? 0}
+              priceLabel={priceLabel ?? undefined}
+              userEmail={userEmail}
+              waUrl={waUrl}
+            />
+          </div>
         </div>
 
         {/* Features */}
@@ -242,12 +266,21 @@ export default function CoursePreviewPage(props: Props) {
             ¿Listo para empezar?
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>
-            Escríbenos y te damos acceso completo al curso.
+            {price != null
+              ? `Accede ahora por ${priceLabel ?? `S/ ${price.toFixed(2)}`} · Pago 100% seguro`
+              : 'Escríbenos y te damos acceso completo al curso.'
+            }
           </p>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#25D366', color: '#fff', borderRadius: 12, padding: '14px 32px', fontSize: 15, fontWeight: 800, textDecoration: 'none', boxShadow: '0 4px 20px rgba(37,211,102,0.4)' }}>
-            <MessageCircle size={18} />
-            Solicitar acceso por WhatsApp
-          </a>
+          <div style={{ maxWidth: 320, margin: '0 auto' }}>
+            <BuyButton
+              courseId={courseId}
+              courseTitle={title}
+              price={price ?? 0}
+              priceLabel={priceLabel ?? undefined}
+              userEmail={userEmail}
+              waUrl={waUrl}
+            />
+          </div>
         </div>
 
       </div>

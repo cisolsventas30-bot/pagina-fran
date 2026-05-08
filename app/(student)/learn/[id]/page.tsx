@@ -41,7 +41,7 @@ export default async function CourseDetailPage({
     )
     const { data: coursePreview } = await adminClient
       .from('courses')
-      .select(`id, title, description, cover_url, intro_title, intro_video_url, intro_content, cert_preview_url, modules ( id, title, "order", lessons ( id, title, "order" ) )`)
+      .select(`id, title, description, cover_url, intro_title, intro_video_url, intro_content, cert_preview_url, price, price_label, modules ( id, title, "order", lessons ( id, title, "order" ) )`)
       .eq('id', params.id)
       .eq('is_published', true)
       .single()
@@ -65,6 +65,10 @@ export default async function CourseDetailPage({
       certPreviewUrl={(coursePreview as any).cert_preview_url}
       modules={sortedPreviewModules}
       waUrl={waUrl}
+      courseId={coursePreview.id}
+      price={(coursePreview as any).price ?? null}
+      priceLabel={(coursePreview as any).price_label ?? null}
+      userEmail={user!.email ?? ''}
     />
   }
 
