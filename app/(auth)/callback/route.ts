@@ -31,45 +31,46 @@ export async function GET(request: Request) {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: profile } = await supabase
-          .from('profiles').select('role, full_name').eq('id', user.id).single()
+          .from('profiles').select('role, full_name, profile_completed').eq('id', user.id).single()
 
-        // Sincronizar nombre desde Google si es necesario
         const googleName =
           user.user_metadata?.full_name ||
           user.user_metadata?.name ||
           user.user_metadata?.given_name ||
           ''
 
+        if (!profile) {
+          // Usuario nuevo: crear perfil y mandar a completarlo
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            full_name: googleName || user.email?.split('@')[0] || 'Alumno',
+            email: user.email,
+            role: 'student',
+            profile_completed: false,
+            updated_at: new Date().toISOString()
+          })
+          return NextResponse.redirect(`${origin}/account?welcome=1`)
+        }
+
+        // Sincronizar nombre desde Google si está vacío/genérico
         const needsNameUpdate =
           googleName &&
-          (!profile?.full_name ||
+          (!profile.full_name ||
             profile.full_name === 'Alumno' ||
             profile.full_name === user.email?.split('@')[0])
 
         if (needsNameUpdate) {
-          await supabase
-            .from('profiles')
-            .upsert({
-              id: user.id,
-              full_name: googleName,
-              email: user.email,
-              role: profile?.role || 'student',
-              updated_at: new Date().toISOString()
-            })
-        } else if (!profile) {
-          // Crear perfil si no existe (usuario nuevo con Google)
-          await supabase
-            .from('profiles')
-            .upsert({
-              id: user.id,
-              full_name: googleName || user.email?.split('@')[0] || 'Alumno',
-              email: user.email,
-              role: 'student',
-              updated_at: new Date().toISOString()
-            })
+          await supabase.from('profiles')
+            .update({ full_name: googleName, updated_at: new Date().toISOString() })
+            .eq('id', user.id)
         }
 
-        const redirectTo = profile?.role === 'admin' ? '/admin' : '/dashboard'
+        // Si nunca completó el perfil, mandarlo a completarlo
+        if (!profile.profile_completed) {
+          return NextResponse.redirect(`${origin}/account?welcome=1`)
+        }
+
+        const redirectTo = profile.role === 'admin' ? '/admin' : '/dashboard'
         return NextResponse.redirect(`${origin}${redirectTo}`)
       }
     }
