@@ -41,7 +41,7 @@ export default function RegisterPage() {
     })
     if (signUpError) { setError(signUpError.message); setLoading(false); return }
     setSuccess(true)
-    setTimeout(() => { router.push('/dashboard'); router.refresh() }, 1500)
+    setTimeout(() => { router.push('/account?welcome=1'); router.refresh() }, 1500)
   }
 
   async function handleGoogleSignup() {

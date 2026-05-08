@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Search, Bell, Menu, X, LogOut, BookOpen, Award, LayoutDashboard } from 'lucide-react'
+import { Search, Bell, Menu, X, LogOut, BookOpen, Award, LayoutDashboard, Settings } from 'lucide-react'
 import { CapyLogoText } from '@/components/ui/CapyLogo'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
@@ -172,6 +172,15 @@ export function Navbar({ user }: Props) {
                             className="flex items-center gap-2 px-4 py-2 text-sm text-ink-700 hover:bg-ink-50"
                           >
                             <Award className="w-4 h-4" /> Certificados
+                          </Link>
+                        )}
+                        {user.role === 'student' && (
+                          <Link
+                            href="/account"
+                            onClick={() => setProfileOpen(false)}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-ink-700 hover:bg-ink-50"
+                          >
+                            <Settings className="w-4 h-4" /> Configuración de cuenta
                           </Link>
                         )}
                         <div className="h-px bg-ink-100 my-1" />
