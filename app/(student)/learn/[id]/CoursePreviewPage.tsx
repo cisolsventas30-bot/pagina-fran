@@ -37,12 +37,13 @@ type Props = {
   waUrl: string
   courseId: string
   price: number | null
+  priceUsd: number | null
   priceLabel: string | null
   userEmail: string
 }
 
 export default function CoursePreviewPage(props: Props) {
-  const { title, description, coverUrl, introTitle, introVideoUrl, introContent, certPreviewUrl, modules, waUrl, courseId, price, priceLabel, userEmail } = props
+  const { title, description, coverUrl, introTitle, introVideoUrl, introContent, certPreviewUrl, modules, waUrl, courseId, price, priceUsd, priceLabel, userEmail } = props
   const [openIds, setOpenIds] = useState<string[]>(modules.map(m => m.id))
   const embedUrl = introVideoUrl ? toEmbedUrl(introVideoUrl) : null
   const totalLessons = modules.reduce((n, m) => n + m.lessons.length, 0)
@@ -73,7 +74,8 @@ export default function CoursePreviewPage(props: Props) {
             <BuyButton
               courseId={courseId}
               courseTitle={title}
-              price={price ?? 0}
+              price={price ?? null}
+              priceUsd={priceUsd ?? null}
               priceLabel={priceLabel ?? undefined}
               userEmail={userEmail}
               waUrl={waUrl}
@@ -145,7 +147,8 @@ export default function CoursePreviewPage(props: Props) {
             <BuyButton
               courseId={courseId}
               courseTitle={title}
-              price={price ?? 0}
+              price={price ?? null}
+              priceUsd={priceUsd ?? null}
               priceLabel={priceLabel ?? undefined}
               userEmail={userEmail}
               waUrl={waUrl}
@@ -276,7 +279,8 @@ export default function CoursePreviewPage(props: Props) {
             <BuyButton
               courseId={courseId}
               courseTitle={title}
-              price={price ?? 0}
+              price={price ?? null}
+              priceUsd={priceUsd ?? null}
               priceLabel={priceLabel ?? undefined}
               userEmail={userEmail}
               waUrl={waUrl}
