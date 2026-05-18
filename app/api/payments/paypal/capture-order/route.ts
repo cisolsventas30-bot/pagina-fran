@@ -72,10 +72,24 @@ export async function POST(req: NextRequest) {
 
   if (!captureRes.ok || captureData.status !== 'COMPLETED') {
     console.error('PayPal capture error:', captureData)
-    return NextResponse.json(
-      { error: 'El pago no pudo ser completado en PayPal' },
-      { status: 402 }
-    )
+
+    // Traducir códigos de error de PayPal a mensajes amigables
+    const issue = captureData?.details?.[0]?.issue
+    const errorMessages: Record<string, string> = {
+      INSTRUMENT_DECLINED:      'Tu método de pago fue rechazado. Intenta con otra tarjeta o agrega fondos a tu cuenta PayPal.',
+      INSUFFICIENT_FUNDS:       'Fondos insuficientes en tu cuenta PayPal. Agrega saldo o usa otra tarjeta.',
+      CARD_CLOSED:              'La tarjeta seleccionada está cerrada. Usa otra tarjeta.',
+      CARD_EXPIRED:             'La tarjeta seleccionada está vencida. Usa otra tarjeta.',
+      ORDER_NOT_APPROVED:       'El pago no fue autorizado. Por favor intenta de nuevo.',
+      ORDER_ALREADY_CAPTURED:   'Este pago ya fue procesado anteriormente.',
+      UNPROCESSABLE_ENTITY:     'No se pudo procesar el pago. Intenta de nuevo o usa tarjeta.',
+      PERMISSION_DENIED:        'Error de configuración en el sistema de pagos. Contacta al administrador.',
+    }
+
+    const friendlyMessage = (issue && errorMessages[issue])
+      || 'El pago no pudo completarse. Intenta con otro método de pago o contacta a tu banco.'
+
+    return NextResponse.json({ error: friendlyMessage }, { status: 402 })
   }
 
   // ── CORRECCIÓN DE SEGURIDAD: verificar que el courseId del body
