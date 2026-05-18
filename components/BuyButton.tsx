@@ -5,8 +5,8 @@ import { ShoppingCart, Loader2, MessageCircle } from 'lucide-react'
 
 declare global {
   interface Window {
-    Culqi: any
-    culqi: () => void
+    Culqi?: any
+    culqi?: () => void
   }
 }
 
