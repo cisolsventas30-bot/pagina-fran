@@ -16,6 +16,7 @@ interface Course {
   description?: string
   cover_url?: string
   price?: number
+  price_usd?: number
   price_label?: string
 }
 
@@ -93,11 +94,18 @@ function EnrolledCard({ course }: { course: Course }) {
 // ── Card: curso bloqueado ─────────────────────────────────────────────────────
 
 function LockedCard({ course, userEmail }: { course: Course; userEmail: string }) {
+  const hasPen = course.price != null && course.price > 0
+  const hasUsd = course.price_usd != null && course.price_usd > 0
+
   const priceDisplay = course.price_label
     ? course.price_label
-    : course.price != null
-      ? `S/ ${Number(course.price).toFixed(2)}`
-      : 'Consultar precio'
+    : hasPen && hasUsd
+      ? `S/ ${Number(course.price).toFixed(2)}`   // muestra soles, dólares se ve abajo
+      : hasPen
+        ? `S/ ${Number(course.price).toFixed(2)}`
+        : hasUsd
+          ? `$${Number(course.price_usd).toFixed(2)} USD`
+          : 'Consultar precio'
 
   const waMsg = encodeURIComponent(`Hola! Me interesa el curso "${course.title}". ¿Cómo puedo adquirirlo?`)
   const waUrl = `https://wa.me/51940428169?text=${waMsg}`
@@ -123,7 +131,14 @@ function LockedCard({ course, userEmail }: { course: Course; userEmail: string }
             {course.description || 'Curso online con certificación IBT/IBA'}
           </p>
           <div className="flex items-center justify-between pb-3 border-b border-ink-100">
-            <span className="text-lg font-bold text-mocha-700">{priceDisplay}</span>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-lg font-bold text-mocha-700">{priceDisplay}</span>
+              {hasPen && hasUsd && !course.price_label && (
+                <span className="text-xs text-ink-400 font-medium">
+                  · ${Number(course.price_usd).toFixed(2)} USD con PayPal
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <BookOpen className="w-3.5 h-3.5 text-ink-400" />
               <span className="text-xs text-ink-500">Ver intro</span>
@@ -133,12 +148,12 @@ function LockedCard({ course, userEmail }: { course: Course; userEmail: string }
       </Link>
 
       <div className="px-4 pb-4 pt-2">
-        {course.price != null && course.price > 0 ? (
-          // Tiene precio → BuyButton con Culqi (el que ya existe en tu proyecto)
+        {hasPen || hasUsd ? (
           <BuyButton
             courseId={course.id}
             courseTitle={course.title}
-            price={course.price}
+            price={course.price ?? null}
+            priceUsd={course.price_usd ?? null}
             priceLabel={course.price_label}
             userEmail={userEmail}
             waUrl={waUrl}
