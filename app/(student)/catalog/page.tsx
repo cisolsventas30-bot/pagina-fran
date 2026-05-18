@@ -1,13 +1,13 @@
-// app/(student)/catalog/page.tsx  — Server Component
+// app/(student)/catalog/page.tsx
+// REEMPLAZA el archivo actual completo con este contenido
+
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
-import CatalogClient from '@/components/CatalogClient'
+import CatalogClient from './CatalogClient'
 
 export default async function CatalogPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const adminClient = createAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,7 +26,7 @@ export default async function CatalogPage() {
     .select('course_id, status')
     .eq('student_id', user!.id)
 
-  const enrolledIds = new Set((myEnrollments || []).map((e) => e.course_id))
+  const enrolledIds = (myEnrollments || []).map(e => e.course_id)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -35,11 +35,15 @@ export default async function CatalogPage() {
           Catálogo de cursos
         </h1>
         <p className="text-ink-600">
-          Adquiere tus cursos de forma segura con PayPal o tarjeta.
+          Adquiere tus cursos de forma segura con tarjeta de crédito o débito.
         </p>
       </div>
 
-      <CatalogClient allCourses={allCourses || []} enrolledIds={enrolledIds} />
+      <CatalogClient
+        allCourses={allCourses || []}
+        enrolledIds={enrolledIds}
+        userEmail={user!.email || ''}
+      />
     </div>
   )
 }
