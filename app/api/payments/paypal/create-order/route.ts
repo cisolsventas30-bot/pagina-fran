@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
   // Obtener el curso
   const { data: course, error: courseError } = await adminClient
     .from('courses')
-    .select('id, title, price, is_published')
+    .select('id, title, price, price_usd, is_published')
     .eq('id', courseId)
     .eq('is_published', true)
     .single()
@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
   if (courseError || !course) {
     return NextResponse.json({ error: 'Curso no encontrado' }, { status: 404 })
   }
-  if (!course.price || course.price <= 0) {
-    return NextResponse.json({ error: 'Este curso no tiene precio configurado' }, { status: 400 })
+  if (!course.price_usd || course.price_usd <= 0) {
+    return NextResponse.json({ error: 'Este curso no tiene precio en USD configurado. Contacta al administrador.' }, { status: 400 })
   }
 
   // Verificar si ya está matriculado
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
           description: `CapyABA – ${course.title}`,
           amount: {
             currency_code: 'USD',
-            value: Number(course.price).toFixed(2),
+            value: Number(course.price_usd).toFixed(2),
           },
           custom_id: `${user.id}|${courseId}`, // para el webhook
         },
