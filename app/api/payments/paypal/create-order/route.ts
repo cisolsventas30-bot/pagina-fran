@@ -37,6 +37,21 @@ async function getPayPalToken(): Promise<string> {
 // Crea una orden de PayPal y devuelve el orderID
 // ────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
+  // ── Verificar que las credenciales de PayPal estén configuradas ───────────
+  if (
+    !process.env.PAYPAL_CLIENT_ID ||
+    process.env.PAYPAL_CLIENT_ID.includes('tu_client_id') ||
+    !process.env.PAYPAL_CLIENT_SECRET ||
+    process.env.PAYPAL_CLIENT_SECRET.includes('tu_secret')
+  ) {
+    console.error('PayPal: credenciales no configuradas')
+    return NextResponse.json(
+      { error: 'PayPal no está configurado todavía. Usa tarjeta de crédito.' },
+      { status: 503 }
+    )
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const supabase = await createClient()
   const {
     data: { user },
@@ -86,7 +101,16 @@ export async function POST(req: NextRequest) {
 
   // Crear orden en PayPal (en USD — ajusta si quieres PEN)
   // PayPal no soporta PEN directamente, se usa USD
-  const token = await getPayPalToken()
+  let token: string
+  try {
+    token = await getPayPalToken()
+  } catch (err) {
+    console.error('PayPal token error:', err)
+    return NextResponse.json(
+      { error: 'No se pudo conectar con PayPal. Intenta con tarjeta.' },
+      { status: 502 }
+    )
+  }
 
   const orderRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
     method: 'POST',
