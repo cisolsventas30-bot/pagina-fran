@@ -14,8 +14,9 @@ declare global {
 type Props = {
   courseId: string
   courseTitle: string
-  price: number        // precio en USD (ej: 27.00)
-  priceLabel?: string  // override de display (ej: "$27")
+  price: number | null      // precio en Soles (PEN) para Culqi
+  priceUsd: number | null   // precio en Dólares (USD) para PayPal
+  priceLabel?: string       // etiqueta personalizada (opcional)
   userEmail: string
   waUrl: string
 }
@@ -26,6 +27,7 @@ export default function BuyButton({
   courseId,
   courseTitle,
   price,
+  priceUsd,
   priceLabel,
   userEmail,
   waUrl,
@@ -36,8 +38,12 @@ export default function BuyButton({
   const paypalContainerRef = useRef<HTMLDivElement>(null)
   const paypalRendered = useRef(false)
 
+  const hasCulqi = price != null && price > 0
+  const hasPayPal = priceUsd != null && priceUsd > 0 && !!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+
   // ─── Cargar script de Culqi ───────────────────────────────────────────────
   useEffect(() => {
+    if (!hasCulqi) return
     if (window.Culqi) { setCulqiReady(true); return }
 
     if (document.getElementById('culqi-script')) {
@@ -58,14 +64,13 @@ export default function BuyButton({
       setTimeout(() => clearInterval(iv), 5000)
     }
     document.body.appendChild(s)
-  }, [])
+  }, [hasCulqi])
 
-  // ─── Cargar y renderizar botón de PayPal al abrir el selector ─────────────
+  // ─── Cargar y renderizar botón de PayPal ──────────────────────────────────
   useEffect(() => {
-    if (step !== 'selecting' || paypalRendered.current) return
+    if (step !== 'selecting' || !hasPayPal || paypalRendered.current) return
 
-    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
-    if (!clientId) return
+    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!
 
     const renderButtons = () => {
       if (!window.paypal || !paypalContainerRef.current) return
@@ -73,14 +78,7 @@ export default function BuyButton({
 
       window.paypal
         .Buttons({
-          style: {
-            layout: 'horizontal',
-            color: 'gold',
-            shape: 'rect',
-            label: 'paypal',
-            height: 44,
-            tagline: false,
-          },
+          style: { layout: 'horizontal', color: 'gold', shape: 'rect', label: 'paypal', height: 44, tagline: false },
           createOrder: async () => {
             const res = await fetch('/api/payments/paypal/create-order', {
               method: 'POST',
@@ -116,9 +114,7 @@ export default function BuyButton({
             setError('Ocurrió un error con PayPal. Intenta con tarjeta.')
             setStep('error')
           },
-          onCancel: () => {
-            setStep('selecting')
-          },
+          onCancel: () => setStep('selecting'),
         })
         .render(paypalContainerRef.current)
 
@@ -140,16 +136,15 @@ export default function BuyButton({
     s.async = true
     s.onload = renderButtons
     document.body.appendChild(s)
-  }, [step, courseId])
+  }, [step, courseId, hasPayPal])
 
-  // Resetear flag al cerrar selector
   useEffect(() => {
     if (step !== 'selecting') paypalRendered.current = false
   }, [step])
 
-  // ─── Flujo Culqi (en USD) ────────────────────────────────────────────────
+  // ─── Flujo Culqi (PEN) ────────────────────────────────────────────────────
   function handleCulqi() {
-    if (!culqiReady || !window.Culqi) return
+    if (!culqiReady || !window.Culqi || !price) return
     setError(null)
 
     const publicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY
@@ -162,9 +157,9 @@ export default function BuyButton({
     window.Culqi.publicKey = publicKey
     window.Culqi.settings({
       title: 'CapyABA',
-      currency: 'USD',
+      currency: 'PEN',
       description: courseTitle,
-      amount: Math.round(price * 100), // en centavos de USD
+      amount: Math.round(price * 100),
     })
 
     window.culqi = async function () {
@@ -200,7 +195,32 @@ export default function BuyButton({
     window.Culqi.open()
   }
 
-  const displayPrice = priceLabel ?? `$${price.toFixed(2)} USD`
+  // Etiqueta del botón principal
+  const displayPrice = priceLabel
+    ? priceLabel
+    : hasCulqi && priceUsd
+    ? `S/ ${price!.toFixed(2)} · $${priceUsd.toFixed(2)}`
+    : hasCulqi
+    ? `S/ ${price!.toFixed(2)}`
+    : priceUsd
+    ? `$${priceUsd.toFixed(2)} USD`
+    : 'Consultar precio'
+
+  // Si no hay ningún método disponible, no mostrar el botón
+  if (!hasCulqi && !hasPayPal) {
+    return (
+      <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+        width: '100%', padding: '10px 20px',
+        background: 'transparent', border: '1.5px solid #25D366',
+        borderRadius: 12, fontSize: 13, fontWeight: 700,
+        color: '#1A9E50', textDecoration: 'none',
+      }}>
+        <MessageCircle size={14} />
+        Consultar por WhatsApp
+      </a>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -222,7 +242,6 @@ export default function BuyButton({
           padding: '14px 14px 12px', background: '#FDFAF8',
           display: 'flex', flexDirection: 'column', gap: 10,
         }}>
-          {/* Encabezado */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#8B6F52', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               ¿Cómo quieres pagar?
@@ -236,52 +255,46 @@ export default function BuyButton({
             </button>
           </div>
 
-          {/* Culqi — tarjeta + Yape */}
-          <button
-            onClick={handleCulqi}
-            disabled={!culqiReady}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              width: '100%', padding: '11px 16px',
-              background: culqiReady ? '#5F4D36' : '#9E8C7A',
-              color: '#fff', border: 'none', borderRadius: 10,
-              fontSize: 14, fontWeight: 700,
-              cursor: culqiReady ? 'pointer' : 'not-allowed',
-              transition: 'background .15s',
-            }}
-          >
-            {culqiReady
-              ? <><CreditCard size={15} /> Tarjeta / Yape</>
-              : <><Loader2 size={15} className="animate-spin" /> Cargando...</>
-            }
-          </button>
+          {/* Culqi — Tarjeta / Yape en Soles */}
+          {hasCulqi && (
+            <button
+              onClick={handleCulqi}
+              disabled={!culqiReady}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                width: '100%', padding: '11px 16px',
+                background: culqiReady ? '#5F4D36' : '#9E8C7A',
+                color: '#fff', border: 'none', borderRadius: 10,
+                fontSize: 14, fontWeight: 700,
+                cursor: culqiReady ? 'pointer' : 'not-allowed',
+                transition: 'background .15s',
+              }}
+            >
+              {culqiReady
+                ? <><CreditCard size={15} /> Tarjeta / Yape &nbsp;<span style={{ opacity: 0.75, fontWeight: 400 }}>S/ {price!.toFixed(2)}</span></>
+                : <><Loader2 size={15} className="animate-spin" /> Cargando...</>
+              }
+            </button>
+          )}
 
-          {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#bbb' }}>
-            <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
-            o
-            <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
-          </div>
-
-          {/* PayPal */}
-          {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? (
-            <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
-          ) : (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: 8, padding: '11px 16px', borderRadius: 10,
-              background: '#F5F0EB', border: '1.5px dashed #C9B89F',
-              fontSize: 13, color: '#A08060', fontWeight: 600,
-              cursor: 'not-allowed',
-            }}>
-              💳 PayPal — próximamente
+          {/* Divider solo si hay ambos métodos */}
+          {hasCulqi && hasPayPal && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#bbb' }}>
+              <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
+              o
+              <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
             </div>
           )}
 
-          {/* Nota de moneda */}
-          <p style={{ margin: 0, fontSize: 11, color: '#B0A090', textAlign: 'center' }}>
-            Todos los precios en USD · Pago seguro 🔒
-          </p>
+          {/* PayPal en Dólares */}
+          {hasPayPal && (
+            <>
+              <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
+              <p style={{ margin: 0, fontSize: 11, color: '#B0A090', textAlign: 'center' }}>
+                PayPal cobra ${priceUsd!.toFixed(2)} USD
+              </p>
+            </>
+          )}
         </div>
       )}
 
@@ -295,9 +308,7 @@ export default function BuyButton({
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 44, lineHeight: 1 }}>🎉</div>
-          <p style={{ fontSize: 16, fontWeight: 800, color: '#1A6B3A', margin: 0 }}>
-            ¡Compra exitosa!
-          </p>
+          <p style={{ fontSize: 16, fontWeight: 800, color: '#1A6B3A', margin: 0 }}>¡Compra exitosa!</p>
           <p style={{ fontSize: 13, color: '#2D8653', margin: 0, lineHeight: 1.5 }}>
             Gracias por adquirir <strong>{courseTitle}</strong>.<br />
             Ya tienes acceso completo al curso.
