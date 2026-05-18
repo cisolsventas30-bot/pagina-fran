@@ -39,7 +39,7 @@ type Course = {
   id: string; title: string; description: string; cover_url: string | null
   passing_score: number; is_published: boolean; modules: Module[]
   intro_title: string | null; intro_video_url: string | null; intro_content: string | null; cert_preview_url: string | null
-  price: number | null; price_label: string | null
+  price: number | null; price_usd: number | null; price_label: string | null
   quizzesByModule: Record<string, QuizItem[]>; assignmentsByModule: Record<string, AssignmentItem[]>
   resourcesByModule: Record<string, ResourceItem[]>; forumsByModule: Record<string, ForumItem[]>
   courseLevelQuizzes: QuizItem[]; courseLevelAssignments: AssignmentItem[]; courseLevelResources: ResourceItem[]; courseLevelForums: ForumItem[]
@@ -334,6 +334,7 @@ export default function CourseEditor({ course }: { course: Course }) {
   const [introContent, setIntroContent] = useState(course.intro_content || '')
   const [certPreviewUrl, setCertPreviewUrl] = useState(course.cert_preview_url || '')
   const [price, setPrice] = useState<string>(course.price != null ? String(course.price) : '')
+  const [priceUsd, setPriceUsd] = useState<string>(course.price_usd != null ? String(course.price_usd) : '')
   const [priceLabel, setPriceLabel] = useState(course.price_label || '')
 
   const [modules, setModules] = useState<Module[]>(course.modules)
@@ -388,7 +389,7 @@ export default function CourseEditor({ course }: { course: Course }) {
     setSaving(true); setError(null)
     if (!title.trim()) { setError('El título es requerido'); setSaving(false); return }
     const supabase = createClient()
-    const { error: courseErr } = await supabase.from('courses').update({ title, description, cover_url: coverUrl, passing_score: passingScore, is_published: isPublished, intro_title: introTitle || null, intro_video_url: introVideoUrl || null, intro_content: introContent || null, cert_preview_url: certPreviewUrl || null, price: price !== '' ? parseFloat(price) : null, price_label: priceLabel || null, updated_at: new Date().toISOString() }).eq('id', course.id)
+    const { error: courseErr } = await supabase.from('courses').update({ title, description, cover_url: coverUrl, passing_score: passingScore, is_published: isPublished, intro_title: introTitle || null, intro_video_url: introVideoUrl || null, intro_content: introContent || null, cert_preview_url: certPreviewUrl || null, price: price !== '' ? parseFloat(price) : null, price_usd: priceUsd !== '' ? parseFloat(priceUsd) : null, price_label: priceLabel || null, updated_at: new Date().toISOString() }).eq('id', course.id)
     if (courseErr) { setError(courseErr.message); setSaving(false); return }
     if (deletedModuleIds.length > 0) await supabase.from('modules').delete().in('id', deletedModuleIds)
     if (deletedLessonIds.length > 0) await supabase.from('lessons').delete().in('id', deletedLessonIds)
@@ -460,15 +461,18 @@ export default function CourseEditor({ course }: { course: Course }) {
                 <textarea value={description} onChange={e => setDescription(e.target.value)} className="input-base" rows={3} placeholder="¿De qué trata el curso? ¿Qué aprenderá el alumno?" />
               </FieldGroup>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <FieldGroup label="Precio (S/)" hint="Requerido por Culqi para el catálogo">
+                <FieldGroup label="Precio en Soles (S/)" hint="Culqi · alumnos de Perú">
                   <input type="number" min="0" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="input-base" placeholder="Ej: 299.00" />
                 </FieldGroup>
-                <FieldGroup label="Etiqueta de precio" hint='Opcional: texto personalizado (ej: "Desde S/ 199")'>
-                  <input type="text" value={priceLabel} onChange={e => setPriceLabel(e.target.value)} className="input-base" placeholder="Ej: S/ 299 · Pago único" />
+                <FieldGroup label="Precio en Dólares ($)" hint="PayPal · alumnos internacionales">
+                  <input type="number" min="0" step="0.01" value={priceUsd} onChange={e => setPriceUsd(e.target.value)} className="input-base" placeholder="Ej: 79.00" />
                 </FieldGroup>
               </div>
+              <FieldGroup label="Etiqueta de precio" hint='Opcional: reemplaza ambos precios en el catálogo (ej: "Desde S/ 199")'>
+                <input type="text" value={priceLabel} onChange={e => setPriceLabel(e.target.value)} className="input-base" placeholder='Ej: Desde S/ 199 · Pago único' />
+              </FieldGroup>
               <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#92400E' }}>
-                💡 Si ingresas una <strong>Etiqueta</strong>, esta reemplaza al precio numérico en el catálogo. Si dejas ambos vacíos, se mostrará "Consultar precio".
+                💡 <strong>Soles</strong> se usa para cobrar con Culqi (tarjeta/Yape). <strong>Dólares</strong> se usa para cobrar con PayPal. Puedes dejar vacío el que no uses. Si configuras una <strong>Etiqueta</strong>, esta reemplaza ambos precios en el catálogo.
               </div>
             </div>
           </SectionCard>
