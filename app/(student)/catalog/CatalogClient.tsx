@@ -99,13 +99,11 @@ function LockedCard({ course, userEmail }: { course: Course; userEmail: string }
 
   const priceDisplay = course.price_label
     ? course.price_label
-    : hasPen && hasUsd
-      ? `S/ ${Number(course.price).toFixed(2)}`   // muestra soles, dólares se ve abajo
-      : hasPen
-        ? `S/ ${Number(course.price).toFixed(2)}`
-        : hasUsd
-          ? `$${Number(course.price_usd).toFixed(2)} USD`
-          : 'Consultar precio'
+    : hasPen
+      ? `S/ ${Number(course.price).toFixed(2)}`
+      : hasUsd
+        ? `$${Number(course.price_usd).toFixed(2)} USD`
+        : 'Consultar precio'
 
   const waMsg = encodeURIComponent(`Hola! Me interesa el curso "${course.title}". ¿Cómo puedo adquirirlo?`)
   const waUrl = `https://wa.me/51940428169?text=${waMsg}`
@@ -131,11 +129,11 @@ function LockedCard({ course, userEmail }: { course: Course; userEmail: string }
             {course.description || 'Curso online con certificación IBT/IBA'}
           </p>
           <div className="flex items-center justify-between pb-3 border-b border-ink-100">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-lg font-bold text-mocha-700">{priceDisplay}</span>
               {hasPen && hasUsd && !course.price_label && (
-                <span className="text-xs text-ink-400 font-medium">
-                  · ${Number(course.price_usd).toFixed(2)} USD con PayPal
+                <span className="text-xs font-semibold text-ink-400 bg-ink-50 border border-ink-100 rounded-full px-2 py-0.5">
+                  · ${Number(course.price_usd).toFixed(0)} USD
                 </span>
               )}
             </div>
