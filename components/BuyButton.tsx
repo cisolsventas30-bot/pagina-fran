@@ -13,8 +13,8 @@ declare global {
 type Props = {
   courseId: string
   courseTitle: string
-  price: number          // en soles, ej: 100
-  priceLabel?: string    // ej: "S/ 100.00"
+  price: number
+  priceLabel?: string
   userEmail: string
   waUrl: string
 }
@@ -24,16 +24,47 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
   const [culqiReady, setCulqiReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Cargar script de Culqi dinámicamente
   useEffect(() => {
-    if (document.getElementById('culqi-script')) {
+    // Si ya cargó antes, marcar como listo inmediatamente
+    if (window.Culqi) {
       setCulqiReady(true)
       return
     }
+
+    // Evitar cargar el script dos veces
+    if (document.getElementById('culqi-script')) {
+      // El script existe pero Culqi aún no está en window — esperar con polling
+      const interval = setInterval(() => {
+        if (window.Culqi) {
+          setCulqiReady(true)
+          clearInterval(interval)
+        }
+      }, 100)
+      return () => clearInterval(interval)
+    }
+
+    // Cargar el script por primera vez
     const script = document.createElement('script')
     script.id = 'culqi-script'
     script.src = 'https://checkout.culqi.com/js/v4'
-    script.onload = () => setCulqiReady(true)
+    script.async = true
+
+    script.onload = () => {
+      // El script cargó pero window.Culqi puede tardar un tick más en definirse
+      const interval = setInterval(() => {
+        if (window.Culqi) {
+          setCulqiReady(true)
+          clearInterval(interval)
+        }
+      }, 100)
+      // Timeout de seguridad: 5 segundos
+      setTimeout(() => clearInterval(interval), 5000)
+    }
+
+    script.onerror = () => {
+      setError('No se pudo cargar el sistema de pago. Recarga la página.')
+    }
+
     document.body.appendChild(script)
   }, [])
 
@@ -42,9 +73,13 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
     setError(null)
     setLoading(true)
 
-    const culqiPublicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY!
+    const culqiPublicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY
+    if (!culqiPublicKey) {
+      setError('Clave pública de Culqi no configurada.')
+      setLoading(false)
+      return
+    }
 
-    // Configurar Culqi
     window.Culqi.publicKey = culqiPublicKey
     window.Culqi.settings({
       title: 'CapyABA',
@@ -54,9 +89,8 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
       order: courseId,
     })
 
-    // Callback cuando el usuario completa el formulario de pago
     window.culqi = async function () {
-      if (window.Culqi.token) {
+      if (window.Culqi?.token) {
         const token = window.Culqi.token.id
         window.Culqi.close()
 
@@ -70,19 +104,16 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
 
           if (!res.ok) {
             setError(data.error || 'Error al procesar el pago')
+            setLoading(false)
           } else {
-            // Redirigir al curso
             window.location.href = `/learn/${courseId}`
           }
         } catch {
           setError('Error de conexión. Por favor intenta de nuevo.')
-        } finally {
           setLoading(false)
         }
-      } else if (window.Culqi.order) {
-        setLoading(false)
       } else {
-        // Usuario cerró el modal
+        // Usuario cerró el modal sin pagar
         setLoading(false)
       }
     }
@@ -103,7 +134,6 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
         </div>
       )}
 
-      {/* Botón principal de compra */}
       <button
         onClick={handleBuy}
         disabled={loading || !culqiReady}
@@ -112,18 +142,20 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
           width: '100%', padding: '13px 20px',
           background: loading || !culqiReady ? '#9E8C7A' : '#5F4D36',
           color: '#fff', border: 'none', borderRadius: 12,
-          fontSize: 15, fontWeight: 800, cursor: loading ? 'wait' : 'pointer',
-          transition: 'background .15s, transform .1s',
+          fontSize: 15, fontWeight: 800,
+          cursor: loading || !culqiReady ? 'not-allowed' : 'pointer',
+          transition: 'background .15s',
           letterSpacing: '-0.01em',
         }}
       >
-        {loading
-          ? <><Loader2 size={16} className="animate-spin" /> Procesando...</>
-          : <><ShoppingCart size={16} /> Comprar · {displayPrice}</>
+        {!culqiReady
+          ? <><Loader2 size={16} className="animate-spin" /> Cargando pago…</>
+          : loading
+            ? <><Loader2 size={16} className="animate-spin" /> Procesando…</>
+            : <><ShoppingCart size={16} /> Comprar · {displayPrice}</>
         }
       </button>
 
-      {/* Botón secundario WhatsApp */}
       <a
         href={waUrl}
         target="_blank"
@@ -134,7 +166,6 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
           background: 'transparent', border: '1.5px solid #25D366',
           borderRadius: 12, fontSize: 13, fontWeight: 700,
           color: '#1A9E50', textDecoration: 'none',
-          transition: 'background .15s',
         }}
       >
         <MessageCircle size={14} />
