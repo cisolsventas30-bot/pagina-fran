@@ -17,7 +17,7 @@ export default async function CatalogPage() {
 
   const { data: allCourses } = await adminClient
     .from('courses')
-    .select('id, title, description, cover_url, passing_score, is_published, intro_title, intro_video_url, price, price_label')
+    .select('id, title, description, cover_url, passing_score, is_published, intro_title, intro_video_url, price, price_usd, price_label')
     .eq('is_published', true)
     .order('created_at', { ascending: false })
 
