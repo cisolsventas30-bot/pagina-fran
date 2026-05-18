@@ -20,7 +20,7 @@ type Props = {
   waUrl: string
 }
 
-type Step = 'idle' | 'selecting' | 'processing' | 'error'
+type Step = 'idle' | 'selecting' | 'processing' | 'success' | 'error'
 
 export default function BuyButton({
   courseId,
@@ -104,7 +104,8 @@ export default function BuyButton({
                 setError(result.error || 'Error al confirmar el pago con PayPal')
                 setStep('error')
               } else {
-                window.location.href = `/learn/${courseId}`
+                setStep('success')
+                setTimeout(() => { window.location.href = `/learn/${courseId}` }, 3500)
               }
             } catch {
               setError('Error de conexión con PayPal. Intenta de nuevo.')
@@ -188,7 +189,8 @@ export default function BuyButton({
             setError(data.error || 'Error al procesar el pago')
             setStep('error')
           } else {
-            window.location.href = `/learn/${courseId}`
+            setStep('success')
+            setTimeout(() => { window.location.href = `/learn/${courseId}` }, 3500)
           }
         } catch {
           setError('Error de conexión. Por favor intenta de nuevo.')
@@ -278,12 +280,51 @@ export default function BuyButton({
           </div>
 
           {/* Contenedor del botón de PayPal (renderizado por el SDK) */}
-          <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
+          {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? (
+            <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
+          ) : (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: 8, padding: '11px 16px', borderRadius: 10,
+              background: '#F5F0EB', border: '1.5px dashed #C9B89F',
+              fontSize: 13, color: '#A08060', fontWeight: 600,
+              cursor: 'not-allowed',
+            }}>
+              💳 PayPal — próximamente
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Éxito ── */}
+      {step === 'success' && (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          gap: 10, padding: '20px 16px',
+          background: 'linear-gradient(135deg, #F0FBF4 0%, #E8F5ED 100%)',
+          border: '1.5px solid #A8D5B5', borderRadius: 14,
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 44, lineHeight: 1 }}>🎉</div>
+          <p style={{ fontSize: 16, fontWeight: 800, color: '#1A6B3A', margin: 0 }}>
+            ¡Compra exitosa!
+          </p>
+          <p style={{ fontSize: 13, color: '#2D8653', margin: 0, lineHeight: 1.5 }}>
+            Gracias por adquirir <strong>{courseTitle}</strong>.<br />
+            Ya tienes acceso completo al curso.
+          </p>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 12, color: '#4CAF80', marginTop: 4,
+          }}>
+            <Loader2 size={13} className="animate-spin" />
+            Redirigiendo al curso…
+          </div>
         </div>
       )}
 
       {/* ── Botón principal "Comprar" ── */}
-      {step !== 'selecting' && (
+      {step !== 'selecting' && step !== 'success' && (
         <button
           onClick={() => { setError(null); setStep('selecting') }}
           disabled={step === 'processing'}
@@ -306,6 +347,7 @@ export default function BuyButton({
       )}
 
       {/* ── WhatsApp ── */}
+      {step !== 'success' && (
       <a
         href={waUrl}
         target="_blank"
@@ -321,6 +363,7 @@ export default function BuyButton({
         <MessageCircle size={14} />
         Consultar por WhatsApp
       </a>
+      )}
     </div>
   )
 }
