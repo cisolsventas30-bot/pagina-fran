@@ -198,13 +198,11 @@ export default function BuyButton({
   // Etiqueta del botón principal
   const displayPrice = priceLabel
     ? priceLabel
-    : hasCulqi && priceUsd
-    ? `S/ ${price!.toFixed(2)} · $${priceUsd.toFixed(2)}`
     : hasCulqi
-    ? `S/ ${price!.toFixed(2)}`
-    : priceUsd
-    ? `$${priceUsd.toFixed(2)} USD`
-    : 'Consultar precio'
+      ? `S/ ${price!.toFixed(2)}`
+      : priceUsd
+        ? `$${priceUsd.toFixed(2)} USD`
+        : 'Consultar precio'
 
   // Si no hay ningún método disponible, no mostrar el botón
   if (!hasCulqi && !hasPayPal) {
@@ -261,7 +259,7 @@ export default function BuyButton({
               onClick={handleCulqi}
               disabled={!culqiReady}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
                 width: '100%', padding: '11px 16px',
                 background: culqiReady ? '#5F4D36' : '#9E8C7A',
                 color: '#fff', border: 'none', borderRadius: 10,
@@ -270,10 +268,20 @@ export default function BuyButton({
                 transition: 'background .15s',
               }}
             >
-              {culqiReady
-                ? <><CreditCard size={15} /> Tarjeta / Yape &nbsp;<span style={{ opacity: 0.75, fontWeight: 400 }}>S/ {price!.toFixed(2)}</span></>
-                : <><Loader2 size={15} className="animate-spin" /> Cargando...</>
-              }
+              {culqiReady ? (
+                <>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <CreditCard size={15} /> Tarjeta / Yape
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, opacity: 0.85 }}>
+                    S/ {price!.toFixed(2)}
+                  </span>
+                </>
+              ) : (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 7, margin: '0 auto' }}>
+                  <Loader2 size={15} className="animate-spin" /> Cargando...
+                </span>
+              )}
             </button>
           )}
 
@@ -291,7 +299,7 @@ export default function BuyButton({
             <>
               <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
               <p style={{ margin: 0, fontSize: 11, color: '#B0A090', textAlign: 'center' }}>
-                PayPal cobra ${priceUsd!.toFixed(2)} USD
+                Pago en dólares · ${priceUsd!.toFixed(2)} USD
               </p>
             </>
           )}
