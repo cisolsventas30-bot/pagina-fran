@@ -25,15 +25,12 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Si ya cargó antes, marcar como listo inmediatamente
     if (window.Culqi) {
       setCulqiReady(true)
       return
     }
 
-    // Evitar cargar el script dos veces
     if (document.getElementById('culqi-script')) {
-      // El script existe pero Culqi aún no está en window — esperar con polling
       const interval = setInterval(() => {
         if (window.Culqi) {
           setCulqiReady(true)
@@ -43,21 +40,18 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
       return () => clearInterval(interval)
     }
 
-    // Cargar el script por primera vez
     const script = document.createElement('script')
     script.id = 'culqi-script'
     script.src = 'https://checkout.culqi.com/js/v4'
     script.async = true
 
     script.onload = () => {
-      // El script cargó pero window.Culqi puede tardar un tick más en definirse
       const interval = setInterval(() => {
         if (window.Culqi) {
           setCulqiReady(true)
           clearInterval(interval)
         }
       }, 100)
-      // Timeout de seguridad: 5 segundos
       setTimeout(() => clearInterval(interval), 5000)
     }
 
@@ -85,8 +79,7 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
       title: 'CapyABA',
       currency: 'PEN',
       description: courseTitle,
-      amount: Math.round(price * 100), // en céntimos
-      order: courseId,
+      amount: Math.round(price * 100),
     })
 
     window.culqi = async function () {
@@ -113,7 +106,6 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
           setLoading(false)
         }
       } else {
-        // Usuario cerró el modal sin pagar
         setLoading(false)
       }
     }
@@ -149,9 +141,9 @@ export default function BuyButton({ courseId, courseTitle, price, priceLabel, us
         }}
       >
         {!culqiReady
-          ? <><Loader2 size={16} className="animate-spin" /> Cargando pago…</>
+          ? <><Loader2 size={16} className="animate-spin" /> Cargando pago...</>
           : loading
-            ? <><Loader2 size={16} className="animate-spin" /> Procesando…</>
+            ? <><Loader2 size={16} className="animate-spin" /> Procesando...</>
             : <><ShoppingCart size={16} /> Comprar · {displayPrice}</>
         }
       </button>
