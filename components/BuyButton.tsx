@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { ShoppingCart, Loader2, MessageCircle, CreditCard, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ShoppingCart, Loader2, MessageCircle, CreditCard } from 'lucide-react'
 
 declare global {
   interface Window {
     Culqi?: any
     culqi?: () => void
-    paypal?: any
   }
 }
 
@@ -20,7 +19,7 @@ type Props = {
   waUrl: string
 }
 
-type Step = 'idle' | 'selecting' | 'processing' | 'success' | 'error'
+type Step = 'idle' | 'processing' | 'success' | 'error'
 
 export default function BuyButton({
   courseId,
@@ -33,8 +32,6 @@ export default function BuyButton({
   const [step, setStep] = useState<Step>('idle')
   const [culqiReady, setCulqiReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const paypalContainerRef = useRef<HTMLDivElement>(null)
-  const paypalRendered = useRef(false)
 
   // ─── Cargar script de Culqi ───────────────────────────────────────────────
   useEffect(() => {
@@ -60,105 +57,14 @@ export default function BuyButton({
     document.body.appendChild(s)
   }, [])
 
-  // ─── Cargar y renderizar botones de PayPal cuando se abre el selector ─────
-  useEffect(() => {
-    if (step !== 'selecting' || paypalRendered.current) return
-
-    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
-    if (!clientId) return
-
-    const renderButtons = () => {
-      if (!window.paypal || !paypalContainerRef.current) return
-      paypalContainerRef.current.innerHTML = ''
-
-      window.paypal
-        .Buttons({
-          style: {
-            layout: 'horizontal',
-            color: 'gold',
-            shape: 'rect',
-            label: 'paypal',
-            height: 44,
-            tagline: false,
-          },
-          createOrder: async () => {
-            const res = await fetch('/api/payments/paypal/create-order', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ courseId }),
-            })
-            const data = await res.json()
-            if (!res.ok) throw new Error(data.error || 'Error al crear la orden')
-            return data.orderId
-          },
-          onApprove: async (data: { orderID: string }) => {
-            setStep('processing')
-            try {
-              const res = await fetch('/api/payments/paypal/capture-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: data.orderID, courseId }),
-              })
-              const result = await res.json()
-              if (!res.ok) {
-                setError(result.error || 'Error al confirmar el pago con PayPal')
-                setStep('error')
-              } else {
-                setStep('success')
-                setTimeout(() => { window.location.href = `/learn/${courseId}` }, 3500)
-              }
-            } catch {
-              setError('Error de conexión con PayPal. Intenta de nuevo.')
-              setStep('error')
-            }
-          },
-          onError: () => {
-            setError('Ocurrió un error con PayPal. Intenta con tarjeta.')
-            setStep('error')
-          },
-          onCancel: () => {
-            // El usuario cerró el popup de PayPal sin pagar → volver al selector
-            setStep('selecting')
-          },
-        })
-        .render(paypalContainerRef.current)
-
-      paypalRendered.current = true
-    }
-
-    if (window.paypal) {
-      renderButtons()
-      return
-    }
-
-    if (document.getElementById('paypal-script')) {
-      const iv = setInterval(() => {
-        if (window.paypal) { renderButtons(); clearInterval(iv) }
-      }, 200)
-      return () => clearInterval(iv)
-    }
-
-    const s = document.createElement('script')
-    s.id = 'paypal-script'
-    s.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`
-    s.async = true
-    s.onload = renderButtons
-    document.body.appendChild(s)
-  }, [step, courseId])
-
-  // Resetear flag cuando se cierra el selector para re-renderizar si vuelve a abrirse
-  useEffect(() => {
-    if (step !== 'selecting') paypalRendered.current = false
-  }, [step])
-
-  // ─── Flujo Culqi ─────────────────────────────────────────────────────────
-  function handleCulqi() {
+  // ─── Abrir Culqi ─────────────────────────────────────────────────────────
+  function handleBuy() {
     if (!culqiReady || !window.Culqi) return
     setError(null)
 
     const publicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY
     if (!publicKey) {
-      setError('Culqi no está configurado. Contacta al administrador.')
+      setError('El pago no está configurado. Contacta al administrador.')
       setStep('error')
       return
     }
@@ -197,8 +103,8 @@ export default function BuyButton({
           setStep('error')
         }
       } else {
-        // El usuario cerró el popup de Culqi sin pagar
-        setStep('selecting')
+        // Usuario cerró el popup sin pagar
+        setStep('idle')
       }
     }
 
@@ -217,82 +123,6 @@ export default function BuyButton({
           padding: '10px 14px', fontSize: 13, color: '#C0392B', lineHeight: 1.5,
         }}>
           {error}
-        </div>
-      )}
-
-      {/* ── Selector de método de pago ── */}
-      {step === 'selecting' && (
-        <div style={{
-          border: '1.5px solid #E8DDD3',
-          borderRadius: 14,
-          padding: '14px 14px 12px',
-          background: '#FDFAF8',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-        }}>
-          {/* Encabezado */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#8B6F52', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              ¿Cómo quieres pagar?
-            </span>
-            <button
-              onClick={() => setStep('idle')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 2, lineHeight: 1 }}
-              aria-label="Cerrar"
-            >
-              <X size={15} />
-            </button>
-          </div>
-
-          {/* Botón Culqi (tarjeta) */}
-          <button
-            onClick={handleCulqi}
-            disabled={!culqiReady}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              width: '100%', padding: '11px 16px',
-              background: culqiReady ? '#5F4D36' : '#9E8C7A',
-              color: '#fff', border: 'none', borderRadius: 10,
-              fontSize: 14, fontWeight: 700,
-              cursor: culqiReady ? 'pointer' : 'not-allowed',
-              transition: 'background .15s',
-            }}
-          >
-            {culqiReady
-              ? <><CreditCard size={15} /> Tarjeta de crédito / débito</>
-              : <><Loader2 size={15} className="animate-spin" /> Cargando...</>
-            }
-          </button>
-
-          {/* Divider */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            fontSize: 11, color: '#bbb',
-          }}>
-            <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
-            o
-            <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
-          </div>
-
-          {/* Contenedor del botón de PayPal (renderizado por el SDK) */}
-          {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? (
-            <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
-          ) : (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: 8, padding: '11px 16px', borderRadius: 10,
-              background: '#F5F0EB', border: '1.5px dashed #C9B89F',
-              fontSize: 13, color: '#A08060', fontWeight: 600,
-              cursor: 'not-allowed',
-            }}>
-              💳 PayPal — próximamente
-            </div>
-          )}
         </div>
       )}
 
@@ -324,45 +154,47 @@ export default function BuyButton({
       )}
 
       {/* ── Botón principal "Comprar" ── */}
-      {step !== 'selecting' && step !== 'success' && (
+      {step !== 'success' && (
         <button
-          onClick={() => { setError(null); setStep('selecting') }}
-          disabled={step === 'processing'}
+          onClick={handleBuy}
+          disabled={!culqiReady || step === 'processing'}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             width: '100%', padding: '13px 20px',
-            background: step === 'processing' ? '#9E8C7A' : '#5F4D36',
+            background: (!culqiReady || step === 'processing') ? '#9E8C7A' : '#5F4D36',
             color: '#fff', border: 'none', borderRadius: 12,
             fontSize: 15, fontWeight: 800,
-            cursor: step === 'processing' ? 'not-allowed' : 'pointer',
+            cursor: (!culqiReady || step === 'processing') ? 'not-allowed' : 'pointer',
             transition: 'background .15s',
             letterSpacing: '-0.01em',
           }}
         >
           {step === 'processing'
             ? <><Loader2 size={16} className="animate-spin" /> Procesando...</>
-            : <><ShoppingCart size={16} /> Comprar · {displayPrice}</>
+            : !culqiReady
+            ? <><Loader2 size={16} className="animate-spin" /> Cargando...</>
+            : <><CreditCard size={16} /> Comprar · {displayPrice}</>
           }
         </button>
       )}
 
       {/* ── WhatsApp ── */}
       {step !== 'success' && (
-      <a
-        href={waUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-          width: '100%', padding: '10px 20px',
-          background: 'transparent', border: '1.5px solid #25D366',
-          borderRadius: 12, fontSize: 13, fontWeight: 700,
-          color: '#1A9E50', textDecoration: 'none',
-        }}
-      >
-        <MessageCircle size={14} />
-        Consultar por WhatsApp
-      </a>
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            width: '100%', padding: '10px 20px',
+            background: 'transparent', border: '1.5px solid #25D366',
+            borderRadius: 12, fontSize: 13, fontWeight: 700,
+            color: '#1A9E50', textDecoration: 'none',
+          }}
+        >
+          <MessageCircle size={14} />
+          Consultar por WhatsApp
+        </a>
       )}
     </div>
   )
