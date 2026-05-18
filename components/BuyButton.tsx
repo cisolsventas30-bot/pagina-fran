@@ -1,25 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ShoppingCart, Loader2, MessageCircle, CreditCard } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ShoppingCart, Loader2, MessageCircle, CreditCard, X } from 'lucide-react'
 
 declare global {
   interface Window {
     Culqi?: any
     culqi?: () => void
+    paypal?: any
   }
 }
 
 type Props = {
   courseId: string
   courseTitle: string
-  price: number
-  priceLabel?: string
+  price: number        // precio en USD (ej: 27.00)
+  priceLabel?: string  // override de display (ej: "$27")
   userEmail: string
   waUrl: string
 }
 
-type Step = 'idle' | 'processing' | 'success' | 'error'
+type Step = 'idle' | 'selecting' | 'processing' | 'success' | 'error'
 
 export default function BuyButton({
   courseId,
@@ -32,6 +33,8 @@ export default function BuyButton({
   const [step, setStep] = useState<Step>('idle')
   const [culqiReady, setCulqiReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const paypalContainerRef = useRef<HTMLDivElement>(null)
+  const paypalRendered = useRef(false)
 
   // ─── Cargar script de Culqi ───────────────────────────────────────────────
   useEffect(() => {
@@ -57,8 +60,95 @@ export default function BuyButton({
     document.body.appendChild(s)
   }, [])
 
-  // ─── Abrir Culqi ─────────────────────────────────────────────────────────
-  function handleBuy() {
+  // ─── Cargar y renderizar botón de PayPal al abrir el selector ─────────────
+  useEffect(() => {
+    if (step !== 'selecting' || paypalRendered.current) return
+
+    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+    if (!clientId) return
+
+    const renderButtons = () => {
+      if (!window.paypal || !paypalContainerRef.current) return
+      paypalContainerRef.current.innerHTML = ''
+
+      window.paypal
+        .Buttons({
+          style: {
+            layout: 'horizontal',
+            color: 'gold',
+            shape: 'rect',
+            label: 'paypal',
+            height: 44,
+            tagline: false,
+          },
+          createOrder: async () => {
+            const res = await fetch('/api/payments/paypal/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ courseId }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Error al crear la orden')
+            return data.orderId
+          },
+          onApprove: async (data: { orderID: string }) => {
+            setStep('processing')
+            try {
+              const res = await fetch('/api/payments/paypal/capture-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: data.orderID, courseId }),
+              })
+              const result = await res.json()
+              if (!res.ok) {
+                setError(result.error || 'Error al confirmar el pago con PayPal')
+                setStep('error')
+              } else {
+                setStep('success')
+                setTimeout(() => { window.location.href = `/learn/${courseId}` }, 3500)
+              }
+            } catch {
+              setError('Error de conexión con PayPal. Intenta de nuevo.')
+              setStep('error')
+            }
+          },
+          onError: () => {
+            setError('Ocurrió un error con PayPal. Intenta con tarjeta.')
+            setStep('error')
+          },
+          onCancel: () => {
+            setStep('selecting')
+          },
+        })
+        .render(paypalContainerRef.current)
+
+      paypalRendered.current = true
+    }
+
+    if (window.paypal) { renderButtons(); return }
+
+    if (document.getElementById('paypal-script')) {
+      const iv = setInterval(() => {
+        if (window.paypal) { renderButtons(); clearInterval(iv) }
+      }, 200)
+      return () => clearInterval(iv)
+    }
+
+    const s = document.createElement('script')
+    s.id = 'paypal-script'
+    s.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`
+    s.async = true
+    s.onload = renderButtons
+    document.body.appendChild(s)
+  }, [step, courseId])
+
+  // Resetear flag al cerrar selector
+  useEffect(() => {
+    if (step !== 'selecting') paypalRendered.current = false
+  }, [step])
+
+  // ─── Flujo Culqi (en USD) ────────────────────────────────────────────────
+  function handleCulqi() {
     if (!culqiReady || !window.Culqi) return
     setError(null)
 
@@ -72,9 +162,9 @@ export default function BuyButton({
     window.Culqi.publicKey = publicKey
     window.Culqi.settings({
       title: 'CapyABA',
-      currency: 'PEN',
+      currency: 'USD',
       description: courseTitle,
-      amount: Math.round(price * 100),
+      amount: Math.round(price * 100), // en centavos de USD
     })
 
     window.culqi = async function () {
@@ -103,15 +193,14 @@ export default function BuyButton({
           setStep('error')
         }
       } else {
-        // Usuario cerró el popup sin pagar
-        setStep('idle')
+        setStep('selecting')
       }
     }
 
     window.Culqi.open()
   }
 
-  const displayPrice = priceLabel ?? `S/ ${price.toFixed(2)}`
+  const displayPrice = priceLabel ?? `$${price.toFixed(2)} USD`
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -123,6 +212,76 @@ export default function BuyButton({
           padding: '10px 14px', fontSize: 13, color: '#C0392B', lineHeight: 1.5,
         }}>
           {error}
+        </div>
+      )}
+
+      {/* ── Selector de método de pago ── */}
+      {step === 'selecting' && (
+        <div style={{
+          border: '1.5px solid #E8DDD3', borderRadius: 14,
+          padding: '14px 14px 12px', background: '#FDFAF8',
+          display: 'flex', flexDirection: 'column', gap: 10,
+        }}>
+          {/* Encabezado */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#8B6F52', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              ¿Cómo quieres pagar?
+            </span>
+            <button
+              onClick={() => setStep('idle')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 2 }}
+              aria-label="Cerrar"
+            >
+              <X size={15} />
+            </button>
+          </div>
+
+          {/* Culqi — tarjeta + Yape */}
+          <button
+            onClick={handleCulqi}
+            disabled={!culqiReady}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              width: '100%', padding: '11px 16px',
+              background: culqiReady ? '#5F4D36' : '#9E8C7A',
+              color: '#fff', border: 'none', borderRadius: 10,
+              fontSize: 14, fontWeight: 700,
+              cursor: culqiReady ? 'pointer' : 'not-allowed',
+              transition: 'background .15s',
+            }}
+          >
+            {culqiReady
+              ? <><CreditCard size={15} /> Tarjeta / Yape</>
+              : <><Loader2 size={15} className="animate-spin" /> Cargando...</>
+            }
+          </button>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#bbb' }}>
+            <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
+            o
+            <div style={{ flex: 1, height: 1, background: '#E8DDD3' }} />
+          </div>
+
+          {/* PayPal */}
+          {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? (
+            <div ref={paypalContainerRef} style={{ minHeight: 44 }} />
+          ) : (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: 8, padding: '11px 16px', borderRadius: 10,
+              background: '#F5F0EB', border: '1.5px dashed #C9B89F',
+              fontSize: 13, color: '#A08060', fontWeight: 600,
+              cursor: 'not-allowed',
+            }}>
+              💳 PayPal — próximamente
+            </div>
+          )}
+
+          {/* Nota de moneda */}
+          <p style={{ margin: 0, fontSize: 11, color: '#B0A090', textAlign: 'center' }}>
+            Todos los precios en USD · Pago seguro 🔒
+          </p>
         </div>
       )}
 
@@ -143,10 +302,7 @@ export default function BuyButton({
             Gracias por adquirir <strong>{courseTitle}</strong>.<br />
             Ya tienes acceso completo al curso.
           </p>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            fontSize: 12, color: '#4CAF80', marginTop: 4,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#4CAF80', marginTop: 4 }}>
             <Loader2 size={13} className="animate-spin" />
             Redirigiendo al curso…
           </div>
@@ -154,26 +310,24 @@ export default function BuyButton({
       )}
 
       {/* ── Botón principal "Comprar" ── */}
-      {step !== 'success' && (
+      {step !== 'selecting' && step !== 'success' && (
         <button
-          onClick={handleBuy}
-          disabled={!culqiReady || step === 'processing'}
+          onClick={() => { setError(null); setStep('selecting') }}
+          disabled={step === 'processing'}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             width: '100%', padding: '13px 20px',
-            background: (!culqiReady || step === 'processing') ? '#9E8C7A' : '#5F4D36',
+            background: step === 'processing' ? '#9E8C7A' : '#5F4D36',
             color: '#fff', border: 'none', borderRadius: 12,
             fontSize: 15, fontWeight: 800,
-            cursor: (!culqiReady || step === 'processing') ? 'not-allowed' : 'pointer',
+            cursor: step === 'processing' ? 'not-allowed' : 'pointer',
             transition: 'background .15s',
             letterSpacing: '-0.01em',
           }}
         >
           {step === 'processing'
             ? <><Loader2 size={16} className="animate-spin" /> Procesando...</>
-            : !culqiReady
-            ? <><Loader2 size={16} className="animate-spin" /> Cargando...</>
-            : <><CreditCard size={16} /> Comprar · {displayPrice}</>
+            : <><ShoppingCart size={16} /> Comprar · {displayPrice}</>
           }
         </button>
       )}
