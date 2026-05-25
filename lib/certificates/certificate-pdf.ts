@@ -28,7 +28,7 @@ import { join } from 'path'
 import { PDFDocument, PDFPage, PDFFont, PDFImage, rgb, StandardFonts } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
 
-export type CertificateTemplate = 'ceu' | 'ibt' | 'iba'
+export type CertificateTemplate = 'ceu' | 'ibt' | 'iba' | 'libre'
 export type CertificateModality = 'online' | 'presencial' | 'mixto'
 export type CertificateArea     = 'etica' | 'supervision' | 'diversidad_cultural' | 'topicos_aba'
 
@@ -133,15 +133,16 @@ export async function generateCertificatePDF(data: CertificateData): Promise<Uin
   }
 
   // ── Imágenes ───────────────────────────────────────────────────────────────
+  // El template "libre" reutiliza el fondo del IBA (mismo diseño).
+  const bgCandidates = data.template === 'libre'
+    ? ['background-libre.png', 'background-libre.jpg', 'background-iba.png', 'background.png']
+    : [`background-${data.template}.png`, `background-${data.template}.jpg`, 'background.png']
+
   const [bgImg, firmaImg, capyImg, acpImg, ceuImg] = await Promise.all([
-    embedImgAny(pdfDoc, [
-      `background-${data.template}.png`,
-      `background-${data.template}.jpg`,
-      'background.png',
-    ]),
+    embedImgAny(pdfDoc, bgCandidates),
     embedImg(pdfDoc, 'firma.png'),
     embedImg(pdfDoc, 'logo-capyaba.png'),
-    embedImg(pdfDoc, 'logo-acp.png'),
+    data.template === 'libre' ? Promise.resolve(null) : embedImg(pdfDoc, 'logo-acp.png'),
     data.template === 'ceu' ? embedImg(pdfDoc, 'logo-ceu.png') : Promise.resolve(null),
   ])
 
@@ -154,8 +155,9 @@ export async function generateCertificatePDF(data: CertificateData): Promise<Uin
     page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(0.996, 0.961, 0.953) })
   }
 
-  if (data.template === 'ceu') drawCeu(page, fonts, imgs, data)
-  else                         drawIbtIba(page, fonts, imgs, data)
+  if (data.template === 'ceu')        drawCeu(page, fonts, imgs, data)
+  else if (data.template === 'libre') drawLibre(page, fonts, imgs, data)
+  else                                drawIbtIba(page, fonts, imgs, data)
 
   return await pdfDoc.save()
 }
@@ -218,6 +220,69 @@ function drawIbtIba(page: PDFPage, f: Fonts, imgs: Imgs, data: CertificateData) 
 
   // Logo ACP — derecha  (2000×2000 → cuadrado)
   if (imgs.acp) page.drawImage(imgs.acp, { x: 592, y: 30, width: 170, height: 170 })
+
+  verif(page, f.reg, data.verificationCode)
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   LIBRE  — landscape 842 × 595 pt
+   ══════════════════════════════════════════════════════════════════════════════
+
+   Variante de IBA / IBT para "Cursos libres":
+     - Logo capyABA en la esquina SUPERIOR DERECHA (en vez de inferior izquierda)
+     - SIN logo ACP a la derecha
+     - El título es el nombre del curso tal cual (sin agregar "INTERNACIONAL (XXX)")
+     - Si no se define `hours`, se usa una frase alterna sin horas
+*/
+function drawLibre(page: PDFPage, f: Fonts, imgs: Imgs, data: CertificateData) {
+  const cx = W / 2   // 421
+
+  // Logo capyABA — arriba derecha (mismo aspect ratio 176×256)
+  if (imgs.capy) page.drawImage(imgs.capy, { x: 692, y: 458, width: 80, height: 116 })
+
+  // "Certificado"
+  centered(page, 'Certificado', f.script, 68, cx, 466, C.inkBold)
+
+  // "OTORGADO A"
+  spaced(page, 'OTORGADO A', f.reg, 9, cx, 437, 2, C.inkLight)
+
+  // Nombre
+  bigName(page, f.script, toTitleCase(data.studentName), cx, 307)
+
+  // Línea de "horas" — opcional. Si no hay horas, usa frase alterna sin número.
+  const hours = data.hours ?? null
+  if (hours != null) {
+    mixed(page, [
+      { text: 'POR COMPLETAR CON ÉXITO LAS ', f: f.reg },
+      { text: `${hours} HORAS`, f: f.bold },
+      { text: ' DEL CURSO', f: f.reg },
+    ], cx, 281, 14.5, C.ink)
+  } else {
+    centered(page, 'POR COMPLETAR CON ÉXITO EL CURSO', f.reg, 14.5, cx, 281, C.ink)
+  }
+
+  // Título del curso — solo el nombre, sin agregados. Wrap automático a 2 líneas.
+  const titleUpper = (data.courseTitle || '').toUpperCase()
+  const titleLines = wrapText(titleUpper, f.bold, 15, 620).slice(0, 2)
+  if (titleLines.length === 1) {
+    centered(page, titleLines[0], f.bold, 15, cx, 258, C.inkBold)
+  } else {
+    titleLines.forEach((line, i) => {
+      centered(page, line, f.bold, 15, cx, 266 - i * 17, C.inkBold)
+    })
+  }
+
+  // Fecha de emisión
+  centered(page, `Fecha de emisión: ${fmtDate(data.issuedAt)}`, f.reg, 10, cx, 232, C.inkLight)
+
+  /* ── Sección inferior — solo firma, sin logos laterales ─────────────────── */
+
+  if (imgs.firma) page.drawImage(imgs.firma, { x: 351, y: 91, width: 140, height: 140 })
+
+  centered(page, 'Francesca Ramírez Bontá, IBA', f.bold, 11,  cx, 102, C.inkBold)
+  centered(page, 'AC PROVIDER',                   f.reg,  10,  cx,  87, C.ink)
+  centered(page, 'IBA_022026_004855',              f.reg,   9,  cx,  73, C.inkLight)
 
   verif(page, f.reg, data.verificationCode)
 }

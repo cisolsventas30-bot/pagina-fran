@@ -7,7 +7,7 @@ import {
   Award, Save, AlertCircle, FileText, Calendar, Clock,
 } from 'lucide-react'
 
-type Template = 'ceu' | 'ibt' | 'iba'
+type Template = 'ceu' | 'ibt' | 'iba' | 'libre'
 type Modality = 'online' | 'presencial' | 'mixto'
 type Area = 'etica' | 'supervision' | 'diversidad_cultural' | 'topicos_aba'
 
@@ -80,7 +80,7 @@ export default function CertificateSettings({ courseId, initial }: Props) {
       <div style={{ marginBottom: 22 }}>
         <label className="input-label">Plantilla del certificado *</label>
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8,
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8,
         }} className="cert-tmpl-grid">
           <TemplateCard
             active={template === 'ceu'}
@@ -103,6 +103,13 @@ export default function CertificateSettings({ courseId, initial }: Props) {
             subtitle="Analista"
             desc="Formación teórica completa como Analista de Conducta Internacional"
           />
+          <TemplateCard
+            active={template === 'libre'}
+            onClick={() => setTemplate('libre')}
+            title="Libre"
+            subtitle="Curso libre"
+            desc="Mismo diseño que IBA, sin logo ACP y con el nombre del curso tal cual"
+          />
         </div>
       </div>
 
@@ -115,7 +122,7 @@ export default function CertificateSettings({ courseId, initial }: Props) {
       }} className="cert-dur-grid">
         <div>
           <label className="input-label">
-            Duración en horas *
+            Duración en horas {template === 'libre' ? '(opcional)' : '*'}
           </label>
           <input
             type="number"
@@ -123,13 +130,14 @@ export default function CertificateSettings({ courseId, initial }: Props) {
             step={0.5}
             value={hours}
             onChange={(e) => setHours(e.target.value === '' ? '' : Number(e.target.value))}
-            placeholder={template === 'ibt' ? '40' : template === 'iba' ? '270' : 'ej. 2'}
+            placeholder={template === 'ibt' ? '40' : template === 'iba' ? '270' : template === 'libre' ? 'ej. 8 (déjalo vacío si no aplica)' : 'ej. 2'}
             className="input-base"
           />
           <div className="input-help">
             {template === 'ibt' && 'IBT típicamente son 40 horas'}
             {template === 'iba' && 'IBA típicamente son 270 horas'}
             {template === 'ceu' && 'Duración real de la presentación'}
+            {template === 'libre' && 'Si la dejas vacía, el certificado dirá solo "Por completar con éxito el curso"'}
           </div>
         </div>
 
@@ -253,7 +261,10 @@ export default function CertificateSettings({ courseId, initial }: Props) {
       </div>
 
       <style>{`
-        @media (max-width: 700px) {
+        @media (max-width: 900px) {
+          .cert-tmpl-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 500px) {
           .cert-tmpl-grid { grid-template-columns: 1fr !important; }
           .cert-dur-grid { grid-template-columns: 1fr !important; }
           .cert-ceu-grid { grid-template-columns: 1fr !important; }
