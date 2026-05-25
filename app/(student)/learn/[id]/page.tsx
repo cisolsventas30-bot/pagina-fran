@@ -111,6 +111,8 @@ export default async function CourseDetailPage({
     .select('quiz_id, score, passed, submitted_at')
     .eq('enrollment_id', effectiveEnrollment.id)
     .in('quiz_id', quizIds)
+    // Ignoramos intentos sin enviar (started_at sin submitted_at) — no son completados aún
+    .not('submitted_at', 'is', null)
 
   // Assignments
   const { data: assignments } = await supabase
@@ -194,7 +196,20 @@ export default async function CourseDetailPage({
     }
   }
 
-  const attemptsByQuiz = new Map((attempts || []).map(a => [a.quiz_id, a]))
+  // Si hay varios attempts por quiz, prioriza: 1) aprobados, 2) el más reciente.
+  // Así nunca un attempt fallido viejo "tapa" uno aprobado, ni viceversa.
+  const attemptsByQuiz = new Map<string, any>()
+  for (const a of (attempts || [])) {
+    const existing = attemptsByQuiz.get(a.quiz_id)
+    if (!existing) { attemptsByQuiz.set(a.quiz_id, a); continue }
+    // Prefiere passed=true sobre passed=false
+    if (a.passed && !existing.passed) { attemptsByQuiz.set(a.quiz_id, a); continue }
+    if (!a.passed && existing.passed) continue
+    // Mismo estado: prefiere el más reciente
+    const aTime = a.submitted_at ? new Date(a.submitted_at).getTime() : 0
+    const eTime = existing.submitted_at ? new Date(existing.submitted_at).getTime() : 0
+    if (aTime > eTime) attemptsByQuiz.set(a.quiz_id, a)
+  }
   const subsByAssignment = new Map((submissions || []).map(s => [s.assignment_id, s]))
 
   return (

@@ -272,7 +272,7 @@ export default async function EditCoursePage({
             Comentarios
           </TabLink>
           <TabLink href={`/admin/courses/${course.id}?tab=settings`} active={activeTab === 'settings'}>
-            Configuración
+            Certificado
           </TabLink>
         </div>
       </div>

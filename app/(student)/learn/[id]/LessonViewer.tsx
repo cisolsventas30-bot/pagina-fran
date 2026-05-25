@@ -1318,6 +1318,11 @@ function MainPlayer({
           )}
         </div>
       </div>
+
+      {/* Comentarios — DESPUÉS de los botones de navegación para que no los empujen abajo */}
+      {item.type === 'lesson' && (
+        <LessonComments lessonId={item.id} previewMode={previewMode} />
+      )}
     </>
   )
 }
@@ -1411,9 +1416,6 @@ function LessonPlayer({ lesson, currentIdx, totalItems, previewMode }: {
           Esta lección aún no tiene video ni contenido.
         </div>
       )}
-
-      {/* Comentarios estilo Edutin debajo de cada lección */}
-      <LessonComments lessonId={lesson.id} previewMode={previewMode} />
     </div>
   )
 }
