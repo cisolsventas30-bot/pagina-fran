@@ -540,7 +540,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
       </section>
 
       <Footer />
-      <WspBubble msg="Hola Francesca, leí tu blog y tengo una consulta 🦫" />
+      <WspBubble msg="Hola capyABA, leí tu blog y tengo una consulta 🦫" />
     </>
   )
 }

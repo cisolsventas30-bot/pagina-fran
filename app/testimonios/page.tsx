@@ -174,13 +174,13 @@ export default function Testimonios() {
         <div className="reveal">
           <h2 className="section-title" style={{ maxWidth:860, margin:'0 auto 3rem', fontSize:'clamp(2.8rem,5.5vw,4.5rem)' }}>¿Listo para iniciar el cambio?</h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>
-            <a href={wa('Hola Francesca, quiero agendar mi primera sesión 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Agendar primera sesión</a>
+            <a href={wa('Hola capyABA, quiero agendar mi primera sesión 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Agendar primera sesión</a>
             <Link href="/servicios" className="btn-outline">Ver servicios</Link>
           </div>
         </div>
       </section>
       <Footer />
-      <WspBubble msg="Hola Francesca, leí los testimonios y me gustaría comenzar 🦫" />
+      <WspBubble msg="Hola capyABA, leí los testimonios y me gustaría comenzar 🦫" />
     </>
   )
 }

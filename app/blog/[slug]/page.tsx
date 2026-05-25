@@ -545,7 +545,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
       {/* Progress bar scroll */}
       <Footer />
-      <WspBubble msg="Hola Francesca, leí tu blog y tengo una consulta 🦫" />
+      <WspBubble msg="Hola capyABA, leí tu blog y tengo una consulta 🦫" />
 
       <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: `
         var bar = document.getElementById('bp-progress');

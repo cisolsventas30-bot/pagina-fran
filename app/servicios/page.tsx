@@ -7,22 +7,22 @@ const SERVICES = [
   { id:'terapia-infantil', num:'01', title:'Terapia Infantil ABA', bg:'#F2C8B6', img:'/terapia-infantil.png',
     desc:'Sesiones diseñadas para potenciar el desarrollo de habilidades comunicativas, sociales y adaptativas. Cada intervención se adapta a las necesidades individuales del niño y su familia.',
     features:['Evaluación inicial completa del repertorio conductual','Plan de intervención personalizado con objetivos medibles','Sesiones con enfoque lúdico que respetan el ritmo del niño','Reportes de progreso con datos objetivos y seguimiento'],
-    wsp:'Hola Francesca, me interesa la Terapia Infantil ABA 🧒',
+    wsp:'Hola capyABA, me interesa la Terapia Infantil ABA 🧒',
   },
   { id:'sesiones-padres', num:'02', title:'Sesiones para Padres', bg:'#D4E0C5', img:'/sesiones-padres.png',
     desc:'Acompaño y capacito a los padres para que se conviertan en los principales agentes de cambio en casa, aplicando estrategias conductuales efectivas y seguras.',
     features:['Entrenamiento en estrategias ABA adaptadas al hogar','Herramientas para manejo conductual cotidiano','Seguimiento continuo con ajustes según avances','Empoderamiento familiar basado en evidencia'],
-    wsp:'Hola Francesca, quisiera Sesiones para Padres 👨‍👩‍👧',
+    wsp:'Hola capyABA, quisiera Sesiones para Padres 👨‍👩‍👧',
   },
   { id:'cursos', num:'03', title:'Cursos IBT & IBA', bg:'#F5DFD3', img:'/cursos-ibt.png',
     desc:'Cursos de formación teórica aprobados por la IBAO, dirigidos a quienes buscan certificarse como IBT o IBA.',
     features:['Contenidos aprobados por la IBAO, actualizados constantemente','Material didáctico con casos reales y ejercicios prácticos','Preparación integral para el examen de certificación','Modalidad online flexible con plataforma propia'],
-    wsp:'Hola Francesca, me interesan los Cursos IBT/IBA 📚',
+    wsp:'Hola capyABA, me interesan los Cursos IBT/IBA 📚',
   },
   { id:'supervisiones', num:'04', title:'Supervisiones IBT & IBA', bg:'#E8DCC2', img:'/supervisiones.png',
     desc:'Supervisiones para candidatos IBT e IBA con retroalimentación personalizada, análisis de casos y guía práctica.',
     features:['Análisis de casos reales traídos por el supervisado','Retroalimentación personalizada con foco en mejora','Guía ética y técnica alineada con estándares IBAO','Certificación de horas válidas para el proceso IBAO'],
-    wsp:'Hola Francesca, quisiera Supervisiones IBT/IBA 🔬',
+    wsp:'Hola capyABA, quisiera Supervisiones IBT/IBA 🔬',
   },
 ]
 
@@ -140,14 +140,14 @@ export default function Servicios() {
             Da el <strong>primer paso</strong>
           </h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>
-            <a href={wa('Hola Francesca, quiero dar el primer paso. ¿Por dónde comenzamos? 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Escribirme por WhatsApp</a>
+            <a href={wa('Hola capyABA, quiero dar el primer paso. ¿Por dónde comenzamos? 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Escribirme por WhatsApp</a>
             <Link href="/sobre-mi" className="btn-outline">Conoce mi enfoque</Link>
           </div>
         </div>
       </section>
 
       <Footer />
-      <WspBubble msg="Hola Francesca, vi tus servicios y tengo una consulta 🦫" />
+      <WspBubble msg="Hola capyABA, vi tus servicios y tengo una consulta 🦫" />
     </>
   )
 }

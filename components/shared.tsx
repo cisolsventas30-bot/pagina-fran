@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export const WA = '51940428169'
-export const wa = (msg = 'Hola Francesca, me gustaría obtener más información sobre tus servicios 🦫') =>
+export const wa = (msg = 'Hola capyABA, me gustaría obtener más información sobre tus servicios 🦫') =>
   `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`
 
 export const SOCIAL = {
@@ -19,7 +19,7 @@ export const SOCIAL = {
 const LINKS = [
   { href: '/sobre-mi',         label: 'Sobre mí'         },
   { href: '/servicios',        label: 'Servicios'        },
-  { href: '/emprendimientos',  label: 'Emprendimientos'  },
+  { href: '/emprendimientos',  label: 'STARTUPs'  },
   { href: '/testimonios',      label: 'Testimonios'      },
   { href: '/blog',             label: 'Blog'             },
 ]
@@ -110,7 +110,7 @@ export function Nav() {
         {/* CTA group */}
         <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }} className="hide-mobile">
           <Link href="/login" className="nav-link" style={{ padding: '.5rem .8rem' }}>Login</Link>
-          <a href={wa('Hola Francesca, me gustaría agendar una sesión 🦫')}
+          <a href={wa('Hola capyABA, me gustaría agendar una sesión 🦫')}
             target="_blank" rel="noopener noreferrer"
             className="btn-dark" style={{ padding: '.6rem 1.3rem', fontSize: '.88rem' }}>
             Agendar sesión

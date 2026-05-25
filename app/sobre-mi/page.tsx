@@ -200,7 +200,7 @@ export default function SobreMi() {
             <p style={{ fontSize:'1.15rem', color:'var(--muted)', lineHeight:1.55, maxWidth:520, marginBottom:'2rem', animation:'fadeUp .8s .2s ease both' }}>
               Psicóloga, neuropsicóloga y especialista en terapia infantil. Certificada como IBA y IBT por la IBAO. Peruana, apasionada por la ciencia del comportamiento.
             </p>
-            <a href={wa('Hola Francesca, quisiera tener una conversación contigo 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">
+            <a href={wa('Hola capyABA, quisiera tener una conversación contigo 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">
               💬 Agendar una conversación
             </a>
           </div>
@@ -349,14 +349,14 @@ export default function SobreMi() {
             ¿Listos para <strong>trabajar juntos?</strong>
           </h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>
-            <a href={wa('Hola Francesca, me gustaría hablar contigo sobre cómo podemos trabajar juntos 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Escribirme por WhatsApp</a>
+            <a href={wa('Hola capyABA, me gustaría hablar contigo sobre cómo podemos trabajar juntos 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Escribirme por WhatsApp</a>
             <Link href="/servicios" className="btn-outline">Ver servicios</Link>
           </div>
         </div>
       </section>
 
       <Footer />
-      <WspBubble msg="Hola Francesca, vi tu página de Sobre mí y me gustaría conectar 🦫" />
+      <WspBubble msg="Hola capyABA, vi tu página de Sobre mí y me gustaría conectar 🦫" />
     </>
   )
 }

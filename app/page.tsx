@@ -217,7 +217,7 @@ const SERVICES = [
     desc: 'Sesiones ABA para potenciar habilidades comunicativas, sociales y adaptativas en cada niño.',
     dot: '#6FCF97',
     img: '/terapia-infantil.png',
-    wsp: 'Hola Francesca, me interesa la Terapia Infantil ABA para mi hijo/a 🧒',
+    wsp: 'Hola capyABA, me interesa la Terapia Infantil ABA para mi hijo/a 🧒',
     href: '/servicios#terapia-infantil',
   },
   {
@@ -226,7 +226,7 @@ const SERVICES = [
     desc: 'Capacitación a familias para convertirse en agentes de cambio en el hogar.',
     dot: '#F5D78E',
     img: '/sesiones-padres.png',
-    wsp: 'Hola Francesca, quisiera información sobre las Sesiones para Padres 👨‍👩‍👧',
+    wsp: 'Hola capyABA, quisiera información sobre las Sesiones para Padres 👨‍👩‍👧',
     href: '/servicios#sesiones-padres',
   },
   {
@@ -235,7 +235,7 @@ const SERVICES = [
     desc: 'Formación teórica aprobada por la IBAO, con estándares internacionales.',
     dot: '#C4B0EC',
     img: '/cursos-ibt.png',
-    wsp: 'Hola Francesca, me interesa información sobre los Cursos IBT/IBA 📚',
+    wsp: 'Hola capyABA, me interesa información sobre los Cursos IBT/IBA 📚',
     href: '/servicios#cursos',
   },
   {
@@ -244,7 +244,7 @@ const SERVICES = [
     desc: 'Retroalimentación personalizada y análisis de casos para candidatos en formación.',
     dot: '#4ecdc4',
     img: '/supervisiones.png',
-    wsp: 'Hola Francesca, quisiera información sobre las Supervisiones IBT/IBA 🔬',
+    wsp: 'Hola capyABA, quisiera información sobre las Supervisiones IBT/IBA 🔬',
     href: '/servicios#supervisiones',
   },
 ]
@@ -252,7 +252,7 @@ const SERVICES = [
 const STATS = [
   { num: '500+', label: 'Familias acompañadas en procesos terapéuticos.' },
   { num: '100%', label: 'Intervenciones basadas en evidencia científica.' },
-  { num: '4',    label: 'Emprendimientos activos en el ecosistema ABA.' },
+  { num: '4',    label: 'STARTUPs activos en el ecosistema ABA.' },
   { num: 'IBA·IBT', label: 'Doble certificación IBAO internacional.' },
 ]
 
@@ -527,7 +527,7 @@ export default function Home() {
               <Link href="/servicios" className="btn-cream">
                 Explorar servicios
               </Link>
-              <a href={wa('Hola Francesca, me gustaría agendar una sesión 🦫')}
+              <a href={wa('Hola capyABA, me gustaría agendar una sesión 🦫')}
                 target="_blank" rel="noopener noreferrer"
                 className="btn-wsp">
                 💬 Escribirme
@@ -590,7 +590,7 @@ export default function Home() {
             validadas, personalizadas y alineadas con los estándares de la IBAO.
           </p>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>
-            <a href={wa('Hola Francesca, quisiera agendar una consulta 🦫')}
+            <a href={wa('Hola capyABA, quisiera agendar una consulta 🦫')}
               target="_blank" rel="noopener noreferrer" className="btn-wsp">
               💬 Agendar por WhatsApp
             </a>
@@ -675,7 +675,7 @@ export default function Home() {
             Lleva tu familia o carrera al <strong>siguiente nivel</strong>
           </h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>
-            <a href={wa('Hola Francesca, quiero empezar. ¿Por dónde comenzamos? 🦫')}
+            <a href={wa('Hola capyABA, quiero empezar. ¿Por dónde comenzamos? 🦫')}
               target="_blank" rel="noopener noreferrer" className="btn-wsp">
               💬 Escribirme por WhatsApp
             </a>
@@ -685,7 +685,7 @@ export default function Home() {
       </section>
 
       <Footer />
-      <WspBubble msg="Hola Francesca, vi tu página y me gustaría obtener más información 🦫" />
+      <WspBubble msg="Hola capyABA, vi tu página y me gustaría obtener más información 🦫" />
     </>
   )
 }
