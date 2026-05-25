@@ -1,5 +1,5 @@
 -- =====================================================
--- CapyABA · Blog Posts
+-- capyABA · Blog Posts
 -- Ejecutar en SQL Editor de Supabase
 -- =====================================================
 

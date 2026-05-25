@@ -223,7 +223,7 @@ export default function LibroReclamacionesPage() {
                 <div style={fieldStyle}>
                   <label style={labelStyle}>Pedido o solución esperada *</label>
                   <textarea name="pedido" required value={form.pedido} onChange={handleChange}
-                    rows={3} placeholder="¿Qué solución esperas de CapyABA?"
+                    rows={3} placeholder="¿Qué solución esperas de capyABA?"
                     style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }} />
                 </div>
               </div>
@@ -232,7 +232,7 @@ export default function LibroReclamacionesPage() {
             {/* Submit */}
             <div style={{ padding: '1.25rem 1.75rem', background: '#fafafa' }}>
               <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '1rem', lineHeight: '1.6' }}>
-                Al enviar este formulario, CapyABA se compromete a dar respuesta a tu {form.tipo} en un máximo de <strong>15 días hábiles</strong>. La información proporcionada será tratada de manera confidencial conforme a la Ley N° 29733.
+                Al enviar este formulario, capyABA se compromete a dar respuesta a tu {form.tipo} en un máximo de <strong>15 días hábiles</strong>. La información proporcionada será tratada de manera confidencial conforme a la Ley N° 29733.
               </p>
               <button type="submit" disabled={loading} style={{
                 background: loading ? '#9ca3af' : '#5F4D36',

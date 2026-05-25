@@ -62,7 +62,7 @@ export default function PaymentModal({ course, userEmail, onClose, onSuccess }: 
 
     culqi.publicKey = publicKey
     culqi.settings({
-      title: 'CapyABA',
+      title: 'capyABA',
       currency: 'PEN',
       amount: Math.round(course.price * 100),
       description: course.title,

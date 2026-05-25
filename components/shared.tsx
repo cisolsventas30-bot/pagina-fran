@@ -88,7 +88,7 @@ export function Nav() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
           <Image
             src="/capyaba-mascot.png"
-            alt="CapyABA"
+            alt="capyABA"
             width={72}
             height={103}
             style={{ objectFit: 'contain', display: 'block', marginTop: '-18px', marginBottom: '-18px' }}
@@ -188,7 +188,7 @@ const FOOTER_COLS = [
     ['SANTI Terapias', '/emprendimientos#santi'],
     ['VANTY ABA', '/emprendimientos#vanty'],
     ['Capyequipo', '/emprendimientos#capyequipo'],
-    ['CapyABA', '/emprendimientos#capyaba'],
+    ['capyABA', '/emprendimientos#capyaba'],
   ]},
   { title: 'Recursos', links: [
     ['Blog', '/blog'],
@@ -234,14 +234,14 @@ export function Footer() {
             <Link href="/" style={{ display: 'inline-block', marginBottom: '.8rem' }}>
               <Image
                 src="/capyaba-mascot.png"
-                alt="CapyABA"
+                alt="capyABA"
                 width={75}
                 height={107}
                 style={{ objectFit: 'contain', display: 'block', filter: 'brightness(0) invert(1)', opacity: .85 }}
               />
             </Link>
             <p style={{ fontSize: '.8rem', color: 'rgba(244,236,223,.35)', marginTop: '.3rem' }}>
-              © 2026 CapyABA · Francesca Ramírez Bontá · Hecho con 💛 desde Perú
+              © 2026 capyABA · Francesca Ramírez Bontá · Hecho con 💛 desde Perú
             </p>
             <div style={{ display: 'flex', gap: '1.2rem', marginTop: '.5rem', flexWrap: 'wrap' }}>
               <Link href="/privacidad" style={{ fontSize: '.78rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none' }}>

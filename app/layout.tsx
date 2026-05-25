@@ -3,7 +3,7 @@ import './globals.css'
 import { ToastProvider, ConfirmProvider } from '@/components/ui/Toast'
 
 export const metadata: Metadata = {
-  title: 'CapyABA — Francesca Ramírez Bontá · IBA / IBT',
+  title: 'capyABA — Francesca Ramírez Bontá · IBA / IBT',
   description: 'Análisis Conductual Aplicado basado en evidencia para niños y familias. Terapia infantil, formación IBT/IBA y supervisiones profesionales.',
   icons: { icon: '/favicon.png' },
   verification: {

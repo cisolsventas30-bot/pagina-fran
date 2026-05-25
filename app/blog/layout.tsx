@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Blog — CapyABA',
+  title: 'Blog — capyABA',
   description: 'Artículos sobre ciencia del comportamiento y ABA',
 }
 

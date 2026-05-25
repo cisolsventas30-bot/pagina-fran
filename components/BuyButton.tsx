@@ -156,7 +156,7 @@ export default function BuyButton({
 
     window.Culqi.publicKey = publicKey
     window.Culqi.settings({
-      title: 'CapyABA',
+      title: 'capyABA',
       currency: 'PEN',
       description: courseTitle,
       amount: Math.round(price * 100),

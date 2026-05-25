@@ -1,5 +1,5 @@
 -- =====================================================
--- CapyABA · Schema SQL para Supabase
+-- capyABA · Schema SQL para Supabase
 -- Ejecutar en SQL Editor de Supabase
 -- =====================================================
 

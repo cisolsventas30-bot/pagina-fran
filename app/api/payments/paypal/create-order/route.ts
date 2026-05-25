@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       purchase_units: [
         {
           reference_id: courseId,
-          description: `CapyABA – ${course.title}`,
+          description: `capyABA – ${course.title}`,
           amount: {
             currency_code: 'USD',
             value: Number(course.price_usd).toFixed(2),
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       application_context: {
-        brand_name: 'CapyABA',
+        brand_name: 'capyABA',
         landing_page: 'NO_PREFERENCE',
         user_action: 'PAY_NOW',
       },

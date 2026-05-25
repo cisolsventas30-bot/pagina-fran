@@ -106,7 +106,7 @@ export default async function VerifyPage({ params }: { params: { code: string } 
               opacity: 0.85,
             }}>
               {valid
-                ? 'Este certificado ha sido emitido oficialmente por CapyABA.'
+                ? 'Este certificado ha sido emitido oficialmente por capyABA.'
                 : 'El código ingresado no corresponde a ningún certificado emitido.'}
             </p>
           </div>
@@ -205,7 +205,7 @@ export default async function VerifyPage({ params }: { params: { code: string } 
           fontSize: 11, color: '#6B5E4E',
         }}>
           <Link href="/" style={{ color: '#1F1710', fontWeight: 600, textDecoration: 'none' }}>
-            CapyABA
+            capyABA
           </Link>
           {' · '}
           Academia de análisis conductual aplicado

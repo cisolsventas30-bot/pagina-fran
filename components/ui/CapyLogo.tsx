@@ -5,7 +5,7 @@ export function CapyLogoFull({ className, size = 180 }: { className?: string; si
   return (
     <Image
       src="/capyaba-logo.png"
-      alt="CapyABA"
+      alt="capyABA"
       width={size * 1.5}
       height={size}
       className={cn('object-contain', className)}

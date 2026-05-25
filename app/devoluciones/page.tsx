@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Política de Cambios y Devoluciones | CapyABA',
-  description: 'Política de cambios y devoluciones de la plataforma CapyABA.',
+  title: 'Política de Cambios y Devoluciones | capyABA',
+  description: 'Política de cambios y devoluciones de la plataforma capyABA.',
 }
 
 export default function DevolucionesPage() {
@@ -33,22 +33,22 @@ export default function DevolucionesPage() {
             Política de Cambios y Devoluciones
           </h1>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
-            Última actualización: mayo de 2025 · Plataforma operada por <strong>CapyABA</strong>
+            Última actualización: mayo de 2025 · Plataforma operada por <strong>capyABA</strong>
           </p>
         </div>
 
         <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '1rem 1.25rem', marginBottom: '2rem', fontSize: '14px', color: '#92400E', lineHeight: '1.6' }}>
-          📋 En CapyABA nos comprometemos a ofrecer servicios de alta calidad. Lee con atención nuestra política antes de realizar tu compra.
+          📋 En capyABA nos comprometemos a ofrecer servicios de alta calidad. Lee con atención nuestra política antes de realizar tu compra.
         </div>
 
         <Section title="1. Acceso a cursos">
-          El acceso a los cursos es habilitado de forma manual por el equipo de CapyABA una vez
+          El acceso a los cursos es habilitado de forma manual por el equipo de capyABA una vez
           confirmado el pago. Cada curso es de uso personal e intransferible. Al adquirir un curso,
           el estudiante acepta los Términos y Condiciones de la plataforma.
         </Section>
 
         <Section title="2. Política de devoluciones">
-          En CapyABA entendemos que pueden surgir imprevistos. Por eso ofrecemos la siguiente política:
+          En capyABA entendemos que pueden surgir imprevistos. Por eso ofrecemos la siguiente política:
           <ul style={{ paddingLeft: '1.2rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <li>
               <strong>Devolución completa:</strong> Si el estudiante no ha iniciado el curso (sin
@@ -76,7 +76,7 @@ export default function DevolucionesPage() {
             <li>Adjuntar el comprobante de pago correspondiente.</li>
           </ol>
           <p style={{ marginTop: '0.75rem' }}>
-            El equipo de CapyABA revisará la solicitud y responderá dentro de los <strong>5 días hábiles</strong>. De proceder, el reembolso se realizará por el mismo medio de pago utilizado en un plazo máximo de <strong>10 días hábiles</strong>.
+            El equipo de capyABA revisará la solicitud y responderá dentro de los <strong>5 días hábiles</strong>. De proceder, el reembolso se realizará por el mismo medio de pago utilizado en un plazo máximo de <strong>10 días hábiles</strong>.
           </p>
         </Section>
 
@@ -84,7 +84,7 @@ export default function DevolucionesPage() {
           Si el estudiante desea cambiar su inscripción a otro curso de igual o mayor valor, puede
           solicitarlo dentro de los primeros 7 días calendario y siempre que no haya superado el
           20% de avance en el curso original. El cambio está sujeto a disponibilidad y aprobación
-          del equipo de CapyABA.
+          del equipo de capyABA.
         </Section>
 
         <Section title="5. Cancelación de supervisiones">
@@ -96,7 +96,7 @@ export default function DevolucionesPage() {
         <Section title="6. Productos o servicios con error">
           Si el estudiante encuentra un problema técnico que impide el acceso correcto al contenido
           adquirido, debe reportarlo a <a href="mailto:capyaba@gmail.com" style={{ color: '#5F4D36' }}>capyaba@gmail.com</a> dentro
-          de las primeras 48 horas de detección. CapyABA se compromete a resolver el inconveniente
+          de las primeras 48 horas de detección. capyABA se compromete a resolver el inconveniente
           o, de no ser posible, ofrecer una devolución completa.
         </Section>
 

@@ -1,4 +1,4 @@
-# 🦫 CapyABA
+# 🦫 capyABA
 
 **Plataforma de aprendizaje online estilo Coursera.** Sistema LMS con dos roles (Admin y Alumno), certificados generados con IA, login con Google, y una interfaz limpia y profesional.
 
@@ -192,7 +192,7 @@ capyaba/
 
 ### Logo
 - `CapyLogoFull` — capybara + texto (SOLO en landing)
-- `CapyLogoText` — solo texto "CapyABA" (en sistema, navbar)
+- `CapyLogoText` — solo texto "capyABA" (en sistema, navbar)
 - `CapyMascot` — solo la mascota (login, empty states, certificados)
 
 ---

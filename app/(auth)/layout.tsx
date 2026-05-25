@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'CapyABA · Acceso',
-  description: 'Inicia sesión o regístrate en CapyABA',
+  title: 'capyABA · Acceso',
+  description: 'Inicia sesión o regístrate en capyABA',
 }
 
 export default function AuthLayout({

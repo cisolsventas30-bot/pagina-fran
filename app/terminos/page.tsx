@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Términos y Condiciones | CapyABA',
-  description: 'Términos y condiciones de uso de la plataforma CapyABA.',
+  title: 'Términos y Condiciones | capyABA',
+  description: 'Términos y condiciones de uso de la plataforma capyABA.',
 }
 
 export default function TerminosPage() {
@@ -33,7 +33,7 @@ export default function TerminosPage() {
             Términos y Condiciones
           </h1>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
-            Última actualización: mayo de 2025 · Plataforma operada por <strong>CapyABA</strong>
+            Última actualización: mayo de 2025 · Plataforma operada por <strong>capyABA</strong>
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export default function TerminosPage() {
         </Section>
 
         <Section title="2. Aceptación de los términos">
-          Al acceder y utilizar la plataforma CapyABA (en adelante &quot;la Plataforma&quot;), disponible en{' '}
+          Al acceder y utilizar la plataforma capyABA (en adelante &quot;la Plataforma&quot;), disponible en{' '}
           <a href="https://capyaba.vercel.app" style={{ color: '#5F4D36' }}>capyaba.vercel.app</a>,
           aceptas quedar vinculado a estos Términos y Condiciones. Si no estás de acuerdo con alguno de
           los términos aquí descritos, te pedimos que no utilices la Plataforma. Nos reservamos el
@@ -59,7 +59,7 @@ export default function TerminosPage() {
         </Section>
 
         <Section title="3. Descripción del servicio">
-          CapyABA es una plataforma educativa digital especializada en Análisis Conductual Aplicado (ABA),
+          capyABA es una plataforma educativa digital especializada en Análisis Conductual Aplicado (ABA),
           dirigida a profesionales, estudiantes y familias. Ofrecemos cursos en línea, materiales formativos,
           supervisiones profesionales y recursos relacionados con terapia IBT/IBA. El acceso a los cursos
           se habilita de forma digital una vez confirmado el pago o la asignación por parte de un instructor.
@@ -79,7 +79,7 @@ export default function TerminosPage() {
         </Section>
 
         <Section title="5. Inicio de sesión con Google">
-          Al elegir autenticarte con Google, autorizas a CapyABA a recibir tu nombre y dirección de
+          Al elegir autenticarte con Google, autorizas a capyABA a recibir tu nombre y dirección de
           correo electrónico desde tu cuenta de Google, únicamente con el propósito de identificarte
           dentro de la Plataforma. No accedemos a ningún otro dato de tu cuenta de Google. Puedes
           revocar este acceso en cualquier momento desde tu configuración de cuenta de Google.
@@ -92,16 +92,16 @@ export default function TerminosPage() {
           tributaria del comercio. Los métodos de pago aceptados son:
           <ul style={{ paddingLeft: '1.2rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li>Tarjetas de crédito y débito (Visa, Mastercard) a través de la pasarela de pagos <strong>Culqi</strong>.</li>
-            <li>Transferencias bancarias o pagos coordinados directamente con el equipo de CapyABA.</li>
+            <li>Transferencias bancarias o pagos coordinados directamente con el equipo de capyABA.</li>
           </ul>
           Los pagos en línea son procesados de forma segura por <strong>Culqi</strong>, plataforma certificada
-          en estándares PCI-DSS. CapyABA no almacena datos de tarjetas bancarias. El usuario es responsable
+          en estándares PCI-DSS. capyABA no almacena datos de tarjetas bancarias. El usuario es responsable
           de verificar que los datos de pago ingresados sean correctos antes de confirmar la transacción.
         </Section>
 
         {/* NUEVA: Proceso de compra */}
         <Section title="7. Proceso de compra">
-          El proceso para adquirir acceso a un curso en CapyABA es el siguiente:
+          El proceso para adquirir acceso a un curso en capyABA es el siguiente:
           <ol style={{ paddingLeft: '1.2rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li>El usuario selecciona el curso o programa de su interés.</li>
             <li>Completa el formulario de pago con sus datos y elige el método de pago.</li>
@@ -109,7 +109,7 @@ export default function TerminosPage() {
             <li>Una vez confirmado el pago, el acceso al curso se habilita de forma automática e inmediata en la cuenta del usuario.</li>
             <li>Se envía una confirmación al correo electrónico registrado.</li>
           </ol>
-          CapyABA se reserva el derecho de cancelar o anular una compra en casos de error en el precio
+          capyABA se reserva el derecho de cancelar o anular una compra en casos de error en el precio
           publicado, fallo técnico en la plataforma, o sospecha de fraude, notificando al usuario y
           procediendo al reembolso correspondiente.
         </Section>
@@ -127,7 +127,7 @@ export default function TerminosPage() {
 
         {/* NUEVA: Política de devoluciones mejorada */}
         <Section title="9. Política de devoluciones y cancelaciones">
-          Dado que CapyABA ofrece servicios digitales de acceso inmediato, <strong>no se realizan
+          Dado que capyABA ofrece servicios digitales de acceso inmediato, <strong>no se realizan
           reembolsos una vez que el usuario ha accedido al contenido del curso</strong>. Sin embargo,
           se evaluarán solicitudes de devolución en los siguientes casos excepcionales:
           <ul style={{ paddingLeft: '1.2rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -142,7 +142,7 @@ export default function TerminosPage() {
 
         <Section title="10. Propiedad intelectual">
           Todo el contenido de la Plataforma — incluyendo videos, textos, materiales didácticos,
-          evaluaciones y certificados — es propiedad exclusiva de CapyABA y sus colaboradores, y está
+          evaluaciones y certificados — es propiedad exclusiva de capyABA y sus colaboradores, y está
           protegido por las leyes de propiedad intelectual aplicables. Queda prohibida su reproducción,
           distribución o uso comercial sin autorización expresa por escrito.
         </Section>
@@ -161,7 +161,7 @@ export default function TerminosPage() {
         {/* MEJORADA: Privacidad con Ley 29733 */}
         <Section title="12. Privacidad y protección de datos personales">
           En cumplimiento de la <strong>Ley N° 29733 — Ley de Protección de Datos Personales del Perú</strong>{' '}
-          y su reglamento, CapyABA recopila únicamente los datos necesarios para el funcionamiento del
+          y su reglamento, capyABA recopila únicamente los datos necesarios para el funcionamiento del
           servicio: nombre, correo electrónico y progreso en cursos. Estos datos son almacenados de
           forma segura a través de Supabase y no son vendidos ni compartidos con terceros.
           <br /><br />
@@ -177,14 +177,14 @@ export default function TerminosPage() {
         </Section>
 
         <Section title="13. Certificados">
-          Los certificados emitidos por CapyABA acreditan la finalización de los programas formativos
+          Los certificados emitidos por capyABA acreditan la finalización de los programas formativos
           dentro de la Plataforma. Su validez y reconocimiento externo dependen de las instituciones
-          o empleadores que los evalúen. CapyABA no garantiza reconocimiento oficial por organismos
+          o empleadores que los evalúen. capyABA no garantiza reconocimiento oficial por organismos
           reguladores externos salvo donde se especifique.
         </Section>
 
         <Section title="14. Limitación de responsabilidad">
-          CapyABA no se responsabiliza por interrupciones del servicio, pérdidas de datos derivadas
+          capyABA no se responsabiliza por interrupciones del servicio, pérdidas de datos derivadas
           de causas externas, ni por el uso indebido de la Plataforma por parte de terceros. El
           contenido educativo es de carácter formativo y no sustituye la supervisión clínica
           profesional en contextos terapéuticos reales.

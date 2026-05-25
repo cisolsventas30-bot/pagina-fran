@@ -507,7 +507,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               <div className="bp-author-avatar-lg">{authorInitials}</div>
               <div className="bp-author-card-name">{authorName}</div>
               <p className="bp-author-card-bio">
-                Especialista en acompañamiento familiar y terapia ABA. Fundadora de CapyABA.
+                Especialista en acompañamiento familiar y terapia ABA. Fundadora de capyABA.
               </p>
               <a href="/sobre-mi" style={{ display:'inline-block', marginTop:14, padding:'8px 18px', background:'#f2e8dc', color:'#7a4020', borderRadius:100, fontSize:13, fontWeight:700, textDecoration:'none' }}>
                 Conocer más sobre mí →

@@ -133,7 +133,7 @@ export default function AccountPage() {
           <Sparkles size={20} style={{ color: '#c4783c', flexShrink: 0, marginTop: 2 }} />
           <div>
             <p style={{ fontSize: 14, fontWeight: 700, color: '#92400e', margin: '0 0 4px' }}>
-              ¡Bienvenido/a a CapyABA! 🎉
+              ¡Bienvenido/a a capyABA! 🎉
             </p>
             <p style={{ fontSize: 13, color: '#b45309', margin: 0, lineHeight: 1.5 }}>
               Completa tu perfil para que tu instructor conozca mejor tu contexto. Puedes hacerlo ahora o más tarde desde tu cuenta.

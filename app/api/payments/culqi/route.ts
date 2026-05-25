@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       currency_code: 'PEN',
       email: email || user.email,
       source_id: token,
-      description: `CapyABA – ${course.title}`,
+      description: `capyABA – ${course.title}`,
       metadata: {
         course_id: courseId,
         user_id: user.id,

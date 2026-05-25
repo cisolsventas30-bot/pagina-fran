@@ -64,7 +64,7 @@ export default function RegisterPage() {
           </div>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#111827', marginBottom: '8px' }}>¡Cuenta creada! 🎉</h2>
           <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: 1.6 }}>
-            Bienvenido a CapyABA. Tu instructor te asignará los cursos disponibles.<br />Redirigiendo...
+            Bienvenido a capyABA. Tu instructor te asignará los cursos disponibles.<br />Redirigiendo...
           </p>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function RegisterPage() {
           <span className="auth-badge-text">🎓 Más de 100 estudiantes aprendiendo</span>
         </div>
         <div className="auth-perks">
-          <h2>Con CapyABA obtienes</h2>
+          <h2>Con capyABA obtienes</h2>
           {PERKS.map((p, i) => (
             <div key={i} className="auth-perk">
               <CheckCircle2 className="auth-perk-icon" />

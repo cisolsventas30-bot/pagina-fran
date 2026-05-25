@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidad | CapyABA',
-  description: 'Política de privacidad y tratamiento de datos personales de la plataforma CapyABA.',
+  title: 'Política de Privacidad | capyABA',
+  description: 'Política de privacidad y tratamiento de datos personales de la plataforma capyABA.',
 }
 
 export default function PrivacidadPage() {
@@ -33,16 +33,16 @@ export default function PrivacidadPage() {
             Política de Privacidad
           </h1>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
-            Última actualización: mayo de 2025 · Plataforma operada por <strong>CapyABA</strong>
+            Última actualización: mayo de 2025 · Plataforma operada por <strong>capyABA</strong>
           </p>
         </div>
 
         <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '1rem 1.25rem', marginBottom: '2rem', fontSize: '14px', color: '#92400E', lineHeight: '1.6' }}>
-          🔒 En CapyABA nos tomamos muy en serio la privacidad de nuestros usuarios. Esta política explica de forma clara qué datos recopilamos, cómo los usamos y cómo los protegemos.
+          🔒 En capyABA nos tomamos muy en serio la privacidad de nuestros usuarios. Esta política explica de forma clara qué datos recopilamos, cómo los usamos y cómo los protegemos.
         </div>
 
         <Section title="1. Responsable del tratamiento">
-          El responsable del tratamiento de tus datos personales es <strong>CapyABA</strong>,
+          El responsable del tratamiento de tus datos personales es <strong>capyABA</strong>,
           operado por Francesca Ramírez Bontá. Puedes contactarnos en cualquier momento en:{' '}
           <a href="mailto:capyaba@gmail.com" style={{ color: '#5F4D36', fontWeight: 600 }}>
             capyaba@gmail.com
@@ -109,7 +109,7 @@ export default function PrivacidadPage() {
         </Section>
 
         <Section title="7. Cuánto tiempo guardamos tus datos">
-          Conservamos tus datos mientras mantengas una cuenta activa en CapyABA. Si decides eliminar
+          Conservamos tus datos mientras mantengas una cuenta activa en capyABA. Si decides eliminar
           tu cuenta, tus datos personales serán suprimidos en un plazo máximo de 30 días, salvo
           obligación legal de conservación. Puedes solicitarlo en cualquier momento escribiéndonos a{' '}
           <a href="mailto:capyaba@gmail.com" style={{ color: '#5F4D36' }}>capyaba@gmail.com</a>.
@@ -129,7 +129,7 @@ export default function PrivacidadPage() {
         </Section>
 
         <Section title="9. Cookies">
-          CapyABA utiliza únicamente cookies técnicas estrictamente necesarias para el funcionamiento
+          capyABA utiliza únicamente cookies técnicas estrictamente necesarias para el funcionamiento
           de la sesión (autenticación). No utilizamos cookies de rastreo, publicidad ni analítica de
           terceros. Al usar la plataforma aceptas el uso de estas cookies esenciales.
         </Section>
@@ -163,7 +163,7 @@ export default function PrivacidadPage() {
           <Link href="/terminos" style={{ color: '#5F4D36', fontWeight: 600, textDecoration: 'none' }}>
             Términos y Condiciones
           </Link>.
-          Ambos documentos regulan el uso de la plataforma CapyABA.
+          Ambos documentos regulan el uso de la plataforma capyABA.
         </div>
 
         <div style={{ marginTop: '2rem', textAlign: 'center' }}>
