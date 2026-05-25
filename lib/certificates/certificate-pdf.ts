@@ -49,14 +49,16 @@ export type CertificateData = {
 }
 
 // ── Colores ──────────────────────────────────────────────────────────────────
-// Solo 2 tonos de marrón: uno oscuro para énfasis (Certificado, nombre, títulos
-// en negrita) y uno medio para todo lo demás. El gris es solo para el código
-// de verificación pequeño al pie.
-const INK_MEDIUM = rgb(0.416, 0.271, 0.212)
+// Paleta cálida en sintonía con el fondo durazno/rosa y la marca capyABA.
+// Solo 2 tonos: mocha de marca (#5F4D36) para énfasis y un tono medio cálido
+// (#8A7860) para texto secundario. El "casi-negro" anterior chocaba con el
+// fondo cálido — esta paleta es más armónica y respeta la identidad visual.
+const INK_BRAND  = rgb(0.373, 0.302, 0.212)   // #5F4D36 — mocha de "capy" en el logo
+const INK_SOFT   = rgb(0.541, 0.471, 0.376)   // #8A7860 — mocha más suave para body
 const C = {
-  ink:      INK_MEDIUM,
-  inkBold:  rgb(0.247, 0.149, 0.122),
-  inkLight: INK_MEDIUM, // antes era un 3er tono, ahora unificado al medio
+  ink:      INK_SOFT,
+  inkBold:  INK_BRAND,
+  inkLight: INK_SOFT,   // sin 3er tono — todo lo no-énfasis usa el mocha suave
   gray:     rgb(0.500, 0.500, 0.500),
 }
 
