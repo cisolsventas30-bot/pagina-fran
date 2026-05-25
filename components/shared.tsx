@@ -229,39 +229,15 @@ export function Footer() {
         {/* Bottom row — logo grande + copyright + redes */}
         <div style={{ paddingTop: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1.5rem' }}>
           <div>
-            {/* Logo capyABA + Libro de Reclamaciones lado a lado */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '.8rem' }}>
-              <Link href="/" style={{ display: 'inline-block', lineHeight: 0 }}>
-                <Image
-                  src="/capyaba-mascot.png"
-                  alt="capyABA"
-                  width={75}
-                  height={107}
-                  style={{ objectFit: 'contain', display: 'block', filter: 'brightness(0) invert(1)', opacity: .85 }}
-                />
-              </Link>
-              <Link
-                href="/libro-reclamaciones"
-                title="Libro de Reclamaciones"
-                style={{
-                  display: 'inline-block',
-                  background: '#fff',
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  lineHeight: 0,
-                  boxShadow: '0 2px 8px rgba(0,0,0,.25)',
-                  transition: 'transform .15s',
-                }}
-              >
-                <Image
-                  src="/libro-reclamaciones.png"
-                  alt="Libro de Reclamaciones"
-                  width={120}
-                  height={120}
-                  style={{ objectFit: 'contain', display: 'block', height: 95, width: 'auto' }}
-                />
-              </Link>
-            </div>
+            <Link href="/" style={{ display: 'inline-block', marginBottom: '.8rem' }}>
+              <Image
+                src="/capyaba-mascot.png"
+                alt="capyABA"
+                width={75}
+                height={107}
+                style={{ objectFit: 'contain', display: 'block', filter: 'brightness(0) invert(1)', opacity: .85 }}
+              />
+            </Link>
             <p style={{ fontSize: '.8rem', color: 'rgba(244,236,223,.35)', marginTop: '.3rem' }}>
               © 2026 capyABA · Francesca Ramírez Bontá · Hecho con 💛 desde Perú
             </p>
@@ -278,20 +254,45 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Lado derecho: solo redes sociales */}
-          <div style={{ display: 'flex', gap: '1.5rem', paddingBottom: '.2rem', alignItems: 'center' }}>
-            {[
-              ['Instagram', 'https://www.instagram.com/capyaba/'],
-              ['TikTok',    'https://www.tiktok.com/@capyaba'],
-              ['Facebook',  'https://www.facebook.com/profile.php?id=61560689756278'],
-            ].map(([label, href]) => (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: '.85rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none', transition: 'color .15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--cream)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(244,236,223,.45)')}>
-                {label}
-              </a>
-            ))}
+          {/* Lado derecho: redes sociales arriba + sello Libro de Reclamaciones abajo */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem', paddingBottom: '.2rem' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+              {[
+                ['Instagram', 'https://www.instagram.com/capyaba/'],
+                ['TikTok',    'https://www.tiktok.com/@capyaba'],
+                ['Facebook',  'https://www.facebook.com/profile.php?id=61560689756278'],
+              ].map(([label, href]) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '.85rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none', transition: 'color .15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--cream)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(244,236,223,.45)')}>
+                  {label}
+                </a>
+              ))}
+            </div>
+
+            {/* Libro de Reclamaciones — sello oficial clickeable */}
+            <Link
+              href="/libro-reclamaciones"
+              title="Libro de Reclamaciones"
+              style={{
+                display: 'inline-block',
+                background: '#fff',
+                padding: '6px 8px',
+                borderRadius: 6,
+                lineHeight: 0,
+                boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+                transition: 'transform .15s',
+              }}
+            >
+              <Image
+                src="/libro-reclamaciones.png"
+                alt="Libro de Reclamaciones"
+                width={120}
+                height={120}
+                style={{ objectFit: 'contain', display: 'block', height: 95, width: 'auto' }}
+              />
+            </Link>
           </div>
         </div>
 
