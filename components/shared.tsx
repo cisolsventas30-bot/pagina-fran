@@ -253,24 +253,50 @@ export function Footer() {
               <Link href="/devoluciones" style={{ fontSize: '.78rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none' }}>
                 Devoluciones
               </Link>
-              <Link href="/libro-reclamaciones" style={{ fontSize: '.78rem', color: 'rgba(244,236,223,.6)', textDecoration: 'none', fontWeight: 600 }}>
-                📋 Libro de Reclamaciones
-              </Link>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '1.5rem', paddingBottom: '.2rem' }}>
-            {[
-              ['Instagram', 'https://www.instagram.com/capyaba/'],
-              ['TikTok',    'https://www.tiktok.com/@capyaba'],
-              ['Facebook',  'https://www.facebook.com/profile.php?id=61560689756278'],
-            ].map(([label, href]) => (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: '.85rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none', transition: 'color .15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--cream)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(244,236,223,.45)')}>
-                {label}
-              </a>
-            ))}
+
+          {/* Columna derecha: Libro de Reclamaciones + redes */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem', paddingBottom: '.2rem' }}>
+
+            {/* Libro de Reclamaciones — imagen oficial clickeable */}
+            <Link
+              href="/libro-reclamaciones"
+              title="Libro de Reclamaciones"
+              style={{
+                display: 'inline-block',
+                background: '#fff',
+                padding: '6px 10px',
+                borderRadius: 6,
+                lineHeight: 0,
+                boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+                transition: 'transform .15s',
+              }}
+            >
+              <Image
+                src="/libro-reclamaciones.png"
+                alt="Libro de Reclamaciones"
+                width={70}
+                height={70}
+                style={{ objectFit: 'contain', display: 'block', height: 'auto' }}
+              />
+            </Link>
+
+            {/* Redes sociales */}
+            <div style={{ display: 'flex', gap: '1.5rem' }}>
+              {[
+                ['Instagram', 'https://www.instagram.com/capyaba/'],
+                ['TikTok',    'https://www.tiktok.com/@capyaba'],
+                ['Facebook',  'https://www.facebook.com/profile.php?id=61560689756278'],
+              ].map(([label, href]) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '.85rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none', transition: 'color .15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--cream)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(244,236,223,.45)')}>
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
