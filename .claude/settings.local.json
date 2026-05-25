@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "PowerShell($path = \"C:\\\\Users\\\\USER\\\\Documents\\\\pagina-fran\\\\app\\\\emprendimientos\\\\page.tsx\"; $content = [System.IO.File]::ReadAllText\\($path, [System.Text.Encoding]::UTF8\\); $new = $content.Replace\\('CapyABA', 'capyABA'\\); $utf8NoBom = New-Object System.Text.UTF8Encoding\\($false\\); [System.IO.File]::WriteAllText\\($path, $new, $utf8NoBom\\); \"Done. Remaining matches: \" + \\([regex]::Matches\\($new, 'CapyABA'\\).Count\\))"
     ]
   }
 }
