@@ -254,24 +254,8 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Lado derecho: redes sociales arriba + sello Libro de Reclamaciones abajo */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem', paddingBottom: '.2rem' }}>
-            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-              {[
-                ['Instagram', 'https://www.instagram.com/capyaba/'],
-                ['TikTok',    'https://www.tiktok.com/@capyaba'],
-                ['Facebook',  'https://www.facebook.com/profile.php?id=61560689756278'],
-              ].map(([label, href]) => (
-                <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: '.85rem', color: 'rgba(244,236,223,.45)', textDecoration: 'none', transition: 'color .15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--cream)')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(244,236,223,.45)')}>
-                  {label}
-                </a>
-              ))}
-            </div>
-
-            {/* Libro de Reclamaciones — sello oficial clickeable */}
+          {/* Lado derecho: sello Libro de Reclamaciones (las redes ya están en CONTACTO arriba) */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '.2rem' }}>
             <Link
               href="/libro-reclamaciones"
               title="Libro de Reclamaciones"
