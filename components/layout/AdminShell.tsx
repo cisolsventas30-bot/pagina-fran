@@ -6,7 +6,7 @@ import { AdminTopbar } from './AdminTopbar'
 type Props = {
   user: { email: string; full_name?: string; role: 'admin' | 'student' }
   hasAlert: boolean
-  counts: { courses: number; students: number; pendingReviews: number; certificates: number }
+  counts: { courses: number; students: number; pendingReviews: number; certificates: number; pendingTestimonials?: number }
   children: React.ReactNode
 }
 

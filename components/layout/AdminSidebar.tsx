@@ -10,6 +10,7 @@ import {
   Award,
   BarChart3,
   Newspaper,
+  MessageSquareQuote,
 } from 'lucide-react'
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
     students?: number
     pendingReviews?: number
     certificates?: number
+    pendingTestimonials?: number
   }
   open?: boolean
   onClose?: () => void
@@ -112,6 +114,19 @@ export function AdminSidebar({ counts, open, onClose }: Props) {
           <Newspaper size={15} strokeWidth={2} />
           Blog
         </span>
+      </Link>
+
+      <Link
+        href="/admin/testimonials"
+        className={`admin-sidebar-item ${isActive('/admin/testimonials') ? 'active' : ''}`}
+      >
+        <span className="label">
+          <MessageSquareQuote size={15} strokeWidth={2} />
+          Testimonios
+        </span>
+        {counts?.pendingTestimonials !== undefined && counts.pendingTestimonials > 0 && (
+          <span className="count">{counts.pendingTestimonials}</span>
+        )}
       </Link>
 
       <div className="admin-sidebar-section-label">Análisis</div>

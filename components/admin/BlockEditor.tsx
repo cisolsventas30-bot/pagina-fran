@@ -62,11 +62,30 @@ interface RichProps {
   onCommit: (html: string) => void
 }
 
+// Inyecta una vez los estilos para listas/links/font dentro de los bloques editables
+function EditorStyles() {
+  return (
+    <style suppressHydrationWarning>{`
+      [contenteditable] ul { list-style: disc; padding-left: 1.6rem; margin: .4rem 0; }
+      [contenteditable] ol { list-style: decimal; padding-left: 1.6rem; margin: .4rem 0; }
+      [contenteditable] li { margin-bottom: .25rem; }
+      [contenteditable] a { color: #c4783c; text-decoration: underline; }
+      [contenteditable] font[size="1"] { font-size: .72em; }
+      [contenteditable] font[size="2"] { font-size: .85em; }
+      [contenteditable] font[size="4"] { font-size: 1.15em; }
+      [contenteditable] font[size="5"] { font-size: 1.4em; }
+      [contenteditable] font[size="6"] { font-size: 1.75em; }
+      [contenteditable] font[size="7"] { font-size: 2.1em; }
+    `}</style>
+  )
+}
+
 function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: RichProps) {
   const ref = useRef<HTMLDivElement>(null)
   const lastId = useRef('')
   const [focused, setFocused] = useState(false)
   const [empty, setEmpty] = useState(!initialHtml)
+  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useLayoutEffect(() => {
     if (!ref.current || lastId.current === blockId) return
@@ -75,10 +94,29 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: Ri
     setEmpty(!initialHtml)
   }, [blockId, initialHtml])
 
+  const cancelBlur = useCallback(() => {
+    if (blurTimer.current) { clearTimeout(blurTimer.current); blurTimer.current = null }
+  }, [])
+
+  const scheduleBlur = useCallback(() => {
+    cancelBlur()
+    blurTimer.current = setTimeout(() => {
+      setFocused(false)
+      if (ref.current) onCommit(ref.current.innerHTML)
+    }, 180)
+  }, [cancelBlur, onCommit])
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div
+      style={{ position: 'relative' }}
+      onMouseDown={cancelBlur}
+    >
       {focused && (
-        <FormatBar target={ref.current} onFormat={() => ref.current && onCommit(ref.current.innerHTML)} />
+        <FormatBar
+          target={ref.current}
+          onFormat={() => ref.current && onCommit(ref.current.innerHTML)}
+          onInteract={cancelBlur}
+        />
       )}
       {empty && !focused && placeholder && (
         <div style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', color: '#ccc', lineHeight: 1.75, userSelect: 'none', ...style }}>
@@ -89,8 +127,8 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: Ri
         ref={ref}
         contentEditable
         suppressContentEditableWarning
-        onFocus={() => setFocused(true)}
-        onBlur={() => { setFocused(false); if (ref.current) onCommit(ref.current.innerHTML) }}
+        onFocus={() => { cancelBlur(); setFocused(true) }}
+        onBlur={scheduleBlur}
         onInput={() => { const v = ref.current?.innerHTML || ''; setEmpty(v === '' || v === '<br>') }}
         style={{ outline: 'none', minHeight: 28, wordBreak: 'break-word', lineHeight: 1.75, ...style }}
       />
@@ -100,67 +138,153 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: Ri
 
 // ── FormatBar ─────────────────────────────────────────────────────────────────
 
-function FormatBar({ target, onFormat }: { target: HTMLElement | null; onFormat: () => void }) {
-  const exec = (cmd: string, val?: string) => {
-    target?.focus(); document.execCommand(cmd, false, val); onFormat()
-  }
+function FormatBar({ target, onFormat, onInteract }: {
+  target: HTMLElement | null;
+  onFormat: () => void;
+  onInteract?: () => void;
+}) {
+  const savedRange = useRef<Range | null>(null)
   const [linkMode, setLinkMode] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+
+  const saveSelection = useCallback(() => {
+    const sel = window.getSelection()
+    if (sel && sel.rangeCount > 0 && target?.contains(sel.anchorNode)) {
+      savedRange.current = sel.getRangeAt(0).cloneRange()
+    }
+  }, [target])
+
+  const restoreSelection = useCallback(() => {
+    if (!savedRange.current || !target) return
+    target.focus()
+    const sel = window.getSelection()
+    if (!sel) return
+    sel.removeAllRanges()
+    sel.addRange(savedRange.current)
+  }, [target])
+
+  const exec = useCallback((cmd: string, val?: string) => {
+    restoreSelection()
+    document.execCommand(cmd, false, val)
+    onFormat()
+    // re-save the (possibly modified) selection so chained ops still work
+    saveSelection()
+  }, [restoreSelection, saveSelection, onFormat])
+
+  // Centralized toolbar mousedown: cancels parent blur + saves selection.
+  // For form controls (input / select / color) we must NOT preventDefault,
+  // otherwise the native picker/input never gets activated.
+  const onToolbarMouseDown = useCallback((e: React.MouseEvent) => {
+    onInteract?.()
+    saveSelection()
+    const el = e.target as HTMLElement
+    const tag = el.tagName
+    const inputType = (el as HTMLInputElement).type
+    const isFormControl =
+      tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || inputType === 'color'
+    if (!isFormControl) e.preventDefault()
+  }, [onInteract, saveSelection])
+
   const b: React.CSSProperties = {
     width: 28, height: 26, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     border: '1px solid #e0dbd4', borderRadius: 5, background: '#fff',
     color: '#444', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
   }
+  const sep = <span style={{ width: 1, height: 18, background: '#e0dbd4', margin: '0 2px', flexShrink: 0 }} />
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', padding: '4px 6px', marginBottom: 6, background: '#fff', border: '1px solid #e0dbd4', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}
-      onMouseDown={e => e.preventDefault()}>
-      <button type="button" style={b} onClick={() => exec('bold')}><b>B</b></button>
-      <button type="button" style={b} onClick={() => exec('italic')}><i>I</i></button>
-      <button type="button" style={b} onClick={() => exec('underline')}><u>U</u></button>
-      <button type="button" style={b} onClick={() => exec('strikeThrough')}><s>S</s></button>
-      <span style={{ width: 1, height: 18, background: '#e0dbd4', margin: '0 2px', flexShrink: 0 }} />
-      <button type="button" style={b} onClick={() => exec('justifyLeft')}>⬅</button>
-      <button type="button" style={b} onClick={() => exec('justifyCenter')}>⬛</button>
-      <button type="button" style={b} onClick={() => exec('justifyRight')}>➡</button>
-      <span style={{ width: 1, height: 18, background: '#e0dbd4', margin: '0 2px', flexShrink: 0 }} />
-      <select defaultValue="" onChange={e => { if (e.target.value) exec('fontSize', e.target.value); e.target.value = '' }}
-        onMouseDown={e => e.stopPropagation()}
-        style={{ height: 26, fontSize: 11, border: '1px solid #e0dbd4', borderRadius: 5, background: '#fff', color: '#444', padding: '0 2px', cursor: 'pointer' }}>
-        <option value="">Tam.</option>
-        <option value="1">Pequeño</option>
+    <div
+      onMouseDown={onToolbarMouseDown}
+      style={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', padding: '4px 6px', marginBottom: 6, background: '#fff', border: '1px solid #e0dbd4', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}
+    >
+      <button type="button" style={b} onClick={() => exec('bold')} title="Negrita"><b>B</b></button>
+      <button type="button" style={b} onClick={() => exec('italic')} title="Cursiva"><i>I</i></button>
+      <button type="button" style={b} onClick={() => exec('underline')} title="Subrayado"><u>U</u></button>
+      <button type="button" style={b} onClick={() => exec('strikeThrough')} title="Tachado"><s>S</s></button>
+      {sep}
+      <button type="button" style={{ ...b, width: 'auto', padding: '0 8px' }} onClick={() => exec('insertUnorderedList')} title="Lista con viñetas">• Lista</button>
+      <button type="button" style={{ ...b, width: 'auto', padding: '0 8px' }} onClick={() => exec('insertOrderedList')} title="Lista numerada">1. Lista</button>
+      {sep}
+      <button type="button" style={b} onClick={() => exec('justifyLeft')} title="Alinear a la izquierda">⬅</button>
+      <button type="button" style={b} onClick={() => exec('justifyCenter')} title="Centrar">⬛</button>
+      <button type="button" style={b} onClick={() => exec('justifyRight')} title="Alinear a la derecha">➡</button>
+      {sep}
+      <select
+        defaultValue=""
+        onChange={e => {
+          const v = e.target.value
+          e.target.value = ''
+          if (v) exec('fontSize', v)
+        }}
+        style={{ height: 26, fontSize: 11, border: '1px solid #e0dbd4', borderRadius: 5, background: '#fff', color: '#444', padding: '0 4px', cursor: 'pointer' }}
+        title="Tamaño de texto"
+      >
+        <option value="">Tamaño</option>
+        <option value="1">Muy pequeño</option>
+        <option value="2">Pequeño</option>
         <option value="3">Normal</option>
-        <option value="4">Grande</option>
-        <option value="5">Muy grande</option>
-        <option value="6">Extra</option>
+        <option value="4">Mediano</option>
+        <option value="5">Grande</option>
+        <option value="6">Muy grande</option>
+        <option value="7">Extra</option>
       </select>
-      <span style={{ width: 1, height: 18, background: '#e0dbd4', margin: '0 2px', flexShrink: 0 }} />
-      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 2, cursor: 'pointer' }} title="Color texto">
+      {sep}
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 2, cursor: 'pointer' }} title="Color de texto">
         <span style={{ fontSize: 11, color: '#888' }}>A</span>
-        <input type="color" defaultValue="#1a1a1a" onChange={e => exec('foreColor', e.target.value)}
-          style={{ width: 20, height: 20, border: 'none', background: 'none', padding: 0, cursor: 'pointer' }} />
+        <input
+          type="color"
+          defaultValue="#1a1a1a"
+          onChange={e => exec('foreColor', e.target.value)}
+          style={{ width: 20, height: 20, border: 'none', background: 'none', padding: 0, cursor: 'pointer' }}
+        />
       </label>
-      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 2, cursor: 'pointer' }} title="Resaltar">
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 2, cursor: 'pointer' }} title="Color de resaltado">
         <span style={{ fontSize: 10, color: '#888' }}>BG</span>
-        <input type="color" defaultValue="#fff59d" onChange={e => exec('hiliteColor', e.target.value)}
-          style={{ width: 20, height: 20, border: 'none', background: 'none', padding: 0, cursor: 'pointer' }} />
+        <input
+          type="color"
+          defaultValue="#fff59d"
+          onChange={e => exec('hiliteColor', e.target.value)}
+          style={{ width: 20, height: 20, border: 'none', background: 'none', padding: 0, cursor: 'pointer' }}
+        />
       </label>
-      <span style={{ width: 1, height: 18, background: '#e0dbd4', margin: '0 2px', flexShrink: 0 }} />
+      {sep}
       {linkMode ? (
         <>
-          <input autoFocus type="url" placeholder="https://..." value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { exec('createLink', linkUrl); setLinkMode(false); setLinkUrl('') } if (e.key === 'Escape') setLinkMode(false) }}
-            onMouseDown={e => e.stopPropagation()}
-            style={{ height: 24, fontSize: 12, border: '1px solid #e0dbd4', borderRadius: 5, padding: '0 6px', width: 150 }} />
-          <button type="button" onClick={() => { exec('createLink', linkUrl); setLinkMode(false); setLinkUrl('') }} style={{ ...b, background: '#16a34a', color: '#fff', border: 'none' }}>✓</button>
-          <button type="button" onClick={() => setLinkMode(false)} style={b}>✕</button>
+          <input
+            autoFocus
+            type="url"
+            placeholder="https://..."
+            value={linkUrl}
+            onChange={e => setLinkUrl(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                if (linkUrl) exec('createLink', linkUrl)
+                setLinkMode(false); setLinkUrl('')
+              } else if (e.key === 'Escape') {
+                setLinkMode(false); setLinkUrl('')
+              }
+            }}
+            style={{ height: 24, fontSize: 12, border: '1px solid #e0dbd4', borderRadius: 5, padding: '0 6px', width: 170 }}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (linkUrl) exec('createLink', linkUrl)
+              setLinkMode(false); setLinkUrl('')
+            }}
+            style={{ ...b, background: '#16a34a', color: '#fff', border: 'none' }}
+            title="Aplicar enlace"
+          >✓</button>
+          <button type="button" onClick={() => { setLinkMode(false); setLinkUrl('') }} style={b} title="Cancelar">✕</button>
         </>
       ) : (
         <>
-          <button type="button" style={b} onClick={() => setLinkMode(true)} title="Enlace">🔗</button>
+          <button type="button" style={b} onClick={() => setLinkMode(true)} title="Insertar enlace">🔗</button>
           <button type="button" style={b} onClick={() => exec('unlink')} title="Quitar enlace">✂</button>
         </>
       )}
-      <span style={{ width: 1, height: 18, background: '#e0dbd4', margin: '0 2px', flexShrink: 0 }} />
+      {sep}
       <button type="button" style={{ ...b, fontSize: 10 }} onClick={() => exec('removeFormat')} title="Limpiar formato">✕fmt</button>
     </div>
   )
@@ -239,6 +363,7 @@ export function BlockEditor({ value, onChange, postId }: BlockEditorProps) {
 
   return (
     <div>
+      <EditorStyles />
       <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
         onChange={e => {
           const f = e.target.files?.[0]

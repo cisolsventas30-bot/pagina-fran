@@ -17,22 +17,25 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { count: studentsCount },
     { count: pendingReviews },
     { count: certificatesCount },
+    { count: pendingTestimonials },
   ] = await Promise.all([
     supabase.from('courses').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
     supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }).eq('needs_review', true),
     supabase.from('certificates').select('*', { count: 'exact', head: true }),
+    supabase.from('testimonials').select('*', { count: 'exact', head: true }).eq('is_published', false),
   ])
 
   return (
     <AdminShell
       user={profile as any}
-      hasAlert={(pendingReviews || 0) > 0}
+      hasAlert={(pendingReviews || 0) > 0 || (pendingTestimonials || 0) > 0}
       counts={{
         courses: coursesCount || 0,
         students: studentsCount || 0,
         pendingReviews: pendingReviews || 0,
         certificates: certificatesCount || 0,
+        pendingTestimonials: pendingTestimonials || 0,
       }}
     >
       {children}

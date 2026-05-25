@@ -127,7 +127,8 @@ function BlockRenderer({ block, index }: { block: Block; index: number }) {
     </pre>
   )
 
-  return <p {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#2a2825', lineHeight: 1.85, margin: '0 0 24px' }} />
+  // Render as div (not p) so inline <ul>/<ol> from the editor are valid HTML
+  return <div {...sh} className="bp-paragraph" style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#2a2825', lineHeight: 1.85, margin: '0 0 24px' }} />
 }
 
 // ── Página principal ──────────────────────────────────────────────────────────
@@ -342,6 +343,30 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         .bp-side-text h1, .bp-side-text h2 { font-family: Georgia, serif; font-size: 22px; font-weight: 700; color: #1a1a18; line-height: 1.3; margin: 0 0 12px; }
         .bp-side-text h3 { font-family: Georgia, serif; font-size: 18px; font-weight: 700; color: #1a1a18; margin: 0 0 10px; }
         .bp-side-text strong, .bp-side-text b { font-weight: 700; color: #1a1a18; }
+
+        /* ── Inline lists, links and styles dentro de párrafos del editor ── */
+        .bp-paragraph ul, .bp-paragraph ol,
+        .bp-side-text ul, .bp-side-text ol {
+          padding-left: 1.6rem;
+          margin: 0.4rem 0 1rem;
+        }
+        .bp-paragraph ul { list-style: disc; }
+        .bp-paragraph ol { list-style: decimal; }
+        .bp-paragraph li, .bp-side-text li { margin-bottom: 0.35rem; line-height: 1.7; }
+        .bp-paragraph a, .bp-side-text a { color: #c4783c; text-decoration: underline; }
+        .bp-paragraph a:hover, .bp-side-text a:hover { color: #7a4020; }
+        .bp-paragraph strong, .bp-paragraph b { font-weight: 700; color: #1a1a18; }
+        .bp-paragraph em, .bp-paragraph i { font-style: italic; }
+        .bp-paragraph u { text-decoration: underline; }
+        .bp-paragraph s, .bp-paragraph strike { text-decoration: line-through; }
+        /* font tags from execCommand fontSize */
+        .bp-paragraph font[size="1"] { font-size: 0.72em; }
+        .bp-paragraph font[size="2"] { font-size: 0.85em; }
+        .bp-paragraph font[size="3"] { font-size: 1em; }
+        .bp-paragraph font[size="4"] { font-size: 1.15em; }
+        .bp-paragraph font[size="5"] { font-size: 1.4em; }
+        .bp-paragraph font[size="6"] { font-size: 1.75em; }
+        .bp-paragraph font[size="7"] { font-size: 2.1em; }
 
         /* Artículos relacionados */
         .bp-related { max-width: 1280px; margin: 0 auto; padding: 0 60px 100px; }
