@@ -257,15 +257,15 @@ export function Footer() {
           {/* Lado derecho: sello Libro de Reclamaciones + redes (inline tipo BCP) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', paddingBottom: '.2rem' }}>
 
-            {/* Libro de Reclamaciones — sello oficial clickeable, inline con las redes */}
+            {/* Libro de Reclamaciones — sello oficial clickeable, 1cm × 1cm exacto */}
             <Link
               href="/libro-reclamaciones"
               title="Libro de Reclamaciones"
               style={{
                 display: 'inline-block',
                 background: '#fff',
-                padding: '5px 8px',
-                borderRadius: 5,
+                padding: '2px 3px',
+                borderRadius: 4,
                 lineHeight: 0,
                 boxShadow: '0 2px 8px rgba(0,0,0,.25)',
                 transition: 'transform .15s',
@@ -274,9 +274,9 @@ export function Footer() {
               <Image
                 src="/libro-reclamaciones.png"
                 alt="Libro de Reclamaciones"
-                width={48}
-                height={48}
-                style={{ objectFit: 'contain', display: 'block', height: 'auto' }}
+                width={96}
+                height={96}
+                style={{ objectFit: 'contain', display: 'block', width: '1cm', height: '1cm' }}
               />
             </Link>
 
