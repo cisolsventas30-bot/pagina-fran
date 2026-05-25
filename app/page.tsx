@@ -645,7 +645,7 @@ export default function Home() {
             <div className="eyebrow" style={{ color:'#F5D78E' }}>¿QUIÉN SOY?</div>
             <h2 className="section-title" style={{ color:'#F4ECDF', marginBottom:'1.8rem' }}>
               Soy <strong>capyABA</strong>,{' '}
-              <em>psicóloga y neuropsicóloga</em>.
+              <em>psicóloga, neuropsicóloga y analista conductual</em>.
             </h2>
             <p style={{ fontSize:'1.1rem', color:'rgba(244,236,223,.72)', lineHeight:1.6, marginBottom:'1rem' }}>
               Especialista en terapia infantil, certificada como IBA y IBT por la IBAO.

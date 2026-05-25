@@ -1,7 +1,19 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Nav, Footer, WspBubble, wa, useReveal } from '@/components/shared'
+import { createClient } from '@/lib/supabase/client'
+
+const ACCENT_PALETTE = ['#C8DFB0', '#F5C9A0', '#F5DFD3', '#D4E0C5', '#F2C8B6', '#E8DCC2']
+type Testimonial = {
+  cat: string
+  quote: string
+  name: string
+  role: string
+  initials: string
+  accent: string
+  stars: number
+}
 
 const TESTIMONIALS = [
   // FAMILIAS
@@ -31,7 +43,7 @@ const TESTIMONIALS = [
 const CATS = ['Todos','Familias','Supervisión']
 const STATS = [
   { num:'29+', label:'Opiniones verificadas' },
-  { num:'100%', label:'Recomendarían a Fran' },
+  { num:'100%', label:'Recomendarían a capyABA' },
   { num:'4.9★', label:'Calificación promedio' },
 ]
 
@@ -50,7 +62,33 @@ function Stars({ count = 5 }: { count?: number }) {
 export default function Testimonios() {
   useReveal()
   const [active, setActive] = useState('Todos')
-  const filtered = active === 'Todos' ? TESTIMONIALS : TESTIMONIALS.filter(t => t.cat === active)
+  const [dbReviews, setDbReviews] = useState<Testimonial[]>([])
+  const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from('testimonials')
+      .select('name, role, category, quote, stars, initials, accent')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) {
+          setDbReviews(data.map((d: any, i: number) => ({
+            cat: d.category || 'Familias',
+            quote: d.quote || '',
+            name: d.name || 'Anónimo',
+            role: d.role || '',
+            initials: d.initials || (d.name || 'A').slice(0, 2).toUpperCase(),
+            accent: d.accent || ACCENT_PALETTE[i % ACCENT_PALETTE.length],
+            stars: d.stars || 5,
+          })))
+        }
+      })
+  }, [])
+
+  const allReviews: Testimonial[] = [...dbReviews, ...TESTIMONIALS]
+  const filtered = active === 'Todos' ? allReviews : allReviews.filter(t => t.cat === active)
 
   return (
     <>
@@ -159,15 +197,41 @@ export default function Testimonios() {
 
       {/* STATS dark */}
       <section style={{ background:'#1F1710', padding:'6rem 3rem' }}>
-        <div style={{ maxWidth:1000, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'2rem' }}>
-          {STATS.map((s,i) => (
-            <div key={s.num} className="reveal" style={{ textAlign:'center', transitionDelay:`${i*.1}s` }}>
-              <div style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(3rem,5vw,4.5rem)', fontWeight:400, letterSpacing:'-.03em', lineHeight:1, marginBottom:'.75rem', color:'#F5D78E' }}>{s.num}</div>
-              <div style={{ fontSize:'1rem', color:'rgba(244,236,223,.7)' }}>{s.label}</div>
-            </div>
-          ))}
+        <div style={{ maxWidth:1000, margin:'0 auto' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'2rem' }}>
+            {STATS.map((s,i) => (
+              <div key={s.num} className="reveal" style={{ textAlign:'center', transitionDelay:`${i*.1}s` }}>
+                <div style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(3rem,5vw,4.5rem)', fontWeight:400, letterSpacing:'-.03em', lineHeight:1, marginBottom:'.75rem', color:'#F5D78E' }}>{s.num}</div>
+                <div style={{ fontSize:'1rem', color:'rgba(244,236,223,.7)' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Deja tu reseña */}
+          <div className="reveal" style={{ textAlign:'center', marginTop:'4rem' }}>
+            <button
+              onClick={() => setShowForm(true)}
+              style={{
+                background:'#F5D78E', color:'#1F1710',
+                border:'none', padding:'1rem 2.2rem', borderRadius:100,
+                fontSize:'.95rem', fontWeight:700, cursor:'pointer',
+                fontFamily:'inherit', letterSpacing:'.01em',
+                transition:'transform .15s, box-shadow .15s',
+                boxShadow:'0 4px 18px rgba(245,215,142,.25)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 24px rgba(245,215,142,.4)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 4px 18px rgba(245,215,142,.25)' }}
+            >
+              ✍️ Deja tu reseña
+            </button>
+            <p style={{ fontSize:'.78rem', color:'rgba(244,236,223,.45)', marginTop:'.9rem' }}>
+              Las reseñas se publican después de una breve revisión.
+            </p>
+          </div>
         </div>
       </section>
+
+      {showForm && <ReviewForm onClose={() => setShowForm(false)} />}
 
       {/* CTA */}
       <section id="contacto" style={{ background:'#F4ECDF', padding:'8rem 3rem', textAlign:'center' }}>
@@ -182,5 +246,202 @@ export default function Testimonios() {
       <Footer />
       <WspBubble msg="Hola capyABA, leí los testimonios y me gustaría comenzar 🦫" />
     </>
+  )
+}
+
+/* ── Modal: Deja tu reseña ────────────────────────────────────────────────── */
+function ReviewForm({ onClose }: { onClose: () => void }) {
+  const [name, setName] = useState('')
+  const [role, setRole] = useState('')
+  const [email, setEmail] = useState('')
+  const [category, setCategory] = useState<'Familias' | 'Supervisión'>('Familias')
+  const [quote, setQuote] = useState('')
+  const [stars, setStars] = useState(5)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await fetch('/api/testimonials/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, role, email, category, quote, stars }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Error al enviar la reseña.')
+        setLoading(false)
+        return
+      }
+      setSuccess(true)
+      setLoading(false)
+    } catch {
+      setError('Error de conexión. Intenta más tarde.')
+      setLoading(false)
+    }
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '.7rem .9rem',
+    border: '1.5px solid #E8DDD3', borderRadius: 10,
+    fontSize: '.92rem', color: '#1F1710',
+    background: '#fff', boxSizing: 'border-box',
+    fontFamily: 'inherit', outline: 'none',
+    transition: 'border-color .15s',
+  }
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '.78rem', fontWeight: 700,
+    color: '#5F4D36', marginBottom: 6, letterSpacing: '.02em',
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(31,23,16,.65)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '1rem', overflow: 'auto',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: '#FDFAF6', borderRadius: 18,
+          maxWidth: 520, width: '100%',
+          padding: '2rem 1.8rem', position: 'relative',
+          boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+          maxHeight: '90vh', overflowY: 'auto',
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Cerrar"
+          style={{
+            position: 'absolute', top: 14, right: 16,
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: '1.4rem', color: '#8A7E74', lineHeight: 1,
+          }}
+        >✕</button>
+
+        {success ? (
+          <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌟</div>
+            <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.6rem', color: '#1F1710', marginBottom: '.6rem' }}>
+              ¡Gracias por tu reseña!
+            </h3>
+            <p style={{ color: '#6B5E4E', fontSize: '.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              Tu opinión fue enviada y aparecerá publicada en cuanto sea revisada (1–2 días). Tu voz nos ayuda a seguir mejorando 💛
+            </p>
+            <button
+              onClick={onClose}
+              style={{
+                background: '#5F4D36', color: '#fff', border: 'none',
+                padding: '.7rem 1.8rem', borderRadius: 100,
+                fontSize: '.9rem', fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              Cerrar
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.7rem', color: '#1F1710', marginBottom: '.3rem' }}>
+              Deja tu reseña ✍️
+            </h3>
+            <p style={{ color: '#6B5E4E', fontSize: '.85rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              Comparte tu experiencia con capyABA. Tu reseña será publicada después de una breve revisión.
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+              <div>
+                <label style={labelStyle}>Calificación</label>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {[1,2,3,4,5].map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setStars(n)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+                      aria-label={`${n} estrellas`}
+                    >
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill={n <= stars ? '#E8A020' : '#D4C9B8'}>
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.8rem' }}>
+                <div>
+                  <label style={labelStyle}>Nombre *</label>
+                  <input value={name} onChange={e => setName(e.target.value)} required maxLength={60} placeholder="Ej: María L." style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Categoría *</label>
+                  <select value={category} onChange={e => setCategory(e.target.value as any)} style={inputStyle}>
+                    <option value="Familias">Familia</option>
+                    <option value="Supervisión">Profesional / Supervisión</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.8rem' }}>
+                <div>
+                  <label style={labelStyle}>Rol (opcional)</label>
+                  <input value={role} onChange={e => setRole(e.target.value)} maxLength={60} placeholder="Ej: Mamá · Consultorio" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Correo (opcional)</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} maxLength={120} placeholder="tu@correo.com" style={inputStyle} />
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Tu reseña * <span style={{ color: '#9C8E7F', fontWeight: 500 }}>({quote.length}/1000)</span></label>
+                <textarea
+                  value={quote}
+                  onChange={e => setQuote(e.target.value)}
+                  required
+                  minLength={30}
+                  maxLength={1000}
+                  rows={5}
+                  placeholder="Cuéntanos cómo fue tu experiencia con capyABA. Mínimo 30 caracteres."
+                  style={{ ...inputStyle, resize: 'vertical', minHeight: 110, lineHeight: 1.55 }}
+                />
+              </div>
+
+              {error && (
+                <div style={{ background: '#FFF0F0', border: '1px solid #FFB3B3', borderRadius: 10, padding: '.65rem .9rem', fontSize: '.85rem', color: '#C0392B' }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  background: loading ? '#9E8C7A' : '#5F4D36',
+                  color: '#fff', border: 'none',
+                  padding: '.85rem 1.5rem', borderRadius: 12,
+                  fontSize: '.95rem', fontWeight: 700,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'background .15s',
+                  marginTop: '.3rem',
+                }}
+              >
+                {loading ? 'Enviando…' : 'Enviar reseña'}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
   )
 }
