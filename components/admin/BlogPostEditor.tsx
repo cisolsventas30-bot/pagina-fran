@@ -105,10 +105,13 @@ async function uploadImg(file: File, sb: ReturnType<typeof createClient>): Promi
 
 // ── FormatBar ─────────────────────────────────────────────────────────────────
 
-function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
+function FormatBar({ target, onFormat, savedRangeRef, onSaveRange }: {
   target: HTMLElement | null
   onFormat: () => void
-  savedRange: Range | null
+  // Pasamos el REF en vez del valor — así siempre leemos el rango más reciente
+  // (la prop estática quedaba obsoleta entre renders y los comandos se aplicaban
+  // sobre una selección vieja, por eso "viñetas" y "tamaño" parecían no hacer nada).
+  savedRangeRef: React.MutableRefObject<Range | null>
   onSaveRange: () => void
 }) {
   const [lm, setLm] = useState(false)
@@ -119,7 +122,7 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
   const restoreRange = (override?: Range | null) => {
     if (!target) return
     target.focus()
-    const r = override || savedRange
+    const r = override || savedRangeRef.current
     if (!r) return
     const sel = window.getSelection()
     if (!sel) return
@@ -180,12 +183,12 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
 
   const openLinkMode = () => {
     onSaveRange()
-    // Capturamos el range actual para usarlo al aplicar (savedRange es prop estable)
+    // Capturamos el range actual para usarlo al aplicar el link
     const sel = window.getSelection()
     if (sel && sel.rangeCount > 0 && target?.contains(sel.anchorNode)) {
       linkSavedRange.current = sel.getRangeAt(0).cloneRange()
     } else {
-      linkSavedRange.current = savedRange
+      linkSavedRange.current = savedRangeRef.current
     }
     setLm(true)
   }
@@ -313,7 +316,7 @@ function RichTextArea({ blockId, initialHtml, placeholder, style, onCommit }: {
         <FormatBar
           target={ref.current}
           onFormat={() => { forceUpdate(n=>n+1); if (ref.current) onCommit(ref.current.innerHTML) }}
-          savedRange={savedRangeRef.current}
+          savedRangeRef={savedRangeRef}
           onSaveRange={saveRange}
         />
       )}
@@ -360,10 +363,10 @@ function SideTextArea({ blockId, value, onChange, placeholder }: {
     setEmpty(!value)
   }, [blockId, value])
 
-  const [savedRange, setSavedRange] = useState<Range | null>(null)
+  const savedRangeRef = useRef<Range | null>(null)
   const saveRange = () => {
     const sel = window.getSelection()
-    if (sel && sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0).cloneRange())
+    if (sel && sel.rangeCount > 0) savedRangeRef.current = sel.getRangeAt(0).cloneRange()
   }
 
   return (
@@ -372,7 +375,7 @@ function SideTextArea({ blockId, value, onChange, placeholder }: {
         <FormatBar
           target={ref.current}
           onFormat={() => ref.current && onChange(ref.current.innerHTML)}
-          savedRange={savedRange}
+          savedRangeRef={savedRangeRef}
           onSaveRange={saveRange}
         />
       )}

@@ -7,16 +7,31 @@ export const dynamic = 'force-dynamic'
 export default async function CertificatesPage() {
   const supabase = await createClient()
 
-  const { data: certificates } = await supabase
+  // La tabla `certificates` no tiene student_id ni course_id directamente —
+  // ambos vienen vía la matrícula. Hacemos JOIN por enrollment_id.
+  const { data: certificatesRaw } = await supabase
     .from('certificates')
     .select(`
-      id, enrollment_id, certificate_number, issued_at, final_score, pdf_url,
-      profiles:student_id (id, full_name, email),
-      courses (id, title)
+      id, enrollment_id, issued_at, final_score, pdf_url, verification_code,
+      enrollments (
+        student_id, course_id,
+        profiles:student_id (id, full_name, email),
+        courses (id, title)
+      )
     `)
     .order('issued_at', { ascending: false })
 
-  const list = (certificates as any[]) || []
+  // Aplanar la estructura para que CertificatesManager la consuma igual que antes.
+  const list = ((certificatesRaw as any[]) || []).map((c: any) => ({
+    id: c.id,
+    enrollment_id: c.enrollment_id,
+    certificate_number: c.verification_code,    // usamos el verification_code como "número"
+    issued_at: c.issued_at,
+    final_score: c.final_score,
+    pdf_url: c.pdf_url,
+    profiles: c.enrollments?.profiles || null,
+    courses: c.enrollments?.courses || null,
+  }))
 
   // Enrollments completados sin certificado
   const certEnrollmentIds = list.map((c: any) => c.enrollment_id).filter(Boolean)
