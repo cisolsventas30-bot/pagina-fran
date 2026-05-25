@@ -118,14 +118,22 @@ function FormatBar({ target, onFormat, savedRangeRef, onSaveRange }: {
   const [lu, setLu] = useState('')
   const linkSavedRange = useRef<Range | null>(null)
 
-  // Restaura la selección guardada (usa la más reciente o la guardada al abrir el link)
+  // Restaura la selección guardada SOLO si la actual no está dentro del editor.
+  // Si el editor ya tiene su selección viva, la respetamos (no la pisamos con
+  // una vieja). Esto era el bug por el que viñetas/tamaño se aplicaban en el
+  // lugar equivocado o sobre nada.
   const restoreRange = (override?: Range | null) => {
     if (!target) return
+    const sel = window.getSelection()
+    const liveInEditor =
+      sel && sel.rangeCount > 0 && target.contains(sel.anchorNode)
+    if (liveInEditor && !override) {
+      target.focus()
+      return // mantiene la selección actual
+    }
     target.focus()
     const r = override || savedRangeRef.current
-    if (!r) return
-    const sel = window.getSelection()
-    if (!sel) return
+    if (!r || !sel) return
     sel.removeAllRanges()
     sel.addRange(r)
   }
@@ -137,22 +145,25 @@ function FormatBar({ target, onFormat, savedRangeRef, onSaveRange }: {
     onFormat()
   }
 
-  // Tamaño usando CSS real (no <font size>)
+  // Aplica un tamaño en píxeles a la selección actual.
+  // Truco: forzamos modo LEGACY para que execCommand('fontSize', '7') genere
+  // <font size="7"> (no <span style="font-size: xxx-large">). Después los
+  // reemplazamos por <span style="font-size: Xpx"> con el tamaño real elegido.
   const applyFontSize = (px: string) => {
     if (!target) return
     restoreRange()
     const sel = window.getSelection()
     if (!sel || sel.isCollapsed) return
-    document.execCommand('styleWithCSS', false, 'true')
-    document.execCommand('fontSize', false, '7') // placeholder
-    const spans = target.querySelectorAll('font[size="7"]')
-    spans.forEach(s => {
+    // Asegurar modo legacy para obtener <font size="7"> reemplazable
+    try { document.execCommand('styleWithCSS', false, 'false') } catch {}
+    document.execCommand('fontSize', false, '7')
+    const fontTags = target.querySelectorAll('font[size="7"]')
+    fontTags.forEach(s => {
       const sp = document.createElement('span')
       sp.style.fontSize = px
       sp.innerHTML = (s as HTMLElement).innerHTML
       s.replaceWith(sp)
     })
-    document.execCommand('styleWithCSS', false, 'false')
     onFormat()
   }
 
