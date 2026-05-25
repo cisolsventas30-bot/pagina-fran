@@ -194,8 +194,6 @@ const FOOTER_COLS = [
     ['Blog', '/blog'],
     ['Sobre mí', '/sobre-mi'],
     ['Testimonios', '/testimonios'],
-    ['Devoluciones', '/devoluciones'],
-    ['Libro de Reclamaciones', '/libro-reclamaciones'],
   ]},
   { title: 'Contacto', links: [
     ['WhatsApp', `https://wa.me/51940428169`],
@@ -256,18 +254,18 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Columna derecha: Libro de Reclamaciones + redes */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem', paddingBottom: '.2rem' }}>
+          {/* Lado derecho: sello Libro de Reclamaciones + redes (inline tipo BCP) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', paddingBottom: '.2rem' }}>
 
-            {/* Libro de Reclamaciones — imagen oficial clickeable */}
+            {/* Libro de Reclamaciones — sello oficial clickeable, inline con las redes */}
             <Link
               href="/libro-reclamaciones"
               title="Libro de Reclamaciones"
               style={{
                 display: 'inline-block',
                 background: '#fff',
-                padding: '6px 10px',
-                borderRadius: 6,
+                padding: '5px 8px',
+                borderRadius: 5,
                 lineHeight: 0,
                 boxShadow: '0 2px 8px rgba(0,0,0,.25)',
                 transition: 'transform .15s',
@@ -276,14 +274,14 @@ export function Footer() {
               <Image
                 src="/libro-reclamaciones.png"
                 alt="Libro de Reclamaciones"
-                width={70}
-                height={70}
+                width={48}
+                height={48}
                 style={{ objectFit: 'contain', display: 'block', height: 'auto' }}
               />
             </Link>
 
             {/* Redes sociales */}
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
               {[
                 ['Instagram', 'https://www.instagram.com/capyaba/'],
                 ['TikTok',    'https://www.tiktok.com/@capyaba'],
