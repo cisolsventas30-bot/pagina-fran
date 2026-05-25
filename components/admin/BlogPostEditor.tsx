@@ -1183,6 +1183,29 @@ export function BlogPostEditor({ post }: { post?: Post }) {
   return (
     <>
       <style suppressHydrationWarning>{CSS}</style>
+      {/* Restaurar viñetas e indentación dentro del contenteditable.
+          Tailwind `@tailwind base` resetea ul/ol — sin esto las listas
+          insertadas quedan invisibles aunque la estructura sí cambia. */}
+      <style suppressHydrationWarning>{`
+        [contenteditable] ul {
+          list-style: disc !important;
+          padding-left: 1.6rem !important;
+          margin: .5rem 0 !important;
+        }
+        [contenteditable] ol {
+          list-style: decimal !important;
+          padding-left: 1.6rem !important;
+          margin: .5rem 0 !important;
+        }
+        [contenteditable] li {
+          margin-bottom: .25rem;
+          display: list-item;
+        }
+        [contenteditable] a {
+          color: #c4783c;
+          text-decoration: underline;
+        }
+      `}</style>
       <div className="v6-layout">
 
         {/* ── TOPBAR ── */}
