@@ -231,20 +231,26 @@ const SERVICES = [
   },
   {
     id: 'cursos',
-    title: 'Cursos IBT & IBA',
-    desc: 'Formación teórica aprobada por la IBAO, con estándares internacionales.',
+    title: 'Cursos',
+    desc: '',
+    bullets: [
+      'CEUs',
+      'Formación teórica de IBT',
+      'Formación teórica de IBA',
+      'Cursos libres de capyABA',
+    ],
     dot: '#C4B0EC',
     img: '/cursos-ibt.png',
-    wsp: 'Hola capyABA, me interesa información sobre los Cursos IBT/IBA 📚',
+    wsp: 'Hola capyABA, me interesa información sobre los Cursos 📚',
     href: '/servicios#cursos',
   },
   {
     id: 'supervisiones',
-    title: 'Supervisiones IBT & IBA',
-    desc: 'Retroalimentación personalizada y análisis de casos para candidatos en formación.',
+    title: 'Supervisiones',
+    desc: 'Supervisiones a profesionales e instituciones.',
     dot: '#4ecdc4',
     img: '/supervisiones.png',
-    wsp: 'Hola capyABA, quisiera información sobre las Supervisiones IBT/IBA 🔬',
+    wsp: 'Hola capyABA, quisiera información sobre las Supervisiones 🔬',
     href: '/servicios#supervisiones',
   },
 ]
@@ -384,6 +390,26 @@ const serviceCardStyles = `
     line-height: 1.65;
     max-width: 260px;
   }
+  .svc-bullets {
+    margin: 0.9rem 0 1.2rem;
+    padding: 0;
+    list-style: none;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.92);
+    line-height: 1.85;
+    max-width: 280px;
+  }
+  .svc-bullets li {
+    padding-left: 0.95rem;
+    position: relative;
+  }
+  .svc-bullets li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: rgba(255,255,255,0.55);
+  }
   .svc-cta {
     display: inline-block;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -437,7 +463,13 @@ function ServiceCards() {
               <h3 className="svc-title">{s.title}</h3>
               <div className="svc-reveal">
                 <div className="svc-reveal-inner">
-                  <p className="svc-desc">{s.desc}</p>
+                  {'bullets' in s && s.bullets ? (
+                    <ul className="svc-bullets">
+                      {s.bullets.map((b) => <li key={b}>{b}</li>)}
+                    </ul>
+                  ) : s.desc ? (
+                    <p className="svc-desc">{s.desc}</p>
+                  ) : null}
                   <Link href={s.href} className="svc-cta" style={{ background: s.dot }}>
                     Conocer más
                   </Link>
