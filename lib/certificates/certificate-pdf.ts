@@ -49,10 +49,14 @@ export type CertificateData = {
 }
 
 // ── Colores ──────────────────────────────────────────────────────────────────
+// Solo 2 tonos de marrón: uno oscuro para énfasis (Certificado, nombre, títulos
+// en negrita) y uno medio para todo lo demás. El gris es solo para el código
+// de verificación pequeño al pie.
+const INK_MEDIUM = rgb(0.416, 0.271, 0.212)
 const C = {
-  ink:      rgb(0.416, 0.271, 0.212),
+  ink:      INK_MEDIUM,
   inkBold:  rgb(0.247, 0.149, 0.122),
-  inkLight: rgb(0.580, 0.440, 0.380),
+  inkLight: INK_MEDIUM, // antes era un 3er tono, ahora unificado al medio
   gray:     rgb(0.500, 0.500, 0.500),
 }
 
