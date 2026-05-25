@@ -132,7 +132,7 @@ export default function LoginPage() {
         <div className="auth-overlay" />
         <div className="auth-badge">
           <span className="auth-badge-dot" />
-          <span className="auth-badge-text">🎓 Más de 100 estudiantes aprendiendo</span>
+          <span className="auth-badge-text">🎓 Listo para comenzar tu experiencia con capyABA</span>
         </div>
         <div className="auth-tagline">
           <h2>Aprende ABA a tu ritmo,<br />con Capy a tu lado</h2>

@@ -154,7 +154,6 @@ export default function PrivacidadPage() {
           <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             <span>📧 <a href="mailto:capyaba@gmail.com" style={{ color: '#5F4D36', fontWeight: 600 }}>capyaba@gmail.com</a></span>
             <span>💬 <a href="https://wa.me/51940428169" style={{ color: '#5F4D36', fontWeight: 600 }}>+51 940 428 169</a></span>
-            <span>🌐 <a href="https://capyaba.vercel.app" style={{ color: '#5F4D36', fontWeight: 600 }}>capyaba.vercel.app</a></span>
           </div>
         </Section>
 

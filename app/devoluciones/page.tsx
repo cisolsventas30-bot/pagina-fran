@@ -56,13 +56,8 @@ export default function DevolucionesPage() {
               a la habilitación del acceso.
             </li>
             <li>
-              <strong>Devolución parcial:</strong> Si el estudiante ha visto menos del 20% del
-              contenido del curso, puede solicitar un reembolso del <strong>50%</strong> del valor
-              pagado dentro de los 7 días calendario.
-            </li>
-            <li>
-              <strong>Sin devolución:</strong> No se realizan reembolsos si el estudiante ha
-              completado más del 20% del contenido, o si han transcurrido más de 7 días calendario
+              <strong>Sin devolución:</strong> No se realizan reembolsos si el estudiante ya inició
+              el curso (viendo cualquier lección), o si han transcurrido más de 7 días calendario
               desde la habilitación del acceso.
             </li>
           </ul>
@@ -80,27 +75,31 @@ export default function DevolucionesPage() {
           </p>
         </Section>
 
-        <Section title="4. Cambios de curso">
-          Si el estudiante desea cambiar su inscripción a otro curso de igual o mayor valor, puede
-          solicitarlo dentro de los primeros 7 días calendario y siempre que no haya superado el
-          20% de avance en el curso original. El cambio está sujeto a disponibilidad y aprobación
-          del equipo de capyABA.
+        <Section title="4. Reprogramación de citas y supervisiones">
+          <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <li>
+              Se permite una <strong>reprogramación por mes</strong> de las citas de terapia o
+              supervisiones.
+            </li>
+            <li>
+              Una <strong>segunda reprogramación</strong> sin justificación mayor (motivos de salud
+              o similares) se dará como <strong>cita perdida</strong>, sin derecho a reembolso ni
+              reprogramación adicional.
+            </li>
+            <li>
+              El <strong>pago de citas y supervisiones es por adelantado</strong>.
+            </li>
+          </ul>
         </Section>
 
-        <Section title="5. Cancelación de supervisiones">
-          Las sesiones de supervisión pueden ser canceladas o reprogramadas con un mínimo de
-          <strong> 24 horas de anticipación</strong> sin costo adicional. Las cancelaciones con
-          menos de 24 horas de aviso o la inasistencia sin previo aviso no son reembolsables.
-        </Section>
-
-        <Section title="6. Productos o servicios con error">
+        <Section title="5. Productos o servicios con error">
           Si el estudiante encuentra un problema técnico que impide el acceso correcto al contenido
           adquirido, debe reportarlo a <a href="mailto:capyaba@gmail.com" style={{ color: '#5F4D36' }}>capyaba@gmail.com</a> dentro
           de las primeras 48 horas de detección. capyABA se compromete a resolver el inconveniente
           o, de no ser posible, ofrecer una devolución completa.
         </Section>
 
-        <Section title="7. Contacto">
+        <Section title="6. Contacto">
           Para consultas sobre esta política, puedes comunicarte con nosotros a través de:
           <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             <li>📧 <a href="mailto:capyaba@gmail.com" style={{ color: '#5F4D36', fontWeight: 600 }}>capyaba@gmail.com</a></li>

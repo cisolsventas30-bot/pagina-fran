@@ -117,8 +117,17 @@ export default function LibroReclamacionesPage() {
               <span style={{ fontSize: '1.6rem', fontWeight: 800, color: '#5F4D36', letterSpacing: '.05em' }}>{numero}</span>
             </div>
             <p style={{ color: '#6b7280', fontSize: '13px', lineHeight: '1.7' }}>
-              Hemos recibido tu {form.tipo} y te responderemos al correo <strong>{form.email}</strong><br />
-              en un plazo máximo de <strong>15 días hábiles</strong> desde hoy.
+              {form.email ? (
+                <>
+                  Hemos recibido tu {form.tipo} y te responderemos al correo <strong>{form.email}</strong><br />
+                  en un plazo máximo de <strong>15 días hábiles</strong> desde hoy.
+                </>
+              ) : (
+                <>
+                  Hemos recibido tu {form.tipo} de forma anónima y será revisada<br />
+                  en un plazo máximo de <strong>15 días hábiles</strong>. Guarda tu número de correlativo para hacer seguimiento.
+                </>
+              )}
             </p>
             <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
@@ -157,29 +166,32 @@ export default function LibroReclamacionesPage() {
 
             {/* Datos del consumidor */}
             <div style={{ padding: '1.5rem 1.75rem', borderBottom: '1px solid #f3f4f6' }}>
-              <p style={{ fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '.06em' }}>
-                1. Datos del consumidor
+              <p style={{ fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                1. Datos del consumidor <span style={{ textTransform: 'none', color: '#9ca3af', fontWeight: 500, letterSpacing: 'normal' }}>(opcional)</span>
+              </p>
+              <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '1rem', lineHeight: '1.55' }}>
+                🕊️ Puedes dejar estos campos vacíos si prefieres mantener el anonimato. Sin embargo, si quieres recibir una respuesta a tu {form.tipo}, te recomendamos dejar al menos un correo electrónico.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div style={fieldStyle}>
-                  <label style={labelStyle}>Nombre completo *</label>
-                  <input name="nombre" required value={form.nombre} onChange={handleChange} placeholder="Juan Pérez García" style={inputStyle} />
+                  <label style={labelStyle}>Nombre completo</label>
+                  <input name="nombre" value={form.nombre} onChange={handleChange} placeholder="Juan Pérez García (opcional)" style={inputStyle} />
                 </div>
                 <div style={fieldStyle}>
-                  <label style={labelStyle}>DNI / CE *</label>
-                  <input name="dni" required value={form.dni} onChange={handleChange} placeholder="12345678" style={inputStyle} maxLength={12} />
+                  <label style={labelStyle}>DNI / CE</label>
+                  <input name="dni" value={form.dni} onChange={handleChange} placeholder="12345678 (opcional)" style={inputStyle} maxLength={12} />
                 </div>
                 <div style={fieldStyle}>
-                  <label style={labelStyle}>Correo electrónico *</label>
-                  <input name="email" type="email" required value={form.email} onChange={handleChange} placeholder="correo@ejemplo.com" style={inputStyle} />
+                  <label style={labelStyle}>Correo electrónico</label>
+                  <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="correo@ejemplo.com (opcional)" style={inputStyle} />
                 </div>
                 <div style={fieldStyle}>
                   <label style={labelStyle}>Teléfono</label>
-                  <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="+51 999 999 999" style={inputStyle} />
+                  <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="+51 999 999 999 (opcional)" style={inputStyle} />
                 </div>
                 <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
                   <label style={labelStyle}>Dirección</label>
-                  <input name="direccion" value={form.direccion} onChange={handleChange} placeholder="Av. Ejemplo 123, Lima" style={inputStyle} />
+                  <input name="direccion" value={form.direccion} onChange={handleChange} placeholder="Av. Ejemplo 123, Lima (opcional)" style={inputStyle} />
                 </div>
               </div>
             </div>

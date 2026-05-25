@@ -155,7 +155,7 @@ export default function RegisterPage() {
         <div className="auth-overlay" />
         <div className="auth-badge">
           <span className="auth-badge-dot" />
-          <span className="auth-badge-text">🎓 Más de 100 estudiantes aprendiendo</span>
+          <span className="auth-badge-text">🎓 Listo para comenzar tu experiencia con capyABA</span>
         </div>
         <div className="auth-perks">
           <h2>Con capyABA obtienes</h2>

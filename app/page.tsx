@@ -256,7 +256,7 @@ const SERVICES = [
 ]
 
 const STATS = [
-  { num: '500+', label: 'Familias acompañadas en procesos terapéuticos.' },
+  { num: '300+', label: 'Familias acompañadas en procesos terapéuticos.' },
   { num: '100%', label: 'Intervenciones basadas en evidencia científica.' },
   { num: '4',    label: 'STARTUPs activos en el ecosistema ABA.' },
   { num: 'IBA·IBT', label: 'Doble certificación IBAO internacional.' },
@@ -401,14 +401,18 @@ const serviceCardStyles = `
     max-width: 280px;
   }
   .svc-bullets li {
-    padding-left: 0.95rem;
+    padding-left: 1.1rem;
     position: relative;
   }
   .svc-bullets li::before {
-    content: '–';
+    content: '';
     position: absolute;
     left: 0;
-    color: rgba(255,255,255,0.55);
+    top: 0.7em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.75);
   }
   .svc-cta {
     display: inline-block;

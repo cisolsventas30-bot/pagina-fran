@@ -51,7 +51,7 @@ export default function TerminosPage() {
 
         <Section title="2. Aceptación de los términos">
           Al acceder y utilizar la plataforma capyABA (en adelante &quot;la Plataforma&quot;), disponible en{' '}
-          <a href="https://capyaba.vercel.app" style={{ color: '#5F4D36' }}>capyaba.vercel.app</a>,
+          <a href="https://capyaba.com/" style={{ color: '#5F4D36' }}>capyaba.com</a>,
           aceptas quedar vinculado a estos Términos y Condiciones. Si no estás de acuerdo con alguno de
           los términos aquí descritos, te pedimos que no utilices la Plataforma. Nos reservamos el
           derecho de actualizar estos términos en cualquier momento, notificando a los usuarios
@@ -59,9 +59,8 @@ export default function TerminosPage() {
         </Section>
 
         <Section title="3. Descripción del servicio">
-          capyABA es una plataforma educativa digital especializada en Análisis Conductual Aplicado (ABA),
-          dirigida a profesionales, estudiantes y familias. Ofrecemos cursos en línea, materiales formativos,
-          supervisiones profesionales y recursos relacionados con terapia IBT/IBA. El acceso a los cursos
+          capyABA es una plataforma web. Ofrecemos cursos en línea, materiales formativos,
+          supervisiones profesionales y recursos relacionados con certificaciones. El acceso a los cursos
           se habilita de forma digital una vez confirmado el pago o la asignación por parte de un instructor.
           La disponibilidad de los cursos puede estar sujeta a cambios sin previo aviso. Para acceder a la
           plataforma el usuario debe ser mayor de edad (18 años) o contar con autorización de un tutor legal.
@@ -87,16 +86,19 @@ export default function TerminosPage() {
 
         {/* NUEVA: Precios y formas de pago */}
         <Section title="6. Precios y formas de pago">
-          Los precios de los cursos y servicios se presentan en <strong>soles peruanos (PEN)</strong> e
-          incluyen el Impuesto General a las Ventas (IGV) cuando corresponda, según la condición
-          tributaria del comercio. Los métodos de pago aceptados son:
+          Los precios de los cursos y servicios se presentan en <strong>soles peruanos (PEN)</strong> o
+          <strong> dólares americanos (USD)</strong> según el método de pago seleccionado, e incluyen
+          el Impuesto General a las Ventas (IGV) cuando corresponda, según la condición tributaria del
+          comercio. Los métodos de pago aceptados son:
           <ul style={{ paddingLeft: '1.2rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <li>Tarjetas de crédito y débito (Visa, Mastercard) a través de la pasarela de pagos <strong>Culqi</strong>.</li>
+            <li>Tarjetas de crédito y débito (Visa, Mastercard) y Yape, en soles, a través de la pasarela de pagos <strong>Culqi</strong>.</li>
+            <li>Pagos en dólares a través de <strong>PayPal</strong>.</li>
             <li>Transferencias bancarias o pagos coordinados directamente con el equipo de capyABA.</li>
           </ul>
-          Los pagos en línea son procesados de forma segura por <strong>Culqi</strong>, plataforma certificada
-          en estándares PCI-DSS. capyABA no almacena datos de tarjetas bancarias. El usuario es responsable
-          de verificar que los datos de pago ingresados sean correctos antes de confirmar la transacción.
+          Los pagos en línea son procesados de forma segura por <strong>Culqi</strong> y <strong>PayPal</strong>,
+          plataformas certificadas en estándares PCI-DSS. capyABA no almacena datos de tarjetas bancarias.
+          El usuario es responsable de verificar que los datos de pago ingresados sean correctos antes de
+          confirmar la transacción.
         </Section>
 
         {/* NUEVA: Proceso de compra */}
@@ -105,7 +107,7 @@ export default function TerminosPage() {
           <ol style={{ paddingLeft: '1.2rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <li>El usuario selecciona el curso o programa de su interés.</li>
             <li>Completa el formulario de pago con sus datos y elige el método de pago.</li>
-            <li>La plataforma de pagos (Culqi) procesa y valida la transacción.</li>
+            <li>La plataforma de pagos (<strong>Culqi</strong> para pagos en soles con tarjeta o Yape, o <strong>PayPal</strong> para pagos en dólares) procesa y valida la transacción.</li>
             <li>Una vez confirmado el pago, el acceso al curso se habilita de forma automática e inmediata en la cuenta del usuario.</li>
             <li>Se envía una confirmación al correo electrónico registrado.</li>
           </ol>
