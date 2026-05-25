@@ -113,34 +113,35 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
 }) {
   const [lm, setLm] = useState(false)
   const [lu, setLu] = useState('')
-  const [fontSize, setFontSize] = useState('')
+  const linkSavedRange = useRef<Range | null>(null)
 
-  // Restaura la selección guardada y ejecuta el comando
-  const ex = (cmd: string, val?: string) => {
+  // Restaura la selección guardada (usa la más reciente o la guardada al abrir el link)
+  const restoreRange = (override?: Range | null) => {
     if (!target) return
     target.focus()
-    // Restaurar selección si existe
+    const r = override || savedRange
+    if (!r) return
     const sel = window.getSelection()
-    if (savedRange && sel) {
-      sel.removeAllRanges()
-      sel.addRange(savedRange)
-    }
+    if (!sel) return
+    sel.removeAllRanges()
+    sel.addRange(r)
+  }
+
+  // Ejecuta un comando preservando la selección
+  const ex = (cmd: string, val?: string, rangeOverride?: Range | null) => {
+    restoreRange(rangeOverride)
     document.execCommand(cmd, false, val)
     onFormat()
   }
 
+  // Tamaño usando CSS real (no <font size>)
   const applyFontSize = (px: string) => {
     if (!target) return
-    target.focus()
+    restoreRange()
     const sel = window.getSelection()
-    if (savedRange && sel) {
-      sel.removeAllRanges()
-      sel.addRange(savedRange)
-    }
     if (!sel || sel.isCollapsed) return
     document.execCommand('styleWithCSS', false, 'true')
     document.execCommand('fontSize', false, '7') // placeholder
-    // Replace font size=7 with real CSS
     const spans = target.querySelectorAll('font[size="7"]')
     spans.forEach(s => {
       const sp = document.createElement('span')
@@ -152,31 +153,82 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
     onFormat()
   }
 
+  // Validar y aplicar link — agrega https:// si falta protocolo
+  const applyLink = () => {
+    let url = lu.trim()
+    if (!url) { setLm(false); setLu(''); return }
+    // Detecta protocolo válido. Si es un email, usa mailto:
+    if (!/^(https?:\/\/|mailto:|tel:|#|\/)/i.test(url)) {
+      if (/^[\w.+-]+@[\w.-]+\.\w+$/.test(url)) {
+        url = 'mailto:' + url
+      } else {
+        url = 'https://' + url
+      }
+    }
+    ex('createLink', url, linkSavedRange.current)
+    // Marca los nuevos links para abrir en nueva pestaña
+    if (target) {
+      target.querySelectorAll('a:not([data-blog-link])').forEach(a => {
+        a.setAttribute('data-blog-link', '1')
+        a.setAttribute('target', '_blank')
+        a.setAttribute('rel', 'noopener noreferrer')
+      })
+      onFormat()
+    }
+    setLm(false); setLu('')
+  }
+
+  const openLinkMode = () => {
+    onSaveRange()
+    // Capturamos el range actual para usarlo al aplicar (savedRange es prop estable)
+    const sel = window.getSelection()
+    if (sel && sel.rangeCount > 0 && target?.contains(sel.anchorNode)) {
+      linkSavedRange.current = sel.getRangeAt(0).cloneRange()
+    } else {
+      linkSavedRange.current = savedRange
+    }
+    setLm(true)
+  }
+
   const B: React.CSSProperties = {
     width: 30, height: 28, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     border: '1px solid #e0dbd4', borderRadius: 6, background: '#fff',
     color: '#444', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
   }
+  const BW: React.CSSProperties = { ...B, width: 'auto', padding: '0 9px' }
+  const sep = <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
 
   return (
     <div
       style={{ display:'flex', alignItems:'center', gap:2, flexWrap:'wrap', padding:'5px 8px', marginBottom:8, background:'#fff', border:'1px solid #e0dbd4', borderRadius:10, boxShadow:'0 2px 16px rgba(0,0,0,.1)' }}
-      onMouseDown={e => { e.preventDefault() }}
+      onMouseDown={e => {
+        const el = e.target as HTMLElement
+        const tag = el.tagName
+        const inputType = (el as HTMLInputElement).type
+        const isFormControl =
+          tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || inputType === 'color'
+        if (!isFormControl) e.preventDefault()
+      }}
     >
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('bold') }}><b>B</b></button>
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('italic') }}><i>I</i></button>
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('underline') }}><u>U</u></button>
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('strikeThrough') }}><s>S</s></button>
-      <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('justifyLeft') }}>⬅</button>
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('justifyCenter') }}>⬛</button>
-      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('justifyRight') }}>➡</button>
-      <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('bold') }} title="Negrita"><b>B</b></button>
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('italic') }} title="Cursiva"><i>I</i></button>
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('underline') }} title="Subrayado"><u>U</u></button>
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('strikeThrough') }} title="Tachado"><s>S</s></button>
+      {sep}
+      <button type="button" style={BW} onMouseDown={e => { e.preventDefault(); ex('insertUnorderedList') }} title="Lista con viñetas">• Lista</button>
+      <button type="button" style={BW} onMouseDown={e => { e.preventDefault(); ex('insertOrderedList') }} title="Lista numerada">1. Lista</button>
+      {sep}
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('justifyLeft') }} title="Alinear izquierda">⬅</button>
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('justifyCenter') }} title="Centrar">⬛</button>
+      <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('justifyRight') }} title="Alinear derecha">➡</button>
+      {sep}
       <select
-        value={fontSize}
-        onMouseDown={e => { e.stopPropagation(); onSaveRange() }}
-        onChange={e => { const v = e.target.value; setFontSize(''); if (v) applyFontSize(v) }}
-        style={{ height:28, fontSize:11, border:'1px solid #e0dbd4', borderRadius:6, background:'#fff', color:'#444', padding:'0 4px', cursor:'pointer' }}>
+        defaultValue=""
+        onMouseDown={() => onSaveRange()}
+        onChange={e => { const v = e.target.value; e.target.value = ''; if (v) applyFontSize(v) }}
+        style={{ height:28, fontSize:11, border:'1px solid #e0dbd4', borderRadius:6, background:'#fff', color:'#444', padding:'0 4px', cursor:'pointer' }}
+        title="Tamaño de texto"
+      >
         <option value="">Tamaño</option>
         <option value="12px">Pequeño</option>
         <option value="16px">Normal</option>
@@ -184,46 +236,46 @@ function FormatBar({ target, onFormat, savedRange, onSaveRange }: {
         <option value="26px">Muy grande</option>
         <option value="34px">Extra</option>
       </select>
-      <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
+      {sep}
       <label style={{ display:'inline-flex', alignItems:'center', gap:3, cursor:'pointer' }}
-        onMouseDown={e => { e.stopPropagation(); onSaveRange() }}>
+        onMouseDown={() => onSaveRange()} title="Color de texto">
         <span style={{ fontSize:12, color:'#888', fontWeight:700 }}>A</span>
         <input type="color" defaultValue="#1a1a1a"
           onInput={e => ex('foreColor', (e.target as HTMLInputElement).value)}
           style={{ width:22, height:22, border:'none', background:'none', padding:0, cursor:'pointer' }} />
       </label>
       <label style={{ display:'inline-flex', alignItems:'center', gap:3, cursor:'pointer' }}
-        onMouseDown={e => { e.stopPropagation(); onSaveRange() }}>
+        onMouseDown={() => onSaveRange()} title="Color de resaltado">
         <span style={{ fontSize:10, color:'#888' }}>BG</span>
         <input type="color" defaultValue="#fff59d"
           onInput={e => ex('hiliteColor', (e.target as HTMLInputElement).value)}
           style={{ width:22, height:22, border:'none', background:'none', padding:0, cursor:'pointer' }} />
       </label>
-      <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
+      {sep}
       {lm ? (
         <>
           <input
-            autoFocus type="url" placeholder="https://..." value={lu}
+            autoFocus type="text" placeholder="https://... o tu@correo.com" value={lu}
             onChange={e => setLu(e.target.value)}
             onKeyDown={e => {
-              if (e.key==='Enter') { ex('createLink', lu); setLm(false); setLu('') }
-              if (e.key==='Escape') setLm(false)
+              if (e.key === 'Enter') { e.preventDefault(); applyLink() }
+              else if (e.key === 'Escape') { setLm(false); setLu('') }
             }}
-            onMouseDown={e => e.stopPropagation()}
-            style={{ height:26, fontSize:12, border:'1px solid #e0dbd4', borderRadius:6, padding:'0 8px', width:150 }} />
+            style={{ height:26, fontSize:12, border:'1px solid #e0dbd4', borderRadius:6, padding:'0 8px', width:200 }} />
           <button type="button"
-            onMouseDown={e => { e.preventDefault(); ex('createLink', lu); setLm(false); setLu('') }}
-            style={{ ...B, background:'#16a34a', color:'#fff', border:'none' }}>✓</button>
-          <button type="button" onMouseDown={e => { e.preventDefault(); setLm(false) }} style={B}>✕</button>
+            onMouseDown={e => { e.preventDefault(); applyLink() }}
+            style={{ ...B, background:'#16a34a', color:'#fff', border:'none' }}
+            title="Aplicar enlace">✓</button>
+          <button type="button" onMouseDown={e => { e.preventDefault(); setLm(false); setLu('') }} style={B} title="Cancelar">✕</button>
         </>
       ) : (
         <>
-          <button type="button" style={B} onMouseDown={e => { e.preventDefault(); onSaveRange(); setLm(true) }} title="Enlace">🔗</button>
+          <button type="button" style={B} onMouseDown={e => { e.preventDefault(); openLinkMode() }} title="Insertar enlace (selecciona texto antes)">🔗</button>
           <button type="button" style={B} onMouseDown={e => { e.preventDefault(); ex('unlink') }} title="Quitar enlace">✂</button>
         </>
       )}
-      <span style={{ width:1, height:20, background:'#e0dbd4', margin:'0 3px' }} />
-      <button type="button" style={{ ...B, fontSize:10, width:46 }} onMouseDown={e => { e.preventDefault(); ex('removeFormat') }}>✕ fmt</button>
+      {sep}
+      <button type="button" style={{ ...B, fontSize:10, width:46 }} onMouseDown={e => { e.preventDefault(); ex('removeFormat') }} title="Limpiar formato">✕ fmt</button>
     </div>
   )
 }
