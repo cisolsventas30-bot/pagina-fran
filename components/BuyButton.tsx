@@ -154,6 +154,14 @@ export default function BuyButton({
       return
     }
 
+    // Diagnóstico claro en consola: confirma si el bundle tiene la llave correcta.
+    // Si dice "TEST" cuando esperas "LIVE", tu .env no se aplicó (reinicia el server
+    // o redeploya en Vercel después de actualizar las env vars).
+    console.log(
+      `%c[Culqi] Usando llave: ${publicKey.slice(0, 8)}... → ${publicKey.startsWith('pk_live_') ? '✅ PRODUCCIÓN' : '⚠️ TEST'}`,
+      `color: ${publicKey.startsWith('pk_live_') ? '#0F6E56' : '#C2410C'}; font-weight: bold;`
+    )
+
     window.Culqi.publicKey = publicKey
     window.Culqi.settings({
       title: 'capyABA',
