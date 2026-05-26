@@ -80,6 +80,18 @@ export async function POST(req: NextRequest) {
   const culqiData = await culqiResponse.json()
 
   if (!culqiResponse.ok || culqiData.object === 'error') {
+    // Log completo para diagnóstico (ver consola del servidor / logs de Vercel)
+    console.error('❌ CULQI ERROR:', {
+      status: culqiResponse.status,
+      type: culqiData?.type,
+      code: culqiData?.code,
+      merchant_message: culqiData?.merchant_message,
+      user_message: culqiData?.user_message,
+      decline_code: culqiData?.decline_code,
+      // Diagnóstico de configuración
+      using_sk_live: process.env.CULQI_SECRET_KEY?.startsWith('sk_live_') || false,
+      using_sk_test: process.env.CULQI_SECRET_KEY?.startsWith('sk_test_') || false,
+    })
     const msg = culqiData?.user_message || culqiData?.merchant_message || 'Error al procesar el pago'
     return NextResponse.json({ error: msg }, { status: 402 })
   }

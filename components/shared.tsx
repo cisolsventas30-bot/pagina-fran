@@ -195,7 +195,7 @@ const FOOTER_COLS = [
     ['Sobre mí', '/sobre-mi'],
     ['Testimonios', '/testimonios'],
   ]},
-  { title: 'Contacto', links: [
+  { title: 'Redes', links: [
     ['WhatsApp', `https://wa.me/51940428169`],
     ['capyaba@gmail.com', 'mailto:capyaba@gmail.com'],
     ['Instagram', 'https://www.instagram.com/capyaba/'],
