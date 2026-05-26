@@ -88,11 +88,10 @@ export async function POST(req: NextRequest) {
       merchant_message: culqiData?.merchant_message,
       user_message: culqiData?.user_message,
       decline_code: culqiData?.decline_code,
-      // Diagnóstico de configuración
       using_sk_live: process.env.CULQI_SECRET_KEY?.startsWith('sk_live_') || false,
       using_sk_test: process.env.CULQI_SECRET_KEY?.startsWith('sk_test_') || false,
     })
-    const msg = culqiData?.user_message || culqiData?.merchant_message || 'Error al procesar el pago'
+    const msg = friendlyCulqiError(culqiData)
     return NextResponse.json({ error: msg }, { status: 402 })
   }
 
@@ -121,4 +120,82 @@ export async function POST(req: NextRequest) {
     chargeId: culqiData.id,
     courseId,
   })
+}
+
+/**
+ * Convierte un error de Culqi en un mensaje claro y accionable en español.
+ * Prioriza decline_code (lo que dice el banco emisor); si no, usa el code
+ * de Culqi. Devuelve algo útil para el usuario final.
+ */
+function friendlyCulqiError(data: any): string {
+  const declineCode = String(data?.decline_code || '').toLowerCase()
+  const code = String(data?.code || '').toUpperCase()
+  const type = String(data?.type || '').toLowerCase()
+
+  // ── Por decline_code (estándar internacional) ───────────────────────────
+  switch (declineCode) {
+    case 'insufficient_funds':
+      return '💸 Tu tarjeta no tiene fondos suficientes. Intenta con otra tarjeta o recarga la cuenta.'
+    case 'expired_card':
+      return '⏰ Tu tarjeta está vencida. Usa otra tarjeta o renueva esta con tu banco.'
+    case 'incorrect_cvv':
+    case 'incorrect_cvc':
+      return '🔒 El código de seguridad (CVV) es incorrecto. Revisa los 3 dígitos del reverso de tu tarjeta.'
+    case 'invalid_cvv':
+      return '🔒 El CVV ingresado no es válido. Verifica los 3 dígitos del reverso.'
+    case 'incorrect_number':
+    case 'invalid_number':
+      return '💳 El número de tarjeta no es válido. Revísalo y vuelve a intentarlo.'
+    case 'invalid_expiry_month':
+    case 'invalid_expiry_year':
+      return '📅 La fecha de vencimiento no es válida. Revísala (MM/AA).'
+    case 'card_declined':
+    case 'do_not_honor':
+      return '🏦 Tu banco rechazó la compra. Llama al número que figura al reverso de tu tarjeta para autorizarla o intenta con otra.'
+    case 'invalid_transaction':
+      return '🚫 Tu banco no permite este tipo de transacción. Probablemente tu tarjeta no está habilitada para compras por internet — actívala desde la app de tu banco o usa otra tarjeta.'
+    case 'fraudulent':
+    case 'pickup_card':
+    case 'lost_card':
+    case 'stolen_card':
+      return '⚠️ Tu banco bloqueó esta operación por seguridad. Contacta a tu banco para más detalles.'
+    case 'transaction_not_allowed':
+    case 'card_not_supported':
+      return '🌍 Tu tarjeta no soporta este tipo de pago. Verifica que tenga habilitadas las compras en línea o usa otra tarjeta.'
+    case 'restricted_card':
+      return '🔐 Tu tarjeta tiene restricciones que impiden esta compra. Contacta a tu banco.'
+    case 'processing_error':
+    case 'try_again_later':
+      return '⏳ Hubo un error temporal procesando el pago. Espera unos segundos e intenta de nuevo.'
+    case 'duplicate_transaction':
+      return '🔁 Esta operación ya fue intentada hace poco. Espera un momento antes de reintentarla.'
+    case 'currency_not_supported':
+      return '💱 Tu tarjeta no acepta pagos en soles peruanos (PEN). Intenta con otra tarjeta.'
+  }
+
+  // ── Por código Culqi (DNGE####) ─────────────────────────────────────────
+  if (code.startsWith('DNGE')) {
+    return '🚫 Tu banco rechazó la transacción. La causa más común: tu tarjeta no está habilitada para compras en línea. Actívala desde la app de tu banco o intenta con otra tarjeta.'
+  }
+
+  // ── Por type general ────────────────────────────────────────────────────
+  if (type === 'card_error') {
+    return '💳 Hay un problema con los datos de tu tarjeta. Revisa el número, la fecha y el CVV.'
+  }
+  if (type === 'invalid_request_error') {
+    return '⚠️ Los datos del pago no son válidos. Refresca la página e intenta de nuevo.'
+  }
+  if (type === 'api_error') {
+    return '⏳ Hubo un problema con el procesador de pagos. Intenta de nuevo en unos minutos.'
+  }
+  if (type === 'authentication_error') {
+    return '⚙️ Error de configuración del comercio. Por favor avísanos a capyaba@gmail.com.'
+  }
+
+  // ── Fallback: usar el mensaje de Culqi si existe ────────────────────────
+  return (
+    data?.user_message ||
+    data?.merchant_message ||
+    'No pudimos procesar el pago. Intenta con otra tarjeta o contáctanos al WhatsApp.'
+  )
 }
