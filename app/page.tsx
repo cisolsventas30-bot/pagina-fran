@@ -391,9 +391,9 @@ const serviceCardStyles = `
     max-width: 260px;
   }
   .svc-bullets {
-    margin: 0.9rem 0 1.2rem;
-    padding: 0;
-    list-style: none;
+    margin: 0.9rem 0 1.2rem !important;
+    padding: 0 !important;
+    list-style: none !important;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 0.92rem;
     color: rgba(255,255,255,0.92);
@@ -401,18 +401,17 @@ const serviceCardStyles = `
     max-width: 280px;
   }
   .svc-bullets li {
-    padding-left: 1.1rem;
+    padding-left: 1.1rem !important;
     position: relative;
   }
   .svc-bullets li::before {
-    content: '';
+    content: '•';
     position: absolute;
     left: 0;
-    top: 0.7em;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.75);
+    top: 0;
+    color: rgba(255,255,255,0.85);
+    font-size: 1.1em;
+    line-height: 1.85;
   }
   .svc-cta {
     display: inline-block;
