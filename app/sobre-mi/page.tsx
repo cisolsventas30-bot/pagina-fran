@@ -192,79 +192,206 @@ function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
   )
 }
 
-/* ── Galería de fotos con lightbox ──────────────────────────────────────── */
+/* ── Galería de fotos con lightbox — masonry responsivo ──────────────────── */
 function PhotoGallery({ items }: { items: GalleryItem[] }) {
   const [open, setOpen] = useState<number | null>(null)
+
+  // Cerrar con tecla Escape, navegar con flechas
+  useEffect(() => {
+    if (open === null) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(null)
+      else if (e.key === 'ArrowLeft' && open > 0) setOpen(open - 1)
+      else if (e.key === 'ArrowRight' && open < items.length - 1) setOpen(open + 1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, items.length])
+
   return (
     <>
-      <div style={{
-        display:'grid',
-        gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))',
-        gap:'14px',
-      }}>
+      {/* Masonry CSS: usa CSS columns, perfecto para fotos de proporciones variadas.
+          4 cols en desktop grande, 3 en desktop, 2 en tablet, 1 en móvil. */}
+      <div className="capy-gallery">
         {items.map((g, i) => (
           <button
             key={g.src + i}
             onClick={() => setOpen(i)}
-            style={{
-              border:'none', padding:0, background:'transparent',
-              cursor:'pointer', borderRadius:14, overflow:'hidden',
-              boxShadow:'0 2px 12px rgba(31,23,16,.08)',
-              transition:'transform .25s, box-shadow .25s',
-              position:'relative',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 12px 28px rgba(31,23,16,.18)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 2px 12px rgba(31,23,16,.08)' }}
+            className="capy-gphoto"
+            aria-label={g.caption || `Foto ${i + 1}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={g.src} alt={g.caption} style={{ width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block' }} />
+            <img src={g.src} alt={g.caption} loading="lazy" />
             {g.caption && (
-              <div style={{
-                position:'absolute', bottom:0, left:0, right:0,
-                padding:'10px 14px', textAlign:'left',
-                background:'linear-gradient(to top, rgba(0,0,0,.65), transparent)',
-                color:'#fff', fontSize:'.85rem', fontWeight:500,
-              }}>
-                {g.caption}
-              </div>
+              <span className="capy-gphoto-cap">{g.caption}</span>
             )}
+            <span className="capy-gphoto-zoom">⛶</span>
           </button>
         ))}
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox a pantalla completa */}
       {open !== null && (
         <div
           onClick={() => setOpen(null)}
           style={{
             position:'fixed', inset:0, zIndex:9999,
-            background:'rgba(31,23,16,.92)', display:'grid', placeItems:'center',
+            background:'rgba(15,11,7,.95)', display:'grid', placeItems:'center',
             padding:'2rem', cursor:'zoom-out',
+            animation:'capyFade .2s ease',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={items[open].src} alt={items[open].caption}
-            style={{ maxWidth:'90vw', maxHeight:'85vh', objectFit:'contain', borderRadius:14, boxShadow:'0 20px 60px rgba(0,0,0,.6)' }} />
+            style={{
+              maxWidth:'92vw', maxHeight:'85vh', objectFit:'contain',
+              borderRadius:14, boxShadow:'0 30px 80px rgba(0,0,0,.7)',
+              animation:'capyZoomIn .25s cubic-bezier(.22,1,.36,1)',
+            }} />
           {items[open].caption && (
-            <p style={{ position:'absolute', bottom:'2rem', color:'#F4ECDF', fontSize:'1rem', fontWeight:500 }}>
+            <p style={{
+              position:'absolute', bottom:'2.5rem', left:'50%', transform:'translateX(-50%)',
+              color:'#F4ECDF', fontSize:'.95rem', fontWeight:500, fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif",
+              padding:'8px 16px', background:'rgba(0,0,0,.4)', borderRadius:100, backdropFilter:'blur(6px)',
+              maxWidth:'90vw', textAlign:'center',
+            }}>
               {items[open].caption}
             </p>
           )}
+          <span style={{
+            position:'absolute', top:'1.5rem', left:'1.5rem',
+            color:'rgba(244,236,223,.55)', fontSize:'.85rem', fontWeight:600,
+            letterSpacing:'.06em', fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif",
+          }}>{open + 1} / {items.length}</span>
           {open > 0 && (
             <button onClick={e => { e.stopPropagation(); setOpen(open - 1) }}
-              style={{ position:'fixed', left:'1.5rem', top:'50%', transform:'translateY(-50%)', background:'rgba(244,236,223,.1)', border:'1px solid rgba(244,236,223,.2)', borderRadius:'50%', width:52, height:52, cursor:'pointer', color:'#F4ECDF', fontSize:'1.3rem' }}
-            >&#8592;</button>
+              className="capy-lb-nav" style={{ left:'1.5rem' }}
+              aria-label="Anterior">&#8592;</button>
           )}
           {open < items.length - 1 && (
             <button onClick={e => { e.stopPropagation(); setOpen(open + 1) }}
-              style={{ position:'fixed', right:'1.5rem', top:'50%', transform:'translateY(-50%)', background:'rgba(244,236,223,.1)', border:'1px solid rgba(244,236,223,.2)', borderRadius:'50%', width:52, height:52, cursor:'pointer', color:'#F4ECDF', fontSize:'1.3rem' }}
-            >&#8594;</button>
+              className="capy-lb-nav" style={{ right:'1.5rem' }}
+              aria-label="Siguiente">&#8594;</button>
           )}
           <button onClick={() => setOpen(null)}
-            style={{ position:'fixed', top:'1.5rem', right:'1.5rem', background:'rgba(244,236,223,.1)', border:'1px solid rgba(244,236,223,.2)', borderRadius:'50%', width:44, height:44, cursor:'pointer', color:'#F4ECDF', fontSize:'1rem' }}
-          >&#10005;</button>
+            className="capy-lb-close"
+            aria-label="Cerrar">&#10005;</button>
         </div>
       )}
+
+      <style>{`
+        .capy-gallery {
+          column-count: 4;
+          column-gap: 14px;
+        }
+        .capy-gphoto {
+          display: block;
+          width: 100%;
+          break-inside: avoid;
+          margin: 0 0 14px;
+          padding: 0;
+          border: none;
+          background: transparent;
+          cursor: zoom-in;
+          border-radius: 14px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: 0 2px 14px rgba(31,23,16,.08);
+          transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+        }
+        .capy-gphoto:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 18px 38px rgba(31,23,16,.22);
+        }
+        .capy-gphoto img {
+          width: 100%;
+          height: auto;
+          display: block;
+          transition: transform .6s cubic-bezier(.22,1,.36,1), filter .35s;
+        }
+        .capy-gphoto:hover img {
+          transform: scale(1.05);
+        }
+        .capy-gphoto-cap {
+          position: absolute;
+          left: 0; right: 0; bottom: 0;
+          padding: 22px 14px 12px;
+          background: linear-gradient(to top, rgba(15,11,7,.82), rgba(15,11,7,0));
+          color: #F4ECDF;
+          font-size: .82rem;
+          font-weight: 600;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+          text-align: left;
+          line-height: 1.35;
+          opacity: 1;
+          transition: opacity .25s;
+        }
+        .capy-gphoto-zoom {
+          position: absolute;
+          top: 10px; right: 10px;
+          width: 32px; height: 32px;
+          display: grid; place-items: center;
+          background: rgba(15,11,7,.55);
+          color: #F4ECDF;
+          font-size: 14px;
+          border-radius: 50%;
+          opacity: 0;
+          transform: scale(.85);
+          transition: opacity .25s, transform .25s;
+          backdrop-filter: blur(6px);
+        }
+        .capy-gphoto:hover .capy-gphoto-zoom {
+          opacity: 1;
+          transform: scale(1);
+        }
+        .capy-lb-nav {
+          position: fixed;
+          top: 50%; transform: translateY(-50%);
+          width: 54px; height: 54px;
+          border-radius: 50%;
+          background: rgba(244,236,223,.1);
+          border: 1px solid rgba(244,236,223,.22);
+          color: #F4ECDF;
+          font-size: 1.35rem;
+          cursor: pointer;
+          display: grid; place-items: center;
+          backdrop-filter: blur(8px);
+          transition: background .2s, transform .2s;
+        }
+        .capy-lb-nav:hover {
+          background: rgba(244,236,223,.2);
+          transform: translateY(-50%) scale(1.06);
+        }
+        .capy-lb-close {
+          position: fixed;
+          top: 1.5rem; right: 1.5rem;
+          width: 44px; height: 44px;
+          border-radius: 50%;
+          background: rgba(244,236,223,.1);
+          border: 1px solid rgba(244,236,223,.22);
+          color: #F4ECDF;
+          font-size: 1rem;
+          cursor: pointer;
+          display: grid; place-items: center;
+          backdrop-filter: blur(8px);
+          transition: background .2s;
+        }
+        .capy-lb-close:hover { background: rgba(244,236,223,.22); }
+
+        @keyframes capyFade { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes capyZoomIn {
+          from { opacity: 0; transform: scale(.94); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Responsive: ajusta # de columnas según ancho */
+        @media (max-width: 1200px) { .capy-gallery { column-count: 3; } }
+        @media (max-width: 800px)  { .capy-gallery { column-count: 2; column-gap: 10px; } .capy-gphoto { margin-bottom: 10px; border-radius: 11px; } }
+        @media (max-width: 480px)  {
+          .capy-gallery { column-count: 1; }
+          .capy-lb-nav { width: 44px; height: 44px; font-size: 1.1rem; }
+        }
+      `}</style>
     </>
   )
 }
@@ -273,9 +400,9 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
 export default function SobreMi() {
   useReveal()
 
-  // Carga certificados y galería desde Supabase. Si la admin no ha subido nada,
-  // los certificados caen al array hardcoded (CERTS) y la galería queda vacía.
-  const [dbCerts, setDbCerts] = useState<CertItem[] | null>(null)
+  // Carga certificados y galería desde Supabase y los SUMA a los hardcoded.
+  // Los hardcoded (CERTS) siempre van primero; los de la admin se agregan al final.
+  const [dbCerts, setDbCerts] = useState<CertItem[]>([])
   const [gallery, setGallery] = useState<GalleryItem[]>([])
 
   useEffect(() => {
@@ -286,7 +413,7 @@ export default function SobreMi() {
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true })
       .then(({ data }) => {
-        if (data && data.length > 0) {
+        if (data) {
           setDbCerts(data.map((d: any) => ({
             src: d.src,
             title: d.title || '',
@@ -310,7 +437,8 @@ export default function SobreMi() {
       })
   }, [])
 
-  const certItems = dbCerts ?? CERTS
+  // Hardcoded primero + los que sube la admin después
+  const certItems = [...CERTS, ...dbCerts]
 
   return (
     <>
@@ -440,19 +568,6 @@ export default function SobreMi() {
         </div>
       </section>
 
-      {/* GALERÍA DE FOTOS (solo si la admin subió alguna) */}
-      {gallery.length > 0 && (
-        <section className="section-pad" style={{ background:'#F4ECDF', paddingTop:'1rem', paddingBottom:'5rem' }}>
-          <div style={{ maxWidth:1200, margin:'0 auto' }}>
-            <div className="reveal" style={{ textAlign:'center', maxWidth:700, margin:'0 auto 3rem' }}>
-              <div className="eyebrow">Galería</div>
-              <h2 className="section-title">Momentos <strong>capyABA</strong></h2>
-            </div>
-            <PhotoGallery items={gallery} />
-          </div>
-        </section>
-      )}
-
       {/* APPROACH */}
       <section style={{ background:'#EADFCC', padding:'3rem 1.5rem 5rem' }}>
         <div className="section-inner grid-2col">
@@ -481,6 +596,22 @@ export default function SobreMi() {
           </div>
         </div>
       </section>
+
+      {/* GALERÍA capyABA — debajo del enfoque, solo si la admin subió fotos */}
+      {gallery.length > 0 && (
+        <section style={{ background:'#F4ECDF', padding:'6rem 1.5rem 5rem' }}>
+          <div style={{ maxWidth:1300, margin:'0 auto' }}>
+            <div className="reveal" style={{ textAlign:'center', maxWidth:700, margin:'0 auto 3.5rem' }}>
+              <div className="eyebrow">Galería</div>
+              <h2 className="section-title">Galería <strong>capyABA</strong></h2>
+              <p style={{ fontSize:'1rem', color:'var(--muted)', marginTop:'1rem', lineHeight:1.55 }}>
+                Momentos, lugares y experiencias que dan vida a este proyecto.
+              </p>
+            </div>
+            <PhotoGallery items={gallery} />
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section id="contacto" style={{ background:'#F4ECDF', padding:'5rem 1.5rem', textAlign:'center' }}>
