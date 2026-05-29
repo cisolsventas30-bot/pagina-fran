@@ -1,9 +1,13 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Nav, Footer, WspBubble, wa, useReveal } from '@/components/shared'
+import { createClient } from '@/lib/supabase/client'
+
+type CertItem = { src: string; title: string; badge: string; desc: string }
+type GalleryItem = { src: string; caption: string }
 
 const CERTS = [
   {
@@ -60,9 +64,15 @@ const APPROACH = [
 
 
 
-function CertGallery() {
+function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
+  const CERTS = items
   const [active, setActive] = React.useState(0)
   const [open, setOpen] = useState<number | null>(null)
+
+  // Si los items cambian (ej: llegan de la DB después del mount), reinicia el índice
+  useEffect(() => { setActive(0) }, [items])
+
+  if (CERTS.length === 0) return null
 
   const prev = () => setActive(i => Math.max(0, i - 1))
   const next = () => setActive(i => Math.min(CERTS.length - 1, i + 1))
@@ -182,9 +192,126 @@ function CertGallery() {
   )
 }
 
+/* ── Galería de fotos con lightbox ──────────────────────────────────────── */
+function PhotoGallery({ items }: { items: GalleryItem[] }) {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <>
+      <div style={{
+        display:'grid',
+        gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))',
+        gap:'14px',
+      }}>
+        {items.map((g, i) => (
+          <button
+            key={g.src + i}
+            onClick={() => setOpen(i)}
+            style={{
+              border:'none', padding:0, background:'transparent',
+              cursor:'pointer', borderRadius:14, overflow:'hidden',
+              boxShadow:'0 2px 12px rgba(31,23,16,.08)',
+              transition:'transform .25s, box-shadow .25s',
+              position:'relative',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 12px 28px rgba(31,23,16,.18)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 2px 12px rgba(31,23,16,.08)' }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={g.src} alt={g.caption} style={{ width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block' }} />
+            {g.caption && (
+              <div style={{
+                position:'absolute', bottom:0, left:0, right:0,
+                padding:'10px 14px', textAlign:'left',
+                background:'linear-gradient(to top, rgba(0,0,0,.65), transparent)',
+                color:'#fff', fontSize:'.85rem', fontWeight:500,
+              }}>
+                {g.caption}
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Lightbox */}
+      {open !== null && (
+        <div
+          onClick={() => setOpen(null)}
+          style={{
+            position:'fixed', inset:0, zIndex:9999,
+            background:'rgba(31,23,16,.92)', display:'grid', placeItems:'center',
+            padding:'2rem', cursor:'zoom-out',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={items[open].src} alt={items[open].caption}
+            style={{ maxWidth:'90vw', maxHeight:'85vh', objectFit:'contain', borderRadius:14, boxShadow:'0 20px 60px rgba(0,0,0,.6)' }} />
+          {items[open].caption && (
+            <p style={{ position:'absolute', bottom:'2rem', color:'#F4ECDF', fontSize:'1rem', fontWeight:500 }}>
+              {items[open].caption}
+            </p>
+          )}
+          {open > 0 && (
+            <button onClick={e => { e.stopPropagation(); setOpen(open - 1) }}
+              style={{ position:'fixed', left:'1.5rem', top:'50%', transform:'translateY(-50%)', background:'rgba(244,236,223,.1)', border:'1px solid rgba(244,236,223,.2)', borderRadius:'50%', width:52, height:52, cursor:'pointer', color:'#F4ECDF', fontSize:'1.3rem' }}
+            >&#8592;</button>
+          )}
+          {open < items.length - 1 && (
+            <button onClick={e => { e.stopPropagation(); setOpen(open + 1) }}
+              style={{ position:'fixed', right:'1.5rem', top:'50%', transform:'translateY(-50%)', background:'rgba(244,236,223,.1)', border:'1px solid rgba(244,236,223,.2)', borderRadius:'50%', width:52, height:52, cursor:'pointer', color:'#F4ECDF', fontSize:'1.3rem' }}
+            >&#8594;</button>
+          )}
+          <button onClick={() => setOpen(null)}
+            style={{ position:'fixed', top:'1.5rem', right:'1.5rem', background:'rgba(244,236,223,.1)', border:'1px solid rgba(244,236,223,.2)', borderRadius:'50%', width:44, height:44, cursor:'pointer', color:'#F4ECDF', fontSize:'1rem' }}
+          >&#10005;</button>
+        </div>
+      )}
+    </>
+  )
+}
+
 
 export default function SobreMi() {
   useReveal()
+
+  // Carga certificados y galería desde Supabase. Si la admin no ha subido nada,
+  // los certificados caen al array hardcoded (CERTS) y la galería queda vacía.
+  const [dbCerts, setDbCerts] = useState<CertItem[] | null>(null)
+  const [gallery, setGallery] = useState<GalleryItem[]>([])
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from('sobre_mi_certificates')
+      .select('src, title, badge, description')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setDbCerts(data.map((d: any) => ({
+            src: d.src,
+            title: d.title || '',
+            badge: d.badge || '',
+            desc: d.description || '',
+          })))
+        }
+      })
+    supabase
+      .from('sobre_mi_gallery')
+      .select('src, caption')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        if (data) {
+          setGallery(data.map((d: any) => ({
+            src: d.src,
+            caption: d.caption || '',
+          })))
+        }
+      })
+  }, [])
+
+  const certItems = dbCerts ?? CERTS
+
   return (
     <>
       <Nav />
@@ -309,9 +436,22 @@ export default function SobreMi() {
               Haz clic en cualquier certificado para verlo en detalle.
             </p>
           </div>
-          <CertGallery />
+          <CertGallery items={certItems} />
         </div>
       </section>
+
+      {/* GALERÍA DE FOTOS (solo si la admin subió alguna) */}
+      {gallery.length > 0 && (
+        <section className="section-pad" style={{ background:'#F4ECDF', paddingTop:'1rem', paddingBottom:'5rem' }}>
+          <div style={{ maxWidth:1200, margin:'0 auto' }}>
+            <div className="reveal" style={{ textAlign:'center', maxWidth:700, margin:'0 auto 3rem' }}>
+              <div className="eyebrow">Galería</div>
+              <h2 className="section-title">Momentos <strong>capyABA</strong></h2>
+            </div>
+            <PhotoGallery items={gallery} />
+          </div>
+        </section>
+      )}
 
       {/* APPROACH */}
       <section style={{ background:'#EADFCC', padding:'3rem 1.5rem 5rem' }}>

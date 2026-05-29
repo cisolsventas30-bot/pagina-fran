@@ -11,6 +11,7 @@ import {
   BarChart3,
   Newspaper,
   MessageSquareQuote,
+  UserCircle,
 } from 'lucide-react'
 
 type Props = {
@@ -127,6 +128,16 @@ export function AdminSidebar({ counts, open, onClose }: Props) {
         {counts?.pendingTestimonials !== undefined && counts.pendingTestimonials > 0 && (
           <span className="count">{counts.pendingTestimonials}</span>
         )}
+      </Link>
+
+      <Link
+        href="/admin/sobre-mi"
+        className={`admin-sidebar-item ${isActive('/admin/sobre-mi') ? 'active' : ''}`}
+      >
+        <span className="label">
+          <UserCircle size={15} strokeWidth={2} />
+          Sobre mí
+        </span>
       </Link>
 
       <div className="admin-sidebar-section-label">Análisis</div>
