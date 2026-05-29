@@ -192,7 +192,7 @@ function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
   )
 }
 
-/* ── Galería de fotos — marquee horizontal infinito en 2 filas ───────────── */
+/* ── Galería de fotos — 2 filas con auto-scroll + arrastre manual ────────── */
 function PhotoGallery({ items }: { items: GalleryItem[] }) {
   const [open, setOpen] = useState<number | null>(null)
 
@@ -208,47 +208,29 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, items.length])
 
-  // Repartimos las fotos en 2 filas alternando — así no se repiten en cada fila
+  // Repartimos las fotos en 2 filas alternando
   const rowA = items.filter((_, i) => i % 2 === 0)
   const rowB = items.filter((_, i) => i % 2 === 1)
-  // Si hay menos de 4 fotos, todas a la fila A para que se vea poblado
   const finalA = items.length < 4 ? items : rowA
   const finalB = items.length < 4 ? items : rowB
 
-  // Índice original para abrir el lightbox correcto
   const indexOf = (g: GalleryItem) => items.findIndex(x => x.src === g.src)
 
   return (
     <>
       <div className="capy-marquee-wrap">
-        {/* Fila 1 — scroll de izquierda a derecha */}
-        <div className="capy-marquee">
-          <div className="capy-track capy-track-r">
-            {[...finalA, ...finalA].map((g, i) => (
-              <PhotoCard key={`a-${i}`} g={g} onClick={() => setOpen(indexOf(g))} />
-            ))}
-          </div>
-        </div>
-
-        {/* Fila 2 — scroll de derecha a izquierda */}
+        <MarqueeRow items={finalA} direction="right" onPhotoClick={(g) => setOpen(indexOf(g))} />
         {finalB.length > 0 && (
-          <div className="capy-marquee">
-            <div className="capy-track capy-track-l">
-              {[...finalB, ...finalB].map((g, i) => (
-                <PhotoCard key={`b-${i}`} g={g} onClick={() => setOpen(indexOf(g))} />
-              ))}
-            </div>
-          </div>
+          <MarqueeRow items={finalB} direction="left" onPhotoClick={(g) => setOpen(indexOf(g))} />
         )}
 
-        {/* Fades laterales para suavizar el borde de la galería */}
+        {/* Fades laterales decorativos */}
         <div className="capy-fade capy-fade-l" />
         <div className="capy-fade capy-fade-r" />
       </div>
 
-      {/* Hint de "arrastra" en móvil */}
       <p className="capy-hint">
-        ← arrastra para ver más fotos →
+        ← arrastra o desliza para ver más fotos →
       </p>
 
       {/* Lightbox a pantalla completa */}
@@ -303,32 +285,26 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
       <style>{`
         .capy-marquee-wrap {
           position: relative;
-          overflow: hidden;
-          margin: 0 -1.5rem;  /* full-bleed: se extiende más allá del max-width del contenedor */
+          margin: 0 -1.5rem;
         }
-        .capy-marquee {
-          overflow: hidden;
-          padding: 12px 0;
-          mask-image: linear-gradient(to right, transparent, black 60px, black calc(100% - 60px), transparent);
-          -webkit-mask-image: linear-gradient(to right, transparent, black 60px, black calc(100% - 60px), transparent);
+        /* Fila con scroll nativo (permite arrastrar/swipear) + auto-scroll por JS */
+        .capy-row {
+          overflow-x: auto;
+          overflow-y: hidden;
+          padding: 12px 1.5rem;
+          cursor: grab;
+          scrollbar-width: none;          /* Firefox */
+          -ms-overflow-style: none;       /* IE/Edge legacy */
+          user-select: none;
+          -webkit-overflow-scrolling: touch;
         }
-        .capy-track {
+        .capy-row::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
+        .capy-row.dragging { cursor: grabbing; }
+        .capy-row.dragging .capy-photo { pointer-events: none; }
+        .capy-row-inner {
           display: flex;
           gap: 18px;
           width: max-content;
-          will-change: transform;
-        }
-        .capy-track-r { animation: capyScrollR 55s linear infinite; }
-        .capy-track-l { animation: capyScrollL 55s linear infinite; }
-        .capy-marquee:hover .capy-track { animation-play-state: paused; }
-
-        @keyframes capyScrollR {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes capyScrollL {
-          0%   { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
         }
 
         .capy-photo {
@@ -454,9 +430,7 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
         /* Responsive */
         @media (max-width: 800px) {
           .capy-photo { width: 200px; height: 270px; border-radius: 14px; }
-          .capy-track { gap: 12px; }
-          .capy-track-r { animation-duration: 40s; }
-          .capy-track-l { animation-duration: 40s; }
+          .capy-row-inner { gap: 12px; }
         }
         @media (max-width: 480px) {
           .capy-photo { width: 160px; height: 220px; }
@@ -477,10 +451,114 @@ function PhotoCard({ g, onClick }: { g: GalleryItem; onClick: () => void }) {
       aria-label={g.caption || 'Foto'}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={g.src} alt={g.caption || ''} loading="lazy" />
+      <img src={g.src} alt={g.caption || ''} loading="lazy" draggable={false} />
       {g.caption && <span className="capy-photo-cap">{g.caption}</span>}
       <span className="capy-photo-zoom">⛶</span>
     </button>
+  )
+}
+
+/**
+ * Fila individual del marquee: scroll horizontal nativo con
+ *  - auto-scroll continuo a velocidad lenta (pausable)
+ *  - drag manual con mouse (click + arrastrar)
+ *  - swipe nativo en táctil (móvil/tablet)
+ *  - loop infinito sin saltos (contenido duplicado)
+ */
+function MarqueeRow({ items, direction, onPhotoClick }: {
+  items: GalleryItem[]
+  direction: 'left' | 'right'
+  onPhotoClick: (g: GalleryItem) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const pausedRef = useRef(false)
+  const draggingRef = useRef(false)
+  const startXRef = useRef(0)
+  const startScrollRef = useRef(0)
+  const draggedDistRef = useRef(0)
+  const [isDragging, setIsDragging] = useState(false)
+
+  // Velocidad de auto-scroll (px por frame, ~60fps). Signo según dirección.
+  const speed = direction === 'right' ? 0.4 : -0.4
+
+  // Auto-scroll loop con requestAnimationFrame
+  useEffect(() => {
+    if (items.length === 0) return
+    let rafId = 0
+    // Espera al primer paint para tener scrollWidth correcto
+    const start = () => {
+      const el = ref.current
+      if (!el) return
+      const halfWidth = el.scrollWidth / 2
+      // Posicionar al medio para que se pueda scrollear en ambas direcciones
+      if (direction === 'left' && el.scrollLeft === 0) {
+        el.scrollLeft = halfWidth
+      }
+    }
+    setTimeout(start, 50)
+
+    const tick = () => {
+      const el = ref.current
+      if (el && !pausedRef.current && !draggingRef.current) {
+        const halfWidth = el.scrollWidth / 2
+        el.scrollLeft += speed
+        // Loop seamless: si pasó del medio o de 0, salta sin que se note
+        if (el.scrollLeft >= halfWidth) el.scrollLeft -= halfWidth
+        else if (el.scrollLeft < 0) el.scrollLeft += halfWidth
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [items.length, speed, direction])
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    const el = ref.current
+    if (!el) return
+    draggingRef.current = true
+    setIsDragging(true)
+    startXRef.current = e.pageX
+    startScrollRef.current = el.scrollLeft
+    draggedDistRef.current = 0
+  }
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!draggingRef.current) return
+    const el = ref.current
+    if (!el) return
+    e.preventDefault()
+    const walk = e.pageX - startXRef.current
+    draggedDistRef.current = Math.abs(walk)
+    el.scrollLeft = startScrollRef.current - walk
+  }
+
+  const stopDrag = () => {
+    draggingRef.current = false
+    setIsDragging(false)
+  }
+
+  // Evita que un drag accidental dispare onClick del botón
+  const handleCardClick = (g: GalleryItem) => () => {
+    if (draggedDistRef.current > 5) return // hubo arrastre, no es click
+    onPhotoClick(g)
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`capy-row ${isDragging ? 'dragging' : ''}`}
+      onMouseEnter={() => { pausedRef.current = true }}
+      onMouseLeave={() => { pausedRef.current = false; stopDrag() }}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={stopDrag}
+    >
+      <div className="capy-row-inner">
+        {[...items, ...items].map((g, i) => (
+          <PhotoCard key={`${direction}-${i}`} g={g} onClick={handleCardClick(g)} />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -698,7 +776,7 @@ export default function SobreMi() {
                 letterSpacing:'.18em', textTransform:'uppercase',
                 color:'#c4783c', marginBottom:'1.2rem',
               }}>
-                — Galería —
+                — Centro de —
               </div>
               <h2 style={{
                 fontFamily:"'Fraunces',serif",
