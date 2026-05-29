@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -770,14 +770,6 @@ export default function SobreMi() {
             {/* Título — sin `reveal` (se renderiza dinámicamente tras cargar fotos
                 y el IntersectionObserver ya pasó) */}
             <div style={{ textAlign:'center', maxWidth:760, margin:'0 auto 3.5rem' }}>
-              <div style={{
-                fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif",
-                fontSize:'.75rem', fontWeight:700,
-                letterSpacing:'.18em', textTransform:'uppercase',
-                color:'#c4783c', marginBottom:'1.2rem',
-              }}>
-                — Centro de —
-              </div>
               <h2 style={{
                 fontFamily:"'Fraunces',serif",
                 fontSize:'clamp(2.4rem, 5vw, 3.8rem)', fontWeight:400,
