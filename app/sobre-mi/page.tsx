@@ -689,10 +689,29 @@ export default function SobreMi() {
       {gallery.length > 0 && (
         <section style={{ background:'#F4ECDF', padding:'6rem 1.5rem 5rem' }}>
           <div style={{ maxWidth:1300, margin:'0 auto' }}>
-            <div className="reveal" style={{ textAlign:'center', maxWidth:700, margin:'0 auto 3.5rem' }}>
-              <div className="eyebrow">Galería</div>
-              <h2 className="section-title">Galería <strong>capyABA</strong></h2>
-              <p style={{ fontSize:'1rem', color:'var(--muted)', marginTop:'1rem', lineHeight:1.55 }}>
+            {/* Título — sin `reveal` (se renderiza dinámicamente tras cargar fotos
+                y el IntersectionObserver ya pasó) */}
+            <div style={{ textAlign:'center', maxWidth:760, margin:'0 auto 3.5rem' }}>
+              <div style={{
+                fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif",
+                fontSize:'.75rem', fontWeight:700,
+                letterSpacing:'.18em', textTransform:'uppercase',
+                color:'#c4783c', marginBottom:'1.2rem',
+              }}>
+                — Galería —
+              </div>
+              <h2 style={{
+                fontFamily:"'Fraunces',serif",
+                fontSize:'clamp(2.4rem, 5vw, 3.8rem)', fontWeight:400,
+                letterSpacing:'-.025em', lineHeight:1.05,
+                color:'#1F1710', margin:0,
+              }}>
+                Galería <strong>capyABA</strong>
+              </h2>
+              <p style={{
+                fontSize:'1.05rem', color:'var(--muted)',
+                marginTop:'1.2rem', lineHeight:1.6, maxWidth:560, margin:'1.2rem auto 0',
+              }}>
                 Momentos, lugares y experiencias que dan vida a este proyecto.
               </p>
             </div>
