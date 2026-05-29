@@ -476,41 +476,61 @@ function MarqueeRow({ items, direction, onPhotoClick }: {
   const startXRef = useRef(0)
   const startScrollRef = useRef(0)
   const draggedDistRef = useRef(0)
+  // Acumulador float — los navegadores redondean scrollLeft a int, así que
+  // mantenemos la posición ideal aquí y solo aplicamos al DOM cuando cambia
+  // de píxel entero. Sin esto, velocidades < 1 px/frame se pierden.
+  const positionRef = useRef(0)
   const [isDragging, setIsDragging] = useState(false)
 
-  // Velocidad de auto-scroll (px por frame, ~60fps). Signo según dirección.
-  const speed = direction === 'right' ? 0.4 : -0.4
+  // Velocidad en píxeles por SEGUNDO (no por frame) → constante en cualquier monitor
+  const pxPerSecond = direction === 'right' ? 28 : -28
 
-  // Auto-scroll loop con requestAnimationFrame
+  // Auto-scroll basado en tiempo (no en frames) — funciona igual a 60/120/144 Hz
   useEffect(() => {
     if (items.length === 0) return
     let rafId = 0
-    // Espera al primer paint para tener scrollWidth correcto
-    const start = () => {
+    let lastTime = performance.now()
+
+    // Espera a que las imágenes pinten para tener scrollWidth correcto
+    const initTimer = setTimeout(() => {
       const el = ref.current
       if (!el) return
       const halfWidth = el.scrollWidth / 2
-      // Posicionar al medio para que se pueda scrollear en ambas direcciones
-      if (direction === 'left' && el.scrollLeft === 0) {
+      // Para dirección "left" empezamos en el medio (así podemos retroceder)
+      if (direction === 'left') {
+        positionRef.current = halfWidth
         el.scrollLeft = halfWidth
+      } else {
+        positionRef.current = el.scrollLeft
       }
-    }
-    setTimeout(start, 50)
+    }, 100)
 
-    const tick = () => {
+    const tick = (now: number) => {
       const el = ref.current
+      const dt = (now - lastTime) / 1000
+      lastTime = now
+
       if (el && !pausedRef.current && !draggingRef.current) {
         const halfWidth = el.scrollWidth / 2
-        el.scrollLeft += speed
-        // Loop seamless: si pasó del medio o de 0, salta sin que se note
-        if (el.scrollLeft >= halfWidth) el.scrollLeft -= halfWidth
-        else if (el.scrollLeft < 0) el.scrollLeft += halfWidth
+        if (halfWidth > 0) {
+          positionRef.current += pxPerSecond * dt
+          // Loop seamless en ambas direcciones
+          if (positionRef.current >= halfWidth) positionRef.current -= halfWidth
+          else if (positionRef.current < 0) positionRef.current += halfWidth
+          el.scrollLeft = positionRef.current
+        }
+      } else if (el) {
+        // Mientras está pausado/arrastrado, sincroniza con scroll real
+        positionRef.current = el.scrollLeft
       }
       rafId = requestAnimationFrame(tick)
     }
     rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [items.length, speed, direction])
+    return () => {
+      cancelAnimationFrame(rafId)
+      clearTimeout(initTimer)
+    }
+  }, [items.length, pxPerSecond, direction])
 
   const onMouseDown = (e: React.MouseEvent) => {
     const el = ref.current
