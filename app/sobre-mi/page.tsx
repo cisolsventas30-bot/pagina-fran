@@ -192,11 +192,11 @@ function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
   )
 }
 
-/* ── Galería de fotos con lightbox — masonry responsivo ──────────────────── */
+/* ── Galería de fotos — marquee horizontal infinito en 2 filas ───────────── */
 function PhotoGallery({ items }: { items: GalleryItem[] }) {
   const [open, setOpen] = useState<number | null>(null)
 
-  // Cerrar con tecla Escape, navegar con flechas
+  // Cerrar con Escape, navegar con flechas
   useEffect(() => {
     if (open === null) return
     const onKey = (e: KeyboardEvent) => {
@@ -208,27 +208,48 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, items.length])
 
+  // Repartimos las fotos en 2 filas alternando — así no se repiten en cada fila
+  const rowA = items.filter((_, i) => i % 2 === 0)
+  const rowB = items.filter((_, i) => i % 2 === 1)
+  // Si hay menos de 4 fotos, todas a la fila A para que se vea poblado
+  const finalA = items.length < 4 ? items : rowA
+  const finalB = items.length < 4 ? items : rowB
+
+  // Índice original para abrir el lightbox correcto
+  const indexOf = (g: GalleryItem) => items.findIndex(x => x.src === g.src)
+
   return (
     <>
-      {/* Masonry CSS: usa CSS columns, perfecto para fotos de proporciones variadas.
-          4 cols en desktop grande, 3 en desktop, 2 en tablet, 1 en móvil. */}
-      <div className="capy-gallery">
-        {items.map((g, i) => (
-          <button
-            key={g.src + i}
-            onClick={() => setOpen(i)}
-            className="capy-gphoto"
-            aria-label={g.caption || `Foto ${i + 1}`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={g.src} alt={g.caption} loading="lazy" />
-            {g.caption && (
-              <span className="capy-gphoto-cap">{g.caption}</span>
-            )}
-            <span className="capy-gphoto-zoom">⛶</span>
-          </button>
-        ))}
+      <div className="capy-marquee-wrap">
+        {/* Fila 1 — scroll de izquierda a derecha */}
+        <div className="capy-marquee">
+          <div className="capy-track capy-track-r">
+            {[...finalA, ...finalA].map((g, i) => (
+              <PhotoCard key={`a-${i}`} g={g} onClick={() => setOpen(indexOf(g))} />
+            ))}
+          </div>
+        </div>
+
+        {/* Fila 2 — scroll de derecha a izquierda */}
+        {finalB.length > 0 && (
+          <div className="capy-marquee">
+            <div className="capy-track capy-track-l">
+              {[...finalB, ...finalB].map((g, i) => (
+                <PhotoCard key={`b-${i}`} g={g} onClick={() => setOpen(indexOf(g))} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fades laterales para suavizar el borde de la galería */}
+        <div className="capy-fade capy-fade-l" />
+        <div className="capy-fade capy-fade-r" />
       </div>
+
+      {/* Hint de "arrastra" en móvil */}
+      <p className="capy-hint">
+        ← arrastra para ver más fotos →
+      </p>
 
       {/* Lightbox a pantalla completa */}
       {open !== null && (
@@ -280,56 +301,80 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
       )}
 
       <style>{`
-        .capy-gallery {
-          column-count: 4;
-          column-gap: 14px;
+        .capy-marquee-wrap {
+          position: relative;
+          overflow: hidden;
+          margin: 0 -1.5rem;  /* full-bleed: se extiende más allá del max-width del contenedor */
         }
-        .capy-gphoto {
-          display: block;
-          width: 100%;
-          break-inside: avoid;
-          margin: 0 0 14px;
-          padding: 0;
+        .capy-marquee {
+          overflow: hidden;
+          padding: 12px 0;
+          mask-image: linear-gradient(to right, transparent, black 60px, black calc(100% - 60px), transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 60px, black calc(100% - 60px), transparent);
+        }
+        .capy-track {
+          display: flex;
+          gap: 18px;
+          width: max-content;
+          will-change: transform;
+        }
+        .capy-track-r { animation: capyScrollR 55s linear infinite; }
+        .capy-track-l { animation: capyScrollL 55s linear infinite; }
+        .capy-marquee:hover .capy-track { animation-play-state: paused; }
+
+        @keyframes capyScrollR {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes capyScrollL {
+          0%   { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+
+        .capy-photo {
+          flex-shrink: 0;
+          width: 260px;
+          height: 340px;
           border: none;
+          padding: 0;
           background: transparent;
           cursor: zoom-in;
-          border-radius: 14px;
+          border-radius: 18px;
           overflow: hidden;
           position: relative;
-          box-shadow: 0 2px 14px rgba(31,23,16,.08);
+          box-shadow: 0 6px 22px rgba(31,23,16,.14);
           transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
         }
-        .capy-gphoto:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 18px 38px rgba(31,23,16,.22);
+        .capy-photo:hover {
+          transform: translateY(-6px) scale(1.02);
+          box-shadow: 0 20px 44px rgba(31,23,16,.28);
+          z-index: 2;
         }
-        .capy-gphoto img {
+        .capy-photo img {
           width: 100%;
-          height: auto;
+          height: 100%;
+          object-fit: cover;
           display: block;
-          transition: transform .6s cubic-bezier(.22,1,.36,1), filter .35s;
+          transition: transform .6s cubic-bezier(.22,1,.36,1);
         }
-        .capy-gphoto:hover img {
-          transform: scale(1.05);
-        }
-        .capy-gphoto-cap {
+        .capy-photo:hover img { transform: scale(1.08); }
+
+        .capy-photo-cap {
           position: absolute;
           left: 0; right: 0; bottom: 0;
-          padding: 22px 14px 12px;
-          background: linear-gradient(to top, rgba(15,11,7,.82), rgba(15,11,7,0));
+          padding: 28px 16px 14px;
+          background: linear-gradient(to top, rgba(15,11,7,.85), rgba(15,11,7,0));
           color: #F4ECDF;
           font-size: .82rem;
           font-weight: 600;
           font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
           text-align: left;
           line-height: 1.35;
-          opacity: 1;
-          transition: opacity .25s;
         }
-        .capy-gphoto-zoom {
+        .capy-photo-zoom {
           position: absolute;
-          top: 10px; right: 10px;
-          width: 32px; height: 32px;
+          top: 12px; right: 12px;
+          width: 34px; height: 34px;
           display: grid; place-items: center;
           background: rgba(15,11,7,.55);
           color: #F4ECDF;
@@ -340,10 +385,32 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
           transition: opacity .25s, transform .25s;
           backdrop-filter: blur(6px);
         }
-        .capy-gphoto:hover .capy-gphoto-zoom {
+        .capy-photo:hover .capy-photo-zoom {
           opacity: 1;
           transform: scale(1);
         }
+
+        /* Fades laterales (solo decorativos, no interfieren con el click) */
+        .capy-fade {
+          position: absolute;
+          top: 0; bottom: 0;
+          width: 80px;
+          pointer-events: none;
+          z-index: 1;
+        }
+        .capy-fade-l { left: 0;  background: linear-gradient(to right, #F4ECDF, transparent); }
+        .capy-fade-r { right: 0; background: linear-gradient(to left,  #F4ECDF, transparent); }
+
+        .capy-hint {
+          text-align: center;
+          margin-top: 1.2rem;
+          font-size: .78rem;
+          color: rgba(31,23,16,.4);
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+          letter-spacing: .04em;
+        }
+
+        /* Lightbox controls (compartido) */
         .capy-lb-nav {
           position: fixed;
           top: 50%; transform: translateY(-50%);
@@ -384,15 +451,36 @@ function PhotoGallery({ items }: { items: GalleryItem[] }) {
           to { opacity: 1; transform: scale(1); }
         }
 
-        /* Responsive: ajusta # de columnas según ancho */
-        @media (max-width: 1200px) { .capy-gallery { column-count: 3; } }
-        @media (max-width: 800px)  { .capy-gallery { column-count: 2; column-gap: 10px; } .capy-gphoto { margin-bottom: 10px; border-radius: 11px; } }
-        @media (max-width: 480px)  {
-          .capy-gallery { column-count: 1; }
+        /* Responsive */
+        @media (max-width: 800px) {
+          .capy-photo { width: 200px; height: 270px; border-radius: 14px; }
+          .capy-track { gap: 12px; }
+          .capy-track-r { animation-duration: 40s; }
+          .capy-track-l { animation-duration: 40s; }
+        }
+        @media (max-width: 480px) {
+          .capy-photo { width: 160px; height: 220px; }
+          .capy-fade { width: 40px; }
           .capy-lb-nav { width: 44px; height: 44px; font-size: 1.1rem; }
         }
       `}</style>
     </>
+  )
+}
+
+/* Tarjeta individual de foto para el marquee */
+function PhotoCard({ g, onClick }: { g: GalleryItem; onClick: () => void }) {
+  return (
+    <button
+      className="capy-photo"
+      onClick={onClick}
+      aria-label={g.caption || 'Foto'}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={g.src} alt={g.caption || ''} loading="lazy" />
+      {g.caption && <span className="capy-photo-cap">{g.caption}</span>}
+      <span className="capy-photo-zoom">⛶</span>
+    </button>
   )
 }
 
