@@ -543,7 +543,7 @@ export default function Home() {
               color: '#fff', maxWidth: 700, marginBottom: '1.6rem',
               animation: 'fadeUp .8s .45s ease both', opacity:0,
             }}>
-              Análisis conductual{' '}
+              Análisis conductual.{' '}
               <em style={{ fontStyle:'italic', fontWeight:300, letterSpacing:'-.015em' }}>basado en evidencia</em>
               {' '}para <strong style={{ fontWeight:500 }}>niños y familias</strong>
             </h1>
