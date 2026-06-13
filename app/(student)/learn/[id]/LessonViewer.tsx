@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -17,6 +17,7 @@ import AssignmentInline from './AssignmentInline'
 import ResourceViewer from './ResourceViewer'
 import ForumViewer from './ForumViewer'
 import LessonComments from './LessonComments'
+import VideoPlayer from './VideoPlayer'
 
 /* ─────────── TIPOS ─────────── */
 
@@ -337,6 +338,64 @@ export default function LessonViewer(props: Props) {
     setOpenModules(next)
   }
 
+  /**
+   * Recibe el % visto del video desde VideoPlayer (cada ~3s mientras reproduce).
+   *  1) Actualiza el progressMap LOCAL inmediatamente → barra del sidebar se mueve en vivo.
+   *  2) Persiste en DB de forma throttleada (cada 10% o cuando supera 90%).
+   *  3) Al cruzar 90%, auto-marca la lección como completada.
+   */
+  const lastDbPercentRef = useRef<Map<string, number>>(new Map())
+  const completedFiredRef = useRef<Set<string>>(new Set())
+  const handleVideoProgress = useCallback(async (lessonId: string, percent: number) => {
+    // 1. Update local state — barra del sidebar reactiva
+    setProgressMap(prev => {
+      const existing = prev.get(lessonId)
+      // Si ya está completada, no la "desmarcamos" por bajada del %
+      if (existing?.completed_at) return prev
+      const next = new Map(prev)
+      next.set(lessonId, {
+        lesson_id: lessonId,
+        watch_percentage: Math.max(existing?.watch_percentage || 0, percent),
+        completed_at: null,
+      } as any)
+      return next
+    })
+
+    // 2. Persist en DB con throttling — solo cada 10% de salto o al completar
+    const lastDb = lastDbPercentRef.current.get(lessonId) || 0
+    const shouldPersist = percent >= 90 || Math.floor(percent / 10) > Math.floor(lastDb / 10)
+    if (!shouldPersist) return
+    lastDbPercentRef.current.set(lessonId, percent)
+
+    const supabase = createClient()
+    const isComplete = percent >= 90 && !completedFiredRef.current.has(lessonId)
+    if (isComplete) completedFiredRef.current.add(lessonId)
+
+    await supabase.from('lesson_progress').upsert({
+      enrollment_id: enrollmentId,
+      lesson_id: lessonId,
+      watch_percentage: Math.min(100, Math.max(percent, lastDb)),
+      completed_at: isComplete ? new Date().toISOString() : null,
+    }, { onConflict: 'enrollment_id,lesson_id' })
+
+    // 3. Si cruzó el 90%, actualiza estado de "completed" y dispara verificación de curso
+    if (isComplete) {
+      setProgressMap(prev => {
+        const next = new Map(prev)
+        next.set(lessonId, {
+          lesson_id: lessonId,
+          watch_percentage: 100,
+          completed_at: new Date().toISOString(),
+        } as any)
+        return next
+      })
+      const result = await triggerCompletionCheck(enrollmentId)
+      if (result.completed && result.certificateUrl) {
+        showToast('¡Felicidades! Tu certificado está listo 🎉', 'success')
+      }
+    }
+  }, [enrollmentId, showToast])
+
   // Marcar lección como completada
   async function markLessonComplete() {
     if (!currentItem || currentItem.type !== 'lesson') return
@@ -392,11 +451,27 @@ export default function LessonViewer(props: Props) {
     setForumsCompletedState(prev => ({ ...prev, [forumId]: true }))
   }
 
-  // Progreso global — los recursos no cuentan (no tienen estado completable)
+  // ── Progreso global del curso ─────────────────────────────────────────────
+  // Los recursos no cuentan (no tienen estado completable). Cada item aporta
+  // su fracción al total:
+  //   - Lección con video: contribuye watch_percentage/100 (0..1) mientras
+  //     se ve, y 1 cuando está marcada como completada.
+  //   - Lección sin video: 0 hasta que se marca "vista" → 1.
+  //   - Quiz / asignación / foro: 0 hasta que se aprueba/envía → 1.
+  // El total se divide entre la cantidad de items: así una clase a la mitad
+  // mueve la barra ya, sin esperar a que termine.
   const progressibleItems = allItems.filter(i => i.type !== 'resource')
   const completedCount = progressibleItems.filter(i => i.done).length
   const totalCount = progressibleItems.length
-  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+  const progressFraction = progressibleItems.reduce((sum, item) => {
+    if (item.done) return sum + 1
+    if (item.type === 'lesson') {
+      const wp = progressMap.get(item.id)?.watch_percentage || 0
+      return sum + Math.min(1, wp / 100)
+    }
+    return sum
+  }, 0)
+  const progressPct = totalCount > 0 ? Math.round((progressFraction / totalCount) * 100) : 0
 
   return (
     <div className="learn-grid" style={{
@@ -424,6 +499,7 @@ export default function LessonViewer(props: Props) {
           prevItem={prevItem}
           nextItem={nextItem}
           onGoToItem={goToItem}
+          onVideoProgress={handleVideoProgress}
           attemptForCurrentQuiz={currentItem?.type === 'quiz' ? attemptsState[currentItem.id] : undefined}
           submissionForCurrentAssignment={currentItem?.type === 'assignment' ? submissionsState[currentItem.id] : undefined}
         />
@@ -1147,7 +1223,7 @@ function MainPlayer({
   item, enrollmentId, previewMode, passingScore, currentIdx, totalItems,
   isCompleted, marking, onMarkComplete,
   onQuizSubmitted, onAssignmentSubmitted, onForumCompleted,
-  prevItem, nextItem, onGoToItem,
+  prevItem, nextItem, onGoToItem, onVideoProgress,
   attemptForCurrentQuiz, submissionForCurrentAssignment,
 }: {
   item: Item | undefined
@@ -1165,6 +1241,7 @@ function MainPlayer({
   prevItem: Item | null
   nextItem: Item | null
   onGoToItem: (key: string) => void
+  onVideoProgress: (lessonId: string, percent: number) => void
   attemptForCurrentQuiz: any
   submissionForCurrentAssignment: any
 }) {
@@ -1185,6 +1262,7 @@ function MainPlayer({
           currentIdx={currentIdx}
           totalItems={totalItems}
           previewMode={previewMode}
+          onVideoProgress={onVideoProgress}
         />
       )}
 
@@ -1332,11 +1410,12 @@ function MainPlayer({
    LESSON PLAYER — video + título + descripción
    ═════════════════════════════════════════════════════ */
 
-function LessonPlayer({ lesson, currentIdx, totalItems, previewMode }: {
+function LessonPlayer({ lesson, currentIdx, totalItems, previewMode, onVideoProgress }: {
   lesson: Lesson
   currentIdx: number
   totalItems: number
   previewMode: boolean
+  onVideoProgress?: (lessonId: string, percent: number) => void
 }) {
   const youtubeId = extractYouTubeId(lesson.video_url)
   const vimeoId = extractVimeoId(lesson.video_url)
@@ -1344,35 +1423,15 @@ function LessonPlayer({ lesson, currentIdx, totalItems, previewMode }: {
 
   return (
     <div>
-      {/* Video grande */}
+      {/* Video con tracking de progreso (YouTube/Vimeo Player API) */}
       {hasVideo && (
-        <div style={{
-          width: '100%',
-          aspectRatio: '16/9',
-          background: '#000',
-          borderRadius: 12,
-          overflow: 'hidden',
-          marginBottom: 18,
-        }}>
-          {youtubeId && (
-            <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`}
-              title={lesson.title}
-              style={{ width: '100%', height: '100%', border: 'none' }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          )}
-          {vimeoId && (
-            <iframe
-              src={`https://player.vimeo.com/video/${vimeoId}`}
-              title={lesson.title}
-              style={{ width: '100%', height: '100%', border: 'none' }}
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
-          )}
-        </div>
+        <VideoPlayer
+          videoUrl={lesson.video_url || ''}
+          youtubeId={youtubeId}
+          vimeoId={vimeoId}
+          title={lesson.title}
+          onProgress={previewMode ? undefined : (pct) => onVideoProgress?.(lesson.id, pct)}
+        />
       )}
 
       {/* Título y meta */}
