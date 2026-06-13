@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { notify, notifyAllAdmins } from '@/lib/notifications/insert'
 
 /**
  * POST /api/payments/culqi
@@ -114,6 +115,23 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+
+  // Notifica al alumno y al admin
+  await Promise.all([
+    notify({
+      userId: user.id,
+      type: 'enrollment',
+      title: `¡Bienvenido a "${course.title}"! 🎓`,
+      body: 'Ya tienes acceso al curso. Empezá cuando quieras desde tu panel.',
+      linkUrl: `/learn/${courseId}`,
+    }),
+    notifyAllAdmins({
+      type: 'new_enrollment',
+      title: 'Nueva matrícula pagada',
+      body: `${user.email} compró "${course.title}" (S/ ${course.price}).`,
+      linkUrl: `/admin/courses/${courseId}?tab=students`,
+    }),
+  ])
 
   return NextResponse.json({
     success: true,

@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Search, Bell, LogOut, LayoutDashboard, ExternalLink, Menu } from 'lucide-react'
+import { Search, LogOut, LayoutDashboard, ExternalLink, Menu } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import NotificationsBell from '@/components/NotificationsBell'
 
 type Props = {
   user: {
+    id: string
     email: string
     full_name?: string
     role: 'admin' | 'student'
@@ -16,7 +18,7 @@ type Props = {
   onMenuClick?: () => void
 }
 
-export function AdminTopbar({ user, hasAlert, onMenuClick }: Props) {
+export function AdminTopbar({ user, onMenuClick }: Props) {
   const [profileOpen, setProfileOpen] = useState(false)
   const router = useRouter()
 
@@ -65,10 +67,7 @@ export function AdminTopbar({ user, hasAlert, onMenuClick }: Props) {
           <ExternalLink size={17} strokeWidth={2} />
         </Link>
 
-        <button className="admin-iconbtn" aria-label="Notificaciones">
-          <Bell size={17} strokeWidth={2} />
-          {hasAlert && <span className="dot" />}
-        </button>
+        <NotificationsBell variant="admin" userId={user.id} />
 
         <div style={{ position: 'relative' }}>
           <button

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { notifyAllAdmins } from '@/lib/notifications/insert'
 
 const VALID_CATEGORIES = ['Familias', 'Supervisión'] as const
 
@@ -54,6 +55,14 @@ export async function POST(req: NextRequest) {
     console.error('testimonials insert error', error)
     return NextResponse.json({ error: 'No se pudo enviar tu reseña. Intenta más tarde.' }, { status: 500 })
   }
+
+  // Notifica a todos los admins que hay una nueva reseña por aprobar
+  await notifyAllAdmins({
+    type: 'testimonial_pending',
+    title: `Nueva reseña de ${name}`,
+    body: quote.length > 80 ? quote.slice(0, 80) + '…' : quote,
+    linkUrl: '/admin/testimonials',
+  })
 
   return NextResponse.json({ ok: true })
 }

@@ -1,5 +1,6 @@
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { generateCertificatePDF, CertificateTemplate, CertificateModality, CertificateArea } from '@/lib/certificates/certificate-pdf'
+import { notify, notifyAllAdmins } from '@/lib/notifications/insert'
 
 /**
  * Usa service_role para bypass de RLS en todas las operaciones de escritura
@@ -215,6 +216,24 @@ export async function checkAndCompleteEnrollment(
       .eq('id', cert.id)
 
     console.log(`   ✅ Certificado generado: ${urlData.publicUrl}`)
+
+    // Notifica al alumno que su certificado está listo + a los admins
+    await Promise.all([
+      notify({
+        userId: student.id,
+        type: 'certificate',
+        title: '¡Tu certificado está listo! 🏆',
+        body: `Completaste "${course.title}" con éxito. Descárgalo desde tus certificados.`,
+        linkUrl: '/certificates',
+      }),
+      notifyAllAdmins({
+        type: 'student_completed',
+        title: `${student.full_name || student.email} completó un curso`,
+        body: `Finalizó "${course.title}" — su certificado fue emitido.`,
+        linkUrl: '/admin/certificates',
+      }),
+    ])
+
     return { completed: true, certificateUrl: urlData.publicUrl }
   } catch (e: any) {
     console.error(`   ❌ Excepción generando certificado:`, e)

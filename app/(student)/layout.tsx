@@ -9,7 +9,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
-    .from('profiles').select('email, full_name, role').eq('id', user.id).single()
+    .from('profiles').select('id, email, full_name, role').eq('id', user.id).single()
 
   // Si es admin, normalmente redirigimos al panel.
   // EXCEPCIÓN: si está en /learn/[id] queremos permitirle entrar

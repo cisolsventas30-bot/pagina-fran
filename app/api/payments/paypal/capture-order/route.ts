@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { notify, notifyAllAdmins } from '@/lib/notifications/insert'
 
 const PAYPAL_BASE =
   process.env.PAYPAL_ENV === 'production'
@@ -157,6 +158,27 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+
+  // Obtener el título del curso para la notificación
+  const { data: course } = await adminClient
+    .from('courses').select('title').eq('id', courseId).single()
+  const courseTitle = course?.title || 'tu curso'
+
+  await Promise.all([
+    notify({
+      userId: user.id,
+      type: 'enrollment',
+      title: `¡Bienvenido a "${courseTitle}"! 🎓`,
+      body: 'Ya tienes acceso al curso. Empezá cuando quieras desde tu panel.',
+      linkUrl: `/learn/${courseId}`,
+    }),
+    notifyAllAdmins({
+      type: 'new_enrollment',
+      title: 'Nueva matrícula pagada (PayPal)',
+      body: `${user.email} compró "${courseTitle}" (USD ${paidAmount}).`,
+      linkUrl: `/admin/courses/${courseId}?tab=students`,
+    }),
+  ])
 
   return NextResponse.json({
     success: true,

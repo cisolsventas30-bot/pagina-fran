@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Search, Bell, Menu, X, LogOut, BookOpen, Award, LayoutDashboard, Settings } from 'lucide-react'
+import { Search, Menu, X, LogOut, BookOpen, Award, LayoutDashboard, Settings } from 'lucide-react'
+import NotificationsBell from '@/components/NotificationsBell'
 import { CapyLogoText } from '@/components/ui/CapyLogo'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
@@ -57,6 +58,7 @@ const SOCIAL_LINKS = [
 
 type Props = {
   user?: {
+    id: string
     email: string
     full_name?: string
     role: 'admin' | 'student'
@@ -127,12 +129,7 @@ export function Navbar({ user }: Props) {
           <div className="flex items-center gap-2 flex-shrink-0">
             {user ? (
               <>
-                <button
-                  className="hidden sm:flex p-2 rounded-full hover:bg-ink-100 transition focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                  aria-label="Notificaciones"
-                >
-                  <Bell className="w-5 h-5 text-ink-600" />
-                </button>
+                <NotificationsBell variant="student" userId={user.id} />
 
                 <div className="relative">
                   <button

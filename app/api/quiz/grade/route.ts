@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { notifyAllAdmins } from '@/lib/notifications/insert'
 
 export async function POST(req: NextRequest) {
   const { attemptId } = await req.json()
@@ -75,6 +76,16 @@ export async function POST(req: NextRequest) {
       submitted_at: new Date().toISOString(),
     })
     .eq('id', attemptId)
+
+  // Si tiene ensayos pendientes de revisión, notifica a admins
+  if (needsReview) {
+    await notifyAllAdmins({
+      type: 'quiz_review',
+      title: 'Hay un ensayo por revisar',
+      body: 'Un alumno envió respuestas abiertas que necesitan tu calificación.',
+      linkUrl: '/admin/reviews',
+    })
+  }
 
   return NextResponse.json({ score, passed, needsReview })
 }
