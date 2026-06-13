@@ -5,7 +5,7 @@ import { CapyMascot } from '@/components/ui/CapyLogo'
 import {
   Plus, BookOpen, Users, Award, AlertCircle, TrendingUp,
   BarChart3, Edit2, Download, Check, ClipboardCheck, UserPlus,
-  ArrowRight, GraduationCap, Activity,
+  ArrowRight, GraduationCap, Activity, Sparkles,
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { CourseThumb } from '@/components/admin/CourseCoverUpload'
@@ -80,206 +80,167 @@ export default async function AdminDashboard() {
     })
   })
   activity.sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime())
-  const topActivity = activity.slice(0, 8)
+  const topActivity = activity.slice(0, 6)
 
   const pending = pendingReviews || 0
   const newThisWeek = newStudentsThisWeek || 0
+  const certRate = (studentsCount || 0) > 0
+    ? Math.round(((certificatesCount || 0) / (studentsCount || 1)) * 100)
+    : 0
 
   return (
-    <div className="db-root">
+    <div className="db2">
 
-      {/* ── Header ── */}
-      <div className="db-header">
-        <div>
-          <div className="admin-breadcrumb">
+      {/* ══ HEADER ══ */}
+      <header className="db2-head">
+        <div className="db2-head-text">
+          <div className="db2-crumb">
             <span>Panel de instructor</span>
-            <span className="sep">/</span>
-            <span className="current">Resumen</span>
+            <span className="db2-crumb-sep">/</span>
+            <span className="db2-crumb-cur">Resumen</span>
           </div>
-          <h1 className="page-title" style={{ marginBottom: 5 }}>
-            {getGreeting()}, {firstName}
-          </h1>
-          <div className="db-subtitle">
+          <h1 className="db2-title">{getGreeting()}, {firstName}</h1>
+          <p className="db2-sub">
             {pending > 0 ? (
-              <>
-                Tienes{' '}
-                <Link href="/admin/reviews" className="db-link-warn">
-                  {pending} {pending === 1 ? 'evaluación pendiente' : 'evaluaciones pendientes'}
-                </Link>
-                {newThisWeek > 0 ? (
-                  <> y {newThisWeek} {newThisWeek === 1 ? 'nuevo alumno' : 'nuevos alumnos'} esta semana.</>
-                ) : '.'}
-              </>
+              <>Tienes <Link href="/admin/reviews" className="db2-sub-link">{pending} {pending === 1 ? 'evaluación pendiente' : 'evaluaciones pendientes'}</Link>{newThisWeek > 0 ? <> y {newThisWeek} {newThisWeek === 1 ? 'nuevo alumno' : 'nuevos alumnos'} esta semana.</> : '.'}</>
             ) : newThisWeek > 0 ? (
               <>Tienes {newThisWeek} {newThisWeek === 1 ? 'nuevo alumno' : 'nuevos alumnos'} esta semana.</>
-            ) : (
-              '¡Todo al día! No hay tareas pendientes por ahora.'
-            )}
-          </div>
+            ) : 'Todo al día. No hay tareas pendientes por ahora.'}
+          </p>
         </div>
-        <div className="db-header-actions">
-          <Link href="/admin/students" className="btn-secondary">
-            <Download size={14} strokeWidth={2.2} />
-            Exportar
+        <div className="db2-head-actions">
+          <Link href="/admin/students" className="db2-btn-ghost">
+            <Download size={15} strokeWidth={2} /> Exportar
           </Link>
-          <Link href="/admin/courses/new" className="btn-primary">
-            <Plus size={14} strokeWidth={2.5} />
-            Nuevo curso
+          <Link href="/admin/courses/new" className="db2-btn-primary">
+            <Plus size={16} strokeWidth={2.5} /> Nuevo curso
           </Link>
         </div>
+      </header>
+
+      {/* ══ KPI STRIP ══ */}
+      <div className="db2-kpis">
+        <Kpi tone="mocha" label="Cursos" value={coursesCount || 0}
+          icon={<BookOpen size={18} strokeWidth={2} />}
+          href="/admin/courses" foot={(coursesCount || 0) > 0 ? 'Administrar catálogo' : 'Crear el primero'} />
+        <Kpi tone="peach" label="Alumnos activos" value={studentsCount || 0}
+          icon={<Users size={18} strokeWidth={2} />}
+          href="/admin/students" trend={newThisWeek > 0 ? `+${newThisWeek} esta semana` : 'Ver lista'} />
+        <Kpi tone={pending > 0 ? 'pink' : 'mocha'} label="Por revisar" value={pending}
+          icon={<AlertCircle size={18} strokeWidth={2} />}
+          href="/admin/reviews" foot={pending > 0 ? 'Revisar ahora' : 'Todo al día'} attention={pending > 0} />
+        <Kpi tone="gold" label="Certificados" value={certificatesCount || 0}
+          icon={<Award size={18} strokeWidth={2} />}
+          href="/admin/certificates" foot={(certificatesCount || 0) > 0 ? 'Ver emitidos' : 'Aún no emitidos'} />
       </div>
 
-      {/* ── KPI strip ── */}
-      <div className="db-kpi-grid">
-        <KpiCard
-          label="Cursos"
-          value={coursesCount || 0}
-          icon={<BookOpen size={16} strokeWidth={2} />}
-          href="/admin/courses"
-          foot={(coursesCount || 0) > 0 ? 'Administra tu catálogo' : 'Crear el primero →'}
-        />
-        <KpiCard
-          label="Alumnos activos"
-          value={studentsCount || 0}
-          icon={<Users size={16} strokeWidth={2} />}
-          href="/admin/students"
-          trend={newThisWeek > 0 ? `+${newThisWeek} esta semana` : undefined}
-          foot={newThisWeek > 0 ? undefined : 'Ver lista →'}
-        />
-        <KpiCard
-          label="Por revisar"
-          value={pending}
-          icon={<AlertCircle size={16} strokeWidth={2} />}
-          href="/admin/reviews"
-          warning={pending > 0}
-          foot={pending > 0 ? 'Revisar ahora →' : '✓ Todo al día'}
-        />
-        <KpiCard
-          label="Certificados"
-          value={certificatesCount || 0}
-          icon={<Award size={16} strokeWidth={2} />}
-          href="/admin/certificates"
-          foot={(certificatesCount || 0) > 0 ? 'Ver emitidos →' : 'Aún no emitidos'}
-        />
-      </div>
+      {/* ══ MIS CURSOS — full width ══ */}
+      <section className="db2-block">
+        <div className="db2-block-head">
+          <h2 className="db2-block-title"><BookOpen size={15} strokeWidth={2.2} /> Mis cursos</h2>
+          <Link href="/admin/courses" className="db2-block-link">Ver todos <ArrowRight size={13} strokeWidth={2.2} /></Link>
+        </div>
 
-      {/* ── Main grid ── */}
-      <div className="db-main-grid">
-
-        {/* LEFT: courses */}
-        <section className="db-section">
-          <div className="db-section-header">
-            <div className="db-section-title">
-              <BookOpen size={14} strokeWidth={2} />
-              Mis cursos
-            </div>
-            <Link href="/admin/courses/new" className="db-section-action">
-              <Plus size={12} strokeWidth={2.5} />
-              Agregar curso
-            </Link>
+        {!courses?.length ? (
+          <div className="db2-empty">
+            <CapyMascot size={96} className="mx-auto" />
+            <h3 className="db2-empty-title">Aún no has creado cursos</h3>
+            <p className="db2-empty-desc">Crea tu primer curso con videos, lecciones y evaluaciones.</p>
+            <Link href="/admin/courses/new" className="db2-btn-primary"><Plus size={15} strokeWidth={2.5} /> Crear mi primer curso</Link>
           </div>
-
-          {!courses?.length ? (
-            <div className="card db-empty">
-              <CapyMascot size={90} className="mx-auto" />
-              <h3 className="db-empty-title">Aún no has creado cursos</h3>
-              <p className="db-empty-desc">
-                Empieza por crear tu primer curso con videos, lecciones y evaluaciones
-              </p>
-              <Link href="/admin/courses/new" className="btn-primary">
-                <Plus size={14} strokeWidth={2.5} />
-                Crear mi primer curso
-              </Link>
-            </div>
-          ) : (
-            <div className="card" style={{ overflow: 'hidden' }}>
-              {courses.map((course: any, idx: number) => {
-                const modules = course.modules?.[0]?.count || 0
-                const enrollments = course.enrollments?.[0]?.count || 0
-                return (
-                  <div key={course.id} className="db-course-row">
-                    <CourseThumb coverUrl={course.cover_url} title={course.title} index={idx} size={46} />
-                    <div className="db-course-info">
-                      <div className="db-course-top">
-                        <span className="db-course-title">{course.title}</span>
-                        <span className={`badge ${course.is_published ? 'badge-mocha' : 'badge-neutral'}`}>
-                          {course.is_published ? 'Publicado' : 'Borrador'}
-                        </span>
-                      </div>
-                      <div className="db-course-meta">
-                        <span>{modules} {modules === 1 ? 'módulo' : 'módulos'}</span>
-                        <span className="db-dot">·</span>
-                        <span>{enrollments} {enrollments === 1 ? 'alumno' : 'alumnos'}</span>
-                        <span className="db-dot">·</span>
-                        <span>Creado {formatDate(course.created_at)}</span>
-                      </div>
+        ) : (
+          <div className="db2-course-grid">
+            {courses.map((course: any, idx: number) => {
+              const modules = course.modules?.[0]?.count || 0
+              const enrollments = course.enrollments?.[0]?.count || 0
+              return (
+                <article key={course.id} className="db2-course">
+                  <div className="db2-course-cover">
+                    <CourseThumb coverUrl={course.cover_url} title={course.title} index={idx} size={100} />
+                    <span className={`db2-course-badge ${course.is_published ? 'pub' : 'draft'}`}>
+                      {course.is_published ? 'Publicado' : 'Borrador'}
+                    </span>
+                  </div>
+                  <div className="db2-course-body">
+                    <h3 className="db2-course-title">{course.title}</h3>
+                    <div className="db2-course-meta">
+                      <span>{modules} {modules === 1 ? 'módulo' : 'módulos'}</span>
+                      <i>·</i>
+                      <span>{enrollments} {enrollments === 1 ? 'alumno' : 'alumnos'}</span>
                     </div>
-                    <div className="db-course-actions">
-                      <Link href={`/admin/courses/${course.id}?tab=students`} className="db-action-btn">
-                        <BarChart3 size={13} strokeWidth={2.2} />
-                        Progreso
-                      </Link>
-                      <Link href={`/admin/courses/${course.id}`} className="db-action-btn">
-                        <Edit2 size={13} strokeWidth={2.2} />
-                        Editar
-                      </Link>
+                    <div className="db2-course-foot">
+                      <span className="db2-course-date">{formatDate(course.created_at)}</span>
+                      <div className="db2-course-actions">
+                        <Link href={`/admin/courses/${course.id}?tab=students`} className="db2-ico-btn" title="Progreso"><BarChart3 size={14} strokeWidth={2.2} /></Link>
+                        <Link href={`/admin/courses/${course.id}`} className="db2-ico-btn" title="Editar"><Edit2 size={14} strokeWidth={2.2} /></Link>
+                      </div>
                     </div>
                   </div>
-                )
-              })}
+                </article>
+              )
+            })}
+            {/* Ghost card — evita el hueco vacío y guía a crear más */}
+            <Link href="/admin/courses/new" className="db2-course-ghost">
+              <span className="db2-ghost-plus"><Plus size={20} strokeWidth={2.4} /></span>
+              <span className="db2-ghost-label">Crear nuevo curso</span>
+            </Link>
+          </div>
+        )}
+      </section>
+
+      {/* ══ BOTTOM: actividad + resumen lado a lado ══ */}
+      <div className="db2-bottom">
+
+        {/* Actividad reciente */}
+        <section className="db2-block">
+          <div className="db2-block-head">
+            <h2 className="db2-block-title"><Activity size={15} strokeWidth={2.2} /> Actividad reciente</h2>
+          </div>
+          {topActivity.length === 0 ? (
+            <div className="db2-card db2-empty" style={{ padding: '32px 24px' }}>
+              <div className="db2-empty-mini"><UserPlus size={18} strokeWidth={2} /></div>
+              <p className="db2-empty-desc" style={{ margin: 0 }}>Cuando tengas alumnos activos verás aquí su progreso en tiempo real.</p>
+            </div>
+          ) : (
+            <div className="db2-card">
+              {topActivity.map(a => <ActivityItem key={a.id} item={a} />)}
+              <Link href="/admin/students" className="db2-activity-foot">Ver toda la actividad <ArrowRight size={13} strokeWidth={2.4} /></Link>
             </div>
           )}
         </section>
 
-        {/* RIGHT: activity + quick stats */}
-        <div className="db-right-col">
-
-          {/* Quick stats mini-cards */}
-          <div className="db-mini-grid">
-            <div className="db-mini-card">
-              <GraduationCap size={16} strokeWidth={1.8} style={{ color: 'var(--a-brand)' }} />
-              <div className="db-mini-value">{(studentsCount || 0) > 0 ? Math.round(((certificatesCount || 0) / (studentsCount || 1)) * 100) : 0}%</div>
-              <div className="db-mini-label">Tasa de certificación</div>
+        {/* Resumen rápido */}
+        <section className="db2-block">
+          <div className="db2-block-head">
+            <h2 className="db2-block-title"><Sparkles size={15} strokeWidth={2.2} /> Resumen</h2>
+          </div>
+          <div className="db2-card db2-summary">
+            <div className="db2-sum-row">
+              <div className="db2-sum-ico" style={{ background: 'var(--b-mocha-soft)', color: 'var(--b-mocha)' }}>
+                <GraduationCap size={18} strokeWidth={1.9} />
+              </div>
+              <div className="db2-sum-info">
+                <div className="db2-sum-value">{certRate}%</div>
+                <div className="db2-sum-label">Tasa de certificación</div>
+              </div>
             </div>
-            <div className="db-mini-card">
-              <Activity size={16} strokeWidth={1.8} style={{ color: 'var(--a-ok)' }} />
-              <div className="db-mini-value">{topActivity.length}</div>
-              <div className="db-mini-label">Eventos recientes</div>
+            {/* barra de progreso de la tasa */}
+            <div className="db2-bar"><div className="db2-bar-fill" style={{ width: `${certRate}%` }} /></div>
+
+            <div className="db2-sum-divider" />
+
+            <div className="db2-sum-row">
+              <div className="db2-sum-ico" style={{ background: 'var(--b-peach-soft)', color: '#C2772E' }}>
+                <Activity size={18} strokeWidth={1.9} />
+              </div>
+              <div className="db2-sum-info">
+                <div className="db2-sum-value">{topActivity.length}</div>
+                <div className="db2-sum-label">Eventos recientes</div>
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* Activity feed */}
-          <section className="db-section">
-            <div className="db-section-header">
-              <div className="db-section-title">
-                <Activity size={14} strokeWidth={2} />
-                Actividad reciente
-              </div>
-            </div>
-
-            {topActivity.length === 0 ? (
-              <div className="card db-empty" style={{ padding: '28px 20px' }}>
-                <div className="db-empty-icon">
-                  <UserPlus size={18} strokeWidth={2} />
-                </div>
-                <p className="db-empty-desc" style={{ marginBottom: 0 }}>
-                  Cuando tengas alumnos activos, verás aquí su progreso en tiempo real.
-                </p>
-              </div>
-            ) : (
-              <div className="card" style={{ overflow: 'hidden' }}>
-                {topActivity.map((a) => (
-                  <ActivityItem key={a.id} item={a} />
-                ))}
-                <Link href="/admin/students" className="db-activity-footer">
-                  Ver toda la actividad
-                  <ArrowRight size={12} strokeWidth={2.5} />
-                </Link>
-              </div>
-            )}
-          </section>
-
-        </div>
       </div>
     </div>
   )
@@ -294,62 +255,29 @@ function getGreeting() {
 
 function ActivityItem({ item }: { item: { type: string; name: string; detail: string; at: string } }) {
   const config = {
-    enroll: {
-      icon: <UserPlus size={13} strokeWidth={2.3} />,
-      bg: 'var(--a-surface-2)',
-      color: 'var(--a-brand)',
-      verb: 'se inscribió a',
-    },
-    submit: {
-      icon: <ClipboardCheck size={13} strokeWidth={2.3} />,
-      bg: 'var(--a-warn-50)',
-      color: 'var(--a-warn)',
-      verb: 'envió evaluación de',
-    },
-    complete: {
-      icon: <Check size={13} strokeWidth={2.5} />,
-      bg: 'var(--a-ok-50)',
-      color: 'var(--a-ok)',
-      verb: 'completó',
-    },
-  }[item.type] || {
-    icon: <UserPlus size={13} strokeWidth={2.3} />,
-    bg: 'var(--a-surface-2)',
-    color: 'var(--a-brand)',
-    verb: '',
-  }
+    enroll:   { icon: <UserPlus size={14} strokeWidth={2.3} />,      bg: 'var(--b-peach-soft)', color: '#C2772E', verb: 'se inscribió a' },
+    submit:   { icon: <ClipboardCheck size={14} strokeWidth={2.3} />, bg: 'var(--b-pink-soft)',  color: '#C24168', verb: 'envió evaluación de' },
+    complete: { icon: <Check size={14} strokeWidth={2.6} />,          bg: 'var(--a-ok-50)',      color: 'var(--a-ok)', verb: 'completó' },
+  }[item.type] || { icon: <UserPlus size={14} />, bg: 'var(--a-surface-2)', color: 'var(--a-brand)', verb: '' }
 
   return (
-    <div style={{
-      display: 'flex', gap: 10, padding: '10px 14px',
-      borderBottom: '1px solid var(--a-border)',
-    }}>
-      <div style={{
-        width: 28, height: 28, borderRadius: '50%',
-        background: config.bg, color: config.color,
-        display: 'grid', placeItems: 'center', flexShrink: 0,
-      }}>
-        {config.icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 12, lineHeight: 1.45, color: 'var(--a-ink)' }}>
-          <strong style={{ fontWeight: 700 }}>{item.name}</strong>{' '}
-          {config.verb}{' '}
-          <span style={{ color: 'var(--a-ink-2)' }}>{item.detail}</span>
+    <div className="db2-act">
+      <div className="db2-act-ico" style={{ background: config.bg, color: config.color }}>{config.icon}</div>
+      <div className="db2-act-body">
+        <div className="db2-act-text">
+          <strong>{item.name}</strong> {config.verb}{' '}
+          <span className="db2-act-detail">{item.detail}</span>
         </div>
-        <div style={{ fontSize: 11, color: 'var(--a-ink-3)', marginTop: 2 }}>
-          {relativeTime(item.at)}
-        </div>
+        <div className="db2-act-time">{relativeTime(item.at)}</div>
       </div>
     </div>
   )
 }
 
 function relativeTime(iso: string) {
-  const d = new Date(iso).getTime()
-  const diff = Date.now() - d
+  const diff = Date.now() - new Date(iso).getTime()
   const min = Math.floor(diff / 60000)
-  if (min < 1) return 'hace unos segundos'
+  if (min < 1) return 'hace un momento'
   if (min < 60) return `hace ${min} min`
   const hrs = Math.floor(min / 60)
   if (hrs < 24) return `hace ${hrs} ${hrs === 1 ? 'hora' : 'horas'}`
@@ -358,31 +286,28 @@ function relativeTime(iso: string) {
   return formatDate(iso)
 }
 
-function KpiCard({
-  label, value, icon, warning, foot, href, trend,
-}: {
+function Kpi({ tone, label, value, icon, foot, href, trend, attention }: {
+  tone: 'mocha' | 'peach' | 'pink' | 'gold'
   label: string
   value: number
   icon: React.ReactNode
-  warning?: boolean
   foot?: string
   href?: string
   trend?: string
+  attention?: boolean
 }) {
   return (
-    <Link href={href || '#'} className={`kpi${warning ? ' kpi-warning' : ''}`} style={{ textDecoration: 'none' }}>
-      <div className="kpi-header">
-        <div className="kpi-label">{label}</div>
-        <div className="kpi-icon">{icon}</div>
+    <Link href={href || '#'} className={`db2-kpi tone-${tone}${attention ? ' is-attn' : ''}`}>
+      <div className="db2-kpi-top">
+        <span className="db2-kpi-label">{label}</span>
+        <span className="db2-kpi-ico">{icon}</span>
       </div>
-      <div className="kpi-value">{value}</div>
-      {trend && (
-        <div className="kpi-foot up">
-          <TrendingUp size={11} strokeWidth={2.5} />
-          {trend}
-        </div>
-      )}
-      {!trend && foot && <div className="kpi-foot">{foot}</div>}
+      <div className="db2-kpi-value">{value}</div>
+      {trend ? (
+        <div className="db2-kpi-foot up"><TrendingUp size={12} strokeWidth={2.5} /> {trend}</div>
+      ) : foot ? (
+        <div className="db2-kpi-foot">{foot}</div>
+      ) : null}
     </Link>
   )
 }
