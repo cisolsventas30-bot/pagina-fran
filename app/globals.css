@@ -222,11 +222,7 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  /* Canvas crema cálido — hace que las cards blancas FLOTEN con contraste real */
-  background:
-    radial-gradient(140% 60% at 100% 0%, rgba(245, 215, 142, .07), transparent 55%),
-    radial-gradient(120% 50% at 0% 100%, rgba(242, 200, 182, .06), transparent 50%),
-    #F4EEE3;
+  background: #FFFFFF;
 }
 
 /* ── Sidebar oscuro ── */
@@ -324,10 +320,10 @@ body {
 .admin-topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 28px;
-  background: rgba(252, 249, 243, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   border-bottom: 1px solid var(--a-border);
   position: sticky; top: 0; z-index: 30;
-  backdrop-filter: saturate(160%) blur(12px);
+  backdrop-filter: saturate(140%) blur(12px);
 }
 .admin-topbar-left {
   display: inline-flex; align-items: center; gap: 9px;
@@ -350,11 +346,11 @@ body {
   position: relative;
 }
 .admin-search input {
-  width: 100%; height: 38px;
+  width: 100%; height: 40px;
   padding: 0 14px 0 40px;
   background: var(--a-surface);
-  border: 1px solid var(--a-border);
-  border-radius: 10px;
+  border: 1px solid var(--a-border-2);
+  border-radius: 100px;
   font-size: 13px; font-family: inherit; color: var(--a-ink);
   transition: background .15s, border-color .15s, box-shadow .15s;
 }

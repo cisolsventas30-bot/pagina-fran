@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { CapyMascot } from '@/components/ui/CapyLogo'
 import {
   Plus, BookOpen, Users, Award, AlertCircle, TrendingUp,
-  BarChart3, Edit2, Download, Check, ClipboardCheck, UserPlus,
+  BarChart3, Edit2, Check, ClipboardCheck, UserPlus,
   ArrowRight, GraduationCap, Activity, Sparkles,
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -109,9 +109,6 @@ export default async function AdminDashboard() {
           </p>
         </div>
         <div className="db2-head-actions">
-          <Link href="/admin/students" className="db2-btn-ghost">
-            <Download size={15} strokeWidth={2} /> Exportar
-          </Link>
           <Link href="/admin/courses/new" className="db2-btn-primary">
             <Plus size={16} strokeWidth={2.5} /> Nuevo curso
           </Link>
