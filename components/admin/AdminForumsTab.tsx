@@ -126,12 +126,12 @@ export default function AdminForumsTab({ courseId, forums }: Props) {
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         padding: '48px 24px', textAlign: 'center',
-        background: '#fff', border: '1px solid var(--a-border)',
-        borderRadius: 12,
+        background: '#fff', border: '1px solid rgba(95,77,54,.09)',
+        borderRadius: 16, boxShadow: '0 10px 26px -16px rgba(95,77,54,.16)',
       }}>
         <div style={{
-          width: 48, height: 48, borderRadius: '50%',
-          background: '#E0F2FE', color: '#0369A1',
+          width: 48, height: 48, borderRadius: 14,
+          background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
           display: 'grid', placeItems: 'center', marginBottom: 14,
         }}>
           <MessageCircle size={22} strokeWidth={2} />
@@ -275,11 +275,11 @@ function ForumCard({ forum, currentUserId, onToggle, onPostAdded, onDelete, onRe
         }}
       >
         <div style={{
-          width: 32, height: 32, borderRadius: 7,
-          background: '#E0F2FE', color: '#0369A1',
+          width: 34, height: 34, borderRadius: 10,
+          background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
           display: 'grid', placeItems: 'center', flexShrink: 0,
         }}>
-          <MessageCircle size={14} strokeWidth={2.2} />
+          <MessageCircle size={15} strokeWidth={2.2} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
@@ -298,8 +298,8 @@ function ForumCard({ forum, currentUserId, onToggle, onPostAdded, onDelete, onRe
           )}
         </div>
         <span style={{
-          fontSize: 10, fontWeight: 600, color: '#0369A1',
-          background: '#E0F2FE', padding: '2px 8px', borderRadius: 100,
+          fontSize: 10, fontWeight: 700, color: 'var(--b-pink)',
+          background: 'var(--b-pink-soft)', padding: '2px 8px', borderRadius: 100,
           whiteSpace: 'nowrap', flexShrink: 0,
         }}>
           {forum.loadingPosts ? '…' : `${forum.posts.length} msg`}

@@ -63,11 +63,11 @@ export default function CertificateSettings({ courseId, initial }: Props) {
       <div style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
           <div style={{
-            width: 28, height: 28, borderRadius: 6,
-            background: 'var(--a-surface-2)', color: 'var(--a-brand)',
+            width: 34, height: 34, borderRadius: 10,
+            background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
             display: 'grid', placeItems: 'center',
           }}>
-            <Award size={14} strokeWidth={2.2} />
+            <Award size={16} strokeWidth={2.2} />
           </div>
           <h2 className="section-heading">Configuración del certificado</h2>
         </div>
@@ -290,19 +290,19 @@ function TemplateCard({
       onClick={onClick}
       style={{
         padding: 14,
-        background: active ? 'var(--a-surface-2)' : '#fff',
-        border: `1.5px solid ${active ? 'var(--a-brand)' : 'var(--a-border-2)'}`,
-        borderRadius: 10,
+        background: active ? 'var(--b-pink-soft)' : '#fff',
+        border: `1.5px solid ${active ? 'var(--b-pink)' : 'var(--a-border-2)'}`,
+        borderRadius: 12,
         cursor: 'pointer',
         textAlign: 'left',
         fontFamily: 'inherit',
-        transition: 'border-color .1s, background .1s',
+        transition: 'border-color .12s, background .12s',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
         <div style={{
           fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em',
-          color: active ? 'var(--a-brand)' : 'var(--a-ink)',
+          color: active ? 'var(--b-pink)' : 'var(--a-ink)',
         }}>
           {title}
         </div>

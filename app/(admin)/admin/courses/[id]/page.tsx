@@ -486,8 +486,8 @@ function StudentsTab({ courseId, enrollments, passingScore }: { courseId: string
     return (
       <div className="card" style={{ padding: '36px 24px', textAlign: 'center' }}>
         <div style={{
-          width: 44, height: 44, borderRadius: '50%',
-          background: 'var(--a-surface-2)', color: 'var(--a-brand)',
+          width: 48, height: 48, borderRadius: 14,
+          background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
           margin: '0 auto 12px', display: 'grid', placeItems: 'center',
         }}>
           <Users size={20} strokeWidth={2} />

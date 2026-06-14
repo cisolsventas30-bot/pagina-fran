@@ -123,11 +123,12 @@ export default function AdminCommentsTab({ lessons }: Props) {
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         padding: '48px 24px', textAlign: 'center',
-        background: '#fff', border: '1px solid var(--a-border)', borderRadius: 12,
+        background: '#fff', border: '1px solid rgba(95,77,54,.09)', borderRadius: 16,
+        boxShadow: '0 10px 26px -16px rgba(95,77,54,.16)',
       }}>
         <div style={{
-          width: 48, height: 48, borderRadius: '50%',
-          background: '#E6F1FB', color: '#185FA5',
+          width: 48, height: 48, borderRadius: 14,
+          background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
           display: 'grid', placeItems: 'center', marginBottom: 14,
         }}>
           <MessageCircle size={22} strokeWidth={2} />
@@ -250,8 +251,8 @@ function LessonCard({ lesson, currentUserId, onToggle, onCommentAdded, onDelete,
         {/* Contador */}
         <span style={{
           fontSize: 10, fontWeight: 700,
-          background: totalCount === null ? 'var(--a-surface-2)' : totalCount > 0 ? '#E6F1FB' : 'var(--a-surface-2)',
-          color: totalCount !== null && totalCount > 0 ? '#185FA5' : 'var(--a-ink-3)',
+          background: totalCount !== null && totalCount > 0 ? 'var(--b-pink-soft)' : 'var(--a-surface-2)',
+          color: totalCount !== null && totalCount > 0 ? 'var(--b-pink)' : 'var(--a-ink-3)',
           padding: '2px 8px', borderRadius: 100,
           whiteSpace: 'nowrap', flexShrink: 0,
         }}>
