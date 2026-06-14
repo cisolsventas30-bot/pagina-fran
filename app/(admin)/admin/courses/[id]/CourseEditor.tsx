@@ -103,8 +103,8 @@ function FieldGroup({ label, hint, children }: { label: string; hint?: string; c
 }
 function AddLessonButton({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} style={{ width: '100%', padding: '9px', border: '1.5px dashed var(--a-border-2)', background: 'transparent', color: 'var(--a-ink-2)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background .1s, border-color .1s, color .1s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, marginBottom: 2 }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--a-surface)'; e.currentTarget.style.borderColor = 'var(--a-brand)'; e.currentTarget.style.color = 'var(--a-brand)' }}
+    <button onClick={onClick} style={{ width: '100%', padding: '11px', border: '1.5px dashed var(--a-border-2)', background: 'transparent', color: 'var(--a-ink-2)', borderRadius: 11, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'background .12s, border-color .12s, color .12s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--b-pink-soft)'; e.currentTarget.style.borderColor = 'var(--b-pink)'; e.currentTarget.style.color = 'var(--b-pink)' }}
       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'var(--a-border-2)'; e.currentTarget.style.color = 'var(--a-ink-2)' }}>
       <PlayCircle size={12} strokeWidth={2.2} /> + Agregar lección
     </button>
@@ -133,8 +133,8 @@ function LessonCard({ lesson, numbering, isExpanded, onToggle, canDelete, onDele
   onToggle: () => void; canDelete: boolean; onDelete: () => void; onChange: (patch: Partial<Lesson>) => void
 }) {
   return (
-    <div style={{ background: '#fff', border: `1px solid ${isExpanded ? 'var(--a-brand)' : 'var(--a-border)'}`, borderRadius: 9, overflow: 'hidden', transition: 'border-color .15s' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 12px', cursor: 'pointer', background: isExpanded ? 'var(--a-surface)' : 'transparent' }} onClick={onToggle}>
+    <div style={{ background: '#fff', border: `1px solid ${isExpanded ? 'var(--b-pink)' : 'var(--a-border)'}`, borderRadius: 11, overflow: 'hidden', transition: 'border-color .15s, box-shadow .15s', boxShadow: isExpanded ? '0 4px 14px -4px rgba(245,139,165,.3)' : 'none' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '11px 13px', cursor: 'pointer', background: isExpanded ? 'var(--b-pink-soft)' : 'transparent', transition: 'background .15s' }} onClick={onToggle}>
         <NumberBadge>{numbering}</NumberBadge>
         <TypeBadge bg="#FAEEDA" fg="#854F0B" icon={<PlayCircle size={11} strokeWidth={2.2} />} />
         <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: 'var(--a-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -546,8 +546,8 @@ export default function CourseEditor({ course }: { course: Course }) {
           {/* Header módulos */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--a-ink)', margin: 0 }}>Módulos del curso</h2>
-              <p style={{ fontSize: 12, color: 'var(--a-ink-3)', marginTop: 3, marginBottom: 0 }}>{modules.length} {modules.length === 1 ? 'módulo' : 'módulos'} · Arrastra para reordenar</p>
+              <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--a-ink)', margin: 0 }}>Módulos del curso</h2>
+              <p style={{ fontSize: 12.5, color: 'var(--a-ink-3)', marginTop: 4, marginBottom: 0 }}>{modules.length} {modules.length === 1 ? 'módulo' : 'módulos'} · Arrastra para reordenar</p>
             </div>
             <button onClick={addModule} className="btn-secondary" style={{ gap: 6 }}><Plus size={14} strokeWidth={2.5} />Agregar módulo</button>
           </div>
@@ -564,11 +564,11 @@ export default function CourseEditor({ course }: { course: Course }) {
             const currentModTab = getModTab(mod.id)
 
             return (
-              <div key={mod.id} style={{ background: '#fff', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(31,23,16,0.04)' }}>
+              <div key={mod.id} style={{ background: '#fff', border: '1px solid rgba(95,77,54,.09)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(95,77,54,.05), 0 10px 26px -16px rgba(95,77,54,.16)' }}>
 
                 {/* Cabecera del módulo */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: 'var(--a-surface)', borderBottom: collapsed ? 'none' : '1px solid var(--a-border)' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 7, background: 'var(--a-brand)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{mi + 1}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '15px 18px', background: 'linear-gradient(180deg, #fff, var(--a-surface))', borderBottom: collapsed ? 'none' : '1px solid var(--a-border)' }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 9, background: 'linear-gradient(135deg, var(--b-mocha), #7a6450)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0, fontFamily: "'Fraunces', serif", boxShadow: '0 2px 6px -1px rgba(95,77,54,.4)' }}>{mi + 1}</div>
                   <GripVertical size={14} color="var(--a-ink-4)" style={{ cursor: 'grab', flexShrink: 0 }} />
                   <input type="text" value={mod.title} onChange={e => updateModule(mod.id, { title: e.target.value })} placeholder="Título del módulo" style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', fontSize: 14, fontWeight: 700, color: 'var(--a-ink)', fontFamily: 'inherit', padding: 0, outline: 'none' }} />
                   <span style={{ fontSize: 11, color: 'var(--a-ink-3)', background: 'var(--a-surface-2)', padding: '3px 9px', borderRadius: 100, whiteSpace: 'nowrap', flexShrink: 0 }}>{totalItems} {totalItems === 1 ? 'elemento' : 'elementos'}</span>
