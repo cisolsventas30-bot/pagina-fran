@@ -42,10 +42,6 @@ export function AdminTopbar({ user, onMenuClick }: Props) {
             <Menu size={19} strokeWidth={2} />
           </button>
         )}
-        <div className="admin-topbar-left">
-          <span className="dot" />
-          INSTRUCTOR
-        </div>
       </div>
 
       <AdminSearch />
