@@ -19,7 +19,7 @@ export default async function ReviewsPage() {
     .order('submitted_at', { ascending: false })
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 40px 56px' }}>
       <div className="mb-8">
         <p className="text-xs text-ink-500 uppercase tracking-wider mb-1 font-semibold">Pendientes</p>
         <h1 className="page-title" style={{ marginBottom: 6 }}>

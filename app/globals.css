@@ -250,16 +250,16 @@ body {
   border-bottom: 1px solid rgba(255,255,255,0.06);
   margin-bottom: 16px;
 }
-.admin-sidebar-mascot :where(img) { max-height: 32px; width: auto; }
 .admin-sidebar-mascot {
   display: grid; place-items: center; flex-shrink: 0;
-  width: 44px; height: 44px; border-radius: 13px;
-  background: linear-gradient(140deg, rgba(245,139,165,.22), rgba(245,185,122,.14));
+  width: 52px; height: 52px; border-radius: 15px;
+  background: linear-gradient(140deg, rgba(245,139,165,.24), rgba(245,185,122,.15));
   border: 1px solid rgba(255,255,255,.08);
   overflow: hidden;
 }
+.admin-sidebar-mascot :where(img) { max-height: 42px; width: auto; }
 .admin-sidebar-brand-logo {
-  font-size: 19px; font-weight: 800; letter-spacing: -0.035em; color: #fff;
+  font-size: 22px; font-weight: 800; letter-spacing: -0.035em; color: #fff;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .admin-sidebar-brand-logo .accent { color: var(--b-pink); }
