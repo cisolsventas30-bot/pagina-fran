@@ -17,7 +17,7 @@ export default async function AdminBlogPage() {
   const drafts = list.filter(p => !p.is_published).length
 
   return (
-    <div style={{ padding: '24px 32px 48px', maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ padding: '32px 40px 56px', maxWidth: 1440, margin: '0 auto' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 28, flexWrap: 'wrap' }}>

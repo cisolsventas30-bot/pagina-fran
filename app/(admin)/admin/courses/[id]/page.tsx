@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   Plus, FileText, ClipboardList, Users, Eye, ChevronRight,
-  GraduationCap, ChevronLeft,
+  GraduationCap, ChevronLeft, Layers, PlayCircle, PenLine,
 } from 'lucide-react'
 import CourseEditor from './CourseEditor'
 import { formatDate } from '@/lib/utils'
@@ -222,11 +222,7 @@ export default async function EditCoursePage({
             ) : null}
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
-                <h1 style={{
-                  fontSize: 22, fontWeight: 800,
-                  letterSpacing: '-0.025em', color: 'var(--a-ink)',
-                  margin: 0,
-                }}>
+                <h1 className="page-title" style={{ fontSize: 26, margin: 0 }}>
                   {course.title}
                 </h1>
                 <span className={`badge ${course.is_published ? 'badge-mocha' : 'badge-neutral'}`}>
@@ -359,12 +355,12 @@ function OverviewTab({
   return (
     <div>
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24,
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24,
       }} className="overview-kpis">
-        <MetricCard label="Módulos" value={modulesCount} />
-        <MetricCard label="Lecciones" value={lessonsCount} />
-        <MetricCard label="Evaluaciones" value={quizzesCount} />
-        <MetricCard label="Asignaciones" value={assignmentsCount} />
+        <MetricCard label="Módulos" value={modulesCount} tone="mocha" icon={<Layers size={17} strokeWidth={2} />} />
+        <MetricCard label="Lecciones" value={lessonsCount} tone="peach" icon={<PlayCircle size={17} strokeWidth={2} />} />
+        <MetricCard label="Evaluaciones" value={quizzesCount} tone="pink" icon={<ClipboardList size={17} strokeWidth={2} />} />
+        <MetricCard label="Asignaciones" value={assignmentsCount} tone="gold" icon={<PenLine size={17} strokeWidth={2} />} />
       </div>
 
       <div style={{
@@ -388,11 +384,13 @@ function OverviewTab({
           </div>
         </div>
 
-        <div className="card" style={{ padding: 20 }}>
+        <div className="card" style={{ padding: 22 }}>
           <h2 className="section-heading" style={{ marginBottom: 14 }}>Progreso general</h2>
           <div style={{
-            fontSize: 36, fontWeight: 800, letterSpacing: '-0.035em',
-            color: 'var(--a-ink)', lineHeight: 1, marginBottom: 6,
+            fontFamily: "'Fraunces', Georgia, serif",
+            fontSize: 44, fontWeight: 600, letterSpacing: '-0.045em',
+            color: 'var(--a-ink)', lineHeight: .9, marginBottom: 8,
+            fontVariantNumeric: 'tabular-nums',
           }}>
             {completionRate}%
           </div>
@@ -405,8 +403,9 @@ function OverviewTab({
             <div style={{
               width: `${completionRate}%`,
               height: '100%',
-              background: 'var(--a-brand)',
-              transition: 'width .3s',
+              background: 'linear-gradient(90deg, var(--b-mocha), var(--b-pink) 55%, var(--b-peach))',
+              borderRadius: 100,
+              transition: 'width .5s ease',
             }} />
           </div>
 
@@ -438,17 +437,14 @@ function OverviewTab({
   )
 }
 
-function MetricCard({ label, value }: { label: string; value: number }) {
+function MetricCard({ label, value, tone = 'mocha', icon }: { label: string; value: number; tone?: 'mocha' | 'peach' | 'pink' | 'gold'; icon?: React.ReactNode }) {
   return (
-    <div style={{
-      padding: 14, background: 'var(--a-surface)',
-      border: '1px solid var(--a-border)', borderRadius: 10,
-    }}>
-      <div className="kpi-label">{label}</div>
-      <div style={{
-        fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em',
-        color: 'var(--a-ink)', marginTop: 8, lineHeight: 1,
-      }}>{value}</div>
+    <div className={`db2-kpi tone-${tone}`} style={{ padding: '18px 20px 16px' }}>
+      <div className="db2-kpi-top">
+        <span className="db2-kpi-label">{label}</span>
+        {icon && <span className="db2-kpi-ico">{icon}</span>}
+      </div>
+      <div className="db2-kpi-value">{value}</div>
     </div>
   )
 }
@@ -467,8 +463,8 @@ function QuickAction({ href, icon, label, desc }: any) {
       className="qa-item"
     >
       <div style={{
-        width: 30, height: 30, borderRadius: 8,
-        background: 'var(--a-surface-2)', color: 'var(--a-brand)',
+        width: 34, height: 34, borderRadius: 10,
+        background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
         display: 'grid', placeItems: 'center', flexShrink: 0,
       }}>
         {icon}
