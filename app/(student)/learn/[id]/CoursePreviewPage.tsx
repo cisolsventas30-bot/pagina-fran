@@ -182,7 +182,11 @@ export default function CoursePreviewPage(props: Props) {
               {introTitle || 'Qué aprenderás'}
             </h2>
             {introContent && (
-              <p style={{ fontSize: 14, color: '#4A3E33', lineHeight: 1.8, maxWidth: 720 }}>{introContent}</p>
+              <div
+                className="course-intro-html"
+                style={{ fontSize: 14, color: '#4A3E33', lineHeight: 1.8, maxWidth: 720 }}
+                dangerouslySetInnerHTML={{ __html: introContent }}
+              />
             )}
           </div>
         )}

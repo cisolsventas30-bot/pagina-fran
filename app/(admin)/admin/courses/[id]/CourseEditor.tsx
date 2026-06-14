@@ -15,6 +15,21 @@ import { CourseCoverUpload } from '@/components/admin/CourseCoverUpload'
 import ResourcesManager from '@/components/admin/ResourcesManager'
 import ForumsManager from '@/components/admin/ForumsManager'
 import ModuleItemsDnd, { UnifiedItem, ItemType } from '@/components/admin/ModuleItemsDnd'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
+
+/**
+ * Convierte texto plano antiguo (con **markdown** y saltos de línea) a HTML
+ * para que se vea bien en el editor enriquecido. Si ya es HTML, lo deja igual.
+ */
+function toEditorHtml(value: string): string {
+  if (!value) return ''
+  if (/<[a-z][\s\S]*>/i.test(value)) return value // ya es HTML
+  const esc = value
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')   // **negrita**
+    .replace(/\n/g, '<br>')
+  return esc
+}
 
 type Lesson = {
   id: string; title: string; video_url: string; content: string
@@ -331,7 +346,7 @@ export default function CourseEditor({ course }: { course: Course }) {
   const [isPublished, setIsPublished] = useState(course.is_published)
   const [introTitle, setIntroTitle] = useState(course.intro_title || '')
   const [introVideoUrl, setIntroVideoUrl] = useState(course.intro_video_url || '')
-  const [introContent, setIntroContent] = useState(course.intro_content || '')
+  const [introContent, setIntroContent] = useState(toEditorHtml(course.intro_content || ''))
   const [certPreviewUrl, setCertPreviewUrl] = useState(course.cert_preview_url || '')
   const [price, setPrice] = useState<string>(course.price != null ? String(course.price) : '')
   const [priceUsd, setPriceUsd] = useState<string>(course.price_usd != null ? String(course.price_usd) : '')
@@ -505,14 +520,8 @@ export default function CourseEditor({ course }: { course: Course }) {
                   placeholder="https://youtube.com/watch?v=..."
                 />
               </FieldGroup>
-              <FieldGroup label="Texto de presentación" hint="Describe brevemente qué aprenderá el alumno.">
-                <textarea
-                  value={introContent}
-                  onChange={e => setIntroContent(e.target.value)}
-                  className="input-base"
-                  rows={4}
-                  placeholder="Ej: En este curso aprenderás los fundamentos del análisis del comportamiento aplicado…"
-                />
+              <FieldGroup label="Texto de presentación" hint="Usa la barra para poner negrita, listas o enlaces. Selecciona el texto y aplica el formato.">
+                <RichTextEditor value={introContent} onChange={setIntroContent} />
               </FieldGroup>
               <FieldGroup label="Imagen del modelo de certificado" hint="Se muestra en la página pública del curso.">
                 <CertImageUpload value={certPreviewUrl} onChange={setCertPreviewUrl} courseId={course.id} />
