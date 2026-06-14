@@ -35,22 +35,22 @@ export function AdminSidebar({ counts, open, onClose }: Props) {
 
   return (
     <aside className={`admin-sidebar${open ? ' open' : ''}`}>
-      <div className="admin-sidebar-brand" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        {onClose && (
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: '1.2rem', padding: '4px', marginLeft: 'auto', display: 'none' }} className="sidebar-close-btn">✕</button>
-        )}
-        <Link href="/admin" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 11 }}>
+      <div className="admin-sidebar-brand">
+        <Link href="/admin" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
           <span className="admin-sidebar-mascot">
-            <Image src="/capyaba-mascot.png" alt="capyABA" width={40} height={58}
-              style={{ objectFit: 'contain', display: 'block' }} />
+            <Image src="/capyaba-mascot.png" alt="capyABA" width={30} height={44}
+              style={{ objectFit: 'contain', display: 'block', width: 'auto', height: 32 }} />
           </span>
-          <span>
+          <span style={{ minWidth: 0 }}>
             <div className="admin-sidebar-brand-logo">
               capy<span className="accent">ABA</span>
             </div>
             <div className="admin-sidebar-brand-role">Panel instructor</div>
           </span>
         </Link>
+        {onClose && (
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: '1.2rem', padding: '4px', display: 'none' }} className="sidebar-close-btn">✕</button>
+        )}
       </div>
 
       <div className="admin-sidebar-section-label">Principal</div>

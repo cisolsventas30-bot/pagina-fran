@@ -364,14 +364,14 @@ export default function NewCoursePage() {
         .nc-page-header { margin-bottom: 20px; }
         .nc-badge {
           display: inline-flex; align-items: center; gap: 6px;
-          padding: 4px 10px; background: var(--a-surface-2); color: var(--a-brand);
-          border: 1px solid var(--a-border-2); border-radius: 100px;
-          font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-          text-transform: uppercase; margin-bottom: 10px;
+          padding: 5px 11px; background: var(--b-pink-soft); color: var(--b-pink);
+          border: none; border-radius: 100px;
+          font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+          text-transform: uppercase; margin-bottom: 12px;
         }
         .nc-title {
-          font-family: 'Fraunces', serif; font-size: 28px; font-weight: 400;
-          color: var(--a-ink); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 6px;
+          font-family: 'Fraunces', serif; font-size: 32px; font-weight: 500;
+          color: var(--a-ink); letter-spacing: -0.035em; line-height: 1.05; margin-bottom: 8px;
         }
         .nc-subtitle { font-size: 13px; color: var(--a-ink-2); line-height: 1.55; max-width: 560px; }
 
@@ -392,18 +392,19 @@ export default function NewCoursePage() {
         .nc-col-side { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; }
 
         .nc-card {
-          background: var(--a-bg); border: 1px solid var(--a-border);
-          border-radius: 12px; overflow: hidden;
+          background: #fff; border: 1px solid rgba(95,77,54,.09);
+          border-radius: 16px; overflow: hidden;
+          box-shadow: 0 1px 2px rgba(95,77,54,.05), 0 10px 26px -16px rgba(95,77,54,.16);
         }
         .nc-card-header {
           display: flex; align-items: center; gap: 12px;
-          padding: 13px 18px; border-bottom: 1px solid var(--a-border);
-          background: var(--a-surface);
+          padding: 15px 18px; border-bottom: 1px solid var(--a-border);
+          background: #fff;
         }
         .nc-card-icon {
-          width: 30px; height: 30px; border-radius: 7px;
-          background: var(--a-bg); border: 1px solid var(--a-border-2);
-          display: grid; place-items: center; color: var(--a-brand); flex-shrink: 0;
+          width: 34px; height: 34px; border-radius: 10px;
+          background: var(--b-pink-soft); border: none;
+          display: grid; place-items: center; color: var(--b-pink); flex-shrink: 0;
         }
         .nc-card-title { font-size: 13px; font-weight: 700; color: var(--a-ink); }
         .nc-card-desc  { font-size: 11px; color: var(--a-ink-3); margin-top: 1px; }
@@ -473,16 +474,16 @@ export default function NewCoursePage() {
           border-radius: 9px; cursor: pointer;
           transition: border-color .15s, background .15s;
         }
-        .nc-vis-option:hover { border-color: var(--a-brand); background: var(--a-surface); }
-        .nc-vis-option.selected { border-color: var(--a-brand); background: var(--a-surface); }
+        .nc-vis-option:hover { border-color: var(--b-pink); background: var(--b-pink-soft); }
+        .nc-vis-option.selected { border-color: var(--b-pink); background: var(--b-pink-soft); }
         .nc-vis-radio {
           width: 16px; height: 16px; border-radius: 50%;
           border: 2px solid var(--a-border-2); flex-shrink: 0;
           transition: border-color .15s; position: relative;
         }
         .nc-vis-option.selected .nc-vis-radio {
-          border-color: var(--a-brand); background: var(--a-brand);
-          box-shadow: inset 0 0 0 3px var(--a-bg);
+          border-color: var(--b-pink); background: var(--b-pink);
+          box-shadow: inset 0 0 0 3px #fff;
         }
         .nc-vis-text { display: flex; flex-direction: column; gap: 2px; }
         .nc-vis-title { font-size: 12px; font-weight: 700; color: var(--a-ink); }
