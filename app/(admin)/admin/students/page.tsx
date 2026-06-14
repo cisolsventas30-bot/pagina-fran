@@ -8,7 +8,7 @@ export default async function StudentsPage() {
 
   const { data: students } = await supabase
     .from('profiles')
-    .select('id, email, full_name, created_at')
+    .select('id, email, full_name, created_at, phone, profession, age, country, city')
     .eq('role', 'student')
     .order('created_at', { ascending: false })
 

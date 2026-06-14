@@ -3,9 +3,13 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/Toast'
-import { Search, Plus, X, Users, Mail } from 'lucide-react'
+import { Search, Plus, X, Users, Mail, Phone, Briefcase, Calendar, MapPin, Globe } from 'lucide-react'
 
-type Student = { id: string; email: string; full_name: string; created_at: string }
+type Student = {
+  id: string; email: string; full_name: string; created_at: string
+  phone?: string | null; profession?: string | null; age?: number | null
+  country?: string | null; city?: string | null
+}
 type Course = { id: string; title: string; is_published: boolean }
 type Enrollment = { id: string; student_id: string; course_id: string; status: string }
 
@@ -203,10 +207,66 @@ export default function StudentsManager({
               </div>
             </div>
 
-            <div style={{ padding: '18px 20px 8px' }}>
+            {/* Datos del alumno */}
+            <div style={{ padding: '18px 22px 6px' }}>
               <h3 style={{
-                fontSize: 13, fontWeight: 700, color: 'var(--a-ink)',
-                letterSpacing: '-0.01em', marginBottom: 12,
+                fontSize: 11, fontWeight: 700, color: 'var(--a-ink-2)',
+                letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12,
+                fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+              }}>
+                Datos del alumno
+              </h3>
+              {(() => {
+                const fields = [
+                  { icon: <Phone size={14} strokeWidth={2} />, label: 'Teléfono', value: selectedStudent.phone },
+                  { icon: <Briefcase size={14} strokeWidth={2} />, label: 'Profesión', value: selectedStudent.profession },
+                  { icon: <Calendar size={14} strokeWidth={2} />, label: 'Edad', value: selectedStudent.age ? `${selectedStudent.age} años` : null },
+                  { icon: <Globe size={14} strokeWidth={2} />, label: 'País', value: selectedStudent.country },
+                  { icon: <MapPin size={14} strokeWidth={2} />, label: 'Ciudad', value: selectedStudent.city },
+                ]
+                const hasAny = fields.some(f => f.value)
+                if (!hasAny) {
+                  return (
+                    <div style={{
+                      padding: '14px 16px', borderRadius: 12,
+                      background: 'var(--a-surface)', border: '1px dashed var(--a-border-2)',
+                      fontSize: 12.5, color: 'var(--a-ink-3)',
+                    }}>
+                      Este alumno aún no completó su perfil (teléfono, profesión, ubicación…).
+                    </div>
+                  )
+                }
+                return (
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10,
+                  }}>
+                    {fields.filter(f => f.value).map(f => (
+                      <div key={f.label} style={{
+                        display: 'flex', alignItems: 'center', gap: 11,
+                        padding: '11px 14px', borderRadius: 12,
+                        background: 'var(--a-surface)', border: '1px solid var(--a-border)',
+                      }}>
+                        <span style={{
+                          width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+                          background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
+                          display: 'grid', placeItems: 'center',
+                        }}>{f.icon}</span>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--a-ink-4)' }}>{f.label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.value}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+
+            <div style={{ padding: '18px 22px 8px' }}>
+              <h3 style={{
+                fontSize: 11, fontWeight: 700, color: 'var(--a-ink-2)',
+                letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12,
+                fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
               }}>
                 Cursos asignados
               </h3>
