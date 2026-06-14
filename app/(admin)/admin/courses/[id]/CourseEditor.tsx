@@ -85,12 +85,12 @@ function DeleteButton({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
   )
 }
 function SectionCard({ children }: { children: React.ReactNode }) {
-  return <div style={{ background: '#fff', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(31,23,16,0.04)' }}>{children}</div>
+  return <div style={{ background: '#fff', border: '1px solid rgba(95,77,54,.09)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(95,77,54,.05), 0 10px 26px -16px rgba(95,77,54,.16)' }}>{children}</div>
 }
 function SectionHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 20px', borderBottom: '1px solid var(--a-border)' }}>
-      <div style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--a-surface-2)', display: 'grid', placeItems: 'center', color: 'var(--a-brand)', flexShrink: 0 }}>{icon}</div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '15px 20px', borderBottom: '1px solid var(--a-border)' }}>
+      <div style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--b-pink-soft)', display: 'grid', placeItems: 'center', color: 'var(--b-pink)', flexShrink: 0 }}>{icon}</div>
       <div>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-ink)' }}>{title}</div>
         {subtitle && <div style={{ fontSize: 11, color: 'var(--a-ink-3)', marginTop: 1 }}>{subtitle}</div>}
@@ -120,9 +120,9 @@ function NewModuleNote() {
 }
 function MiniTab({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
   return (
-    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', background: 'transparent', border: 'none', borderBottom: `2px solid ${active ? 'var(--a-brand)' : 'transparent'}`, marginBottom: -1, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? 'var(--a-brand)' : 'var(--a-ink-3)', fontFamily: 'inherit', transition: 'color .15s' }}>
+    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', background: 'transparent', border: 'none', borderBottom: `2px solid ${active ? 'var(--b-pink)' : 'transparent'}`, marginBottom: -1, fontSize: 12, fontWeight: active ? 700 : 600, cursor: 'pointer', color: active ? 'var(--a-ink)' : 'var(--a-ink-3)', fontFamily: 'inherit', transition: 'color .15s' }}>
       {label}
-      {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: active ? 'var(--a-brand)' : 'var(--a-surface-2)', color: active ? '#fff' : 'var(--a-ink-3)', padding: '1px 6px', borderRadius: 100, transition: 'background .15s, color .15s' }}>{count}</span>}
+      {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: active ? 'var(--b-pink)' : 'var(--a-surface-2)', color: active ? '#fff' : 'var(--a-ink-3)', padding: '1px 6px', borderRadius: 100, transition: 'background .15s, color .15s' }}>{count}</span>}
     </button>
   )
 }
@@ -435,11 +435,11 @@ export default function CourseEditor({ course }: { course: Course }) {
         </div>
       )}
 
-      {/* ── Top Tabs ── */}
-      <div style={{ display: 'flex', gap: 2, marginBottom: 20, borderBottom: '1px solid var(--a-border)' }}>
+      {/* ── Top Tabs (control segmentado tipo píldora) ── */}
+      <div style={{ display: 'inline-flex', gap: 3, marginBottom: 22, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: 4, width: 'fit-content' }}>
         {topTabs.map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeTab === tab.id ? 'var(--a-brand)' : 'transparent'}`, marginBottom: -1, fontSize: 13, fontWeight: 600, cursor: 'pointer', color: activeTab === tab.id ? 'var(--a-brand)' : 'var(--a-ink-3)', fontFamily: 'inherit', transition: 'color .15s' }}>
-            {tab.icon}{tab.label}
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 15px', background: activeTab === tab.id ? '#fff' : 'transparent', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 600, cursor: 'pointer', color: activeTab === tab.id ? 'var(--a-ink)' : 'var(--a-ink-3)', fontFamily: 'inherit', transition: 'all .15s', boxShadow: activeTab === tab.id ? '0 1px 3px rgba(95,77,54,.14)' : 'none' }}>
+            <span style={{ color: activeTab === tab.id ? 'var(--b-pink)' : 'inherit', display: 'inline-flex' }}>{tab.icon}</span>{tab.label}
           </button>
         ))}
       </div>
