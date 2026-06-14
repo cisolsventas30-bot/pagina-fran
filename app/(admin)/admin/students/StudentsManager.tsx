@@ -112,24 +112,24 @@ export default function StudentsManager({
                   width: '100%',
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: '12px 14px',
-                  background: isSelected ? 'var(--a-surface-2)' : 'transparent',
+                  background: isSelected ? 'var(--b-pink-soft)' : 'transparent',
                   border: 'none',
-                  borderLeft: isSelected ? '3px solid var(--a-brand)' : '3px solid transparent',
+                  borderLeft: isSelected ? '3px solid var(--b-pink)' : '3px solid transparent',
                   borderBottom: idx < filtered.length - 1 ? '1px solid var(--a-border)' : 'none',
                   textAlign: 'left',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
-                  transition: 'background .1s',
+                  transition: 'background .12s',
                 }}
                 onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--a-surface)' }}
                 onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}
               >
                 <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: 'var(--a-side-bg)',
-                  color: 'var(--cream)',
+                  width: 38, height: 38, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #7a6450, var(--b-pink))',
+                  color: '#fff',
                   display: 'grid', placeItems: 'center',
-                  fontSize: 12, fontWeight: 700,
+                  fontSize: 13, fontWeight: 700,
                   flexShrink: 0,
                 }}>
                   {(student.full_name || student.email)[0].toUpperCase()}
@@ -171,17 +171,18 @@ export default function StudentsManager({
           <div className="card">
             <div style={{
               display: 'flex', alignItems: 'center', gap: 14,
-              padding: '16px 20px',
+              padding: '18px 22px',
               borderBottom: '1px solid var(--a-border)',
-              background: 'var(--a-surface)',
+              background: 'linear-gradient(180deg, #fff, var(--a-surface))',
             }}>
               <div style={{
-                width: 48, height: 48, borderRadius: '50%',
-                background: 'var(--a-side-bg)',
-                color: 'var(--cream)',
+                width: 50, height: 50, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #7a6450, var(--b-pink))',
+                color: '#fff',
                 display: 'grid', placeItems: 'center',
-                fontSize: 16, fontWeight: 700,
+                fontSize: 17, fontWeight: 700,
                 flexShrink: 0,
+                boxShadow: '0 3px 10px -2px rgba(245,139,165,.4)',
               }}>
                 {(selectedStudent.full_name || selectedStudent.email)[0].toUpperCase()}
               </div>
@@ -229,11 +230,11 @@ export default function StudentsManager({
                         key={course.id}
                         style={{
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          padding: '11px 14px',
-                          borderRadius: 8,
+                          padding: '13px 16px',
+                          borderRadius: 12,
                           border: '1px solid',
-                          borderColor: isEnrolled ? 'var(--a-border-2)' : 'var(--a-border)',
-                          background: isEnrolled ? 'var(--a-surface)' : '#fff',
+                          borderColor: isEnrolled ? 'rgba(15,110,86,.22)' : 'var(--a-border)',
+                          background: isEnrolled ? 'var(--a-ok-50)' : '#fff',
                         }}
                       >
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -290,12 +291,11 @@ function EmptySelection({ hasStudents }: { hasStudents: boolean }) {
       borderStyle: 'dashed',
     }}>
       <div style={{
-        width: 52, height: 52, borderRadius: '50%',
-        background: '#fff',
-        color: 'var(--a-brand)',
+        width: 54, height: 54, borderRadius: 16,
+        background: 'var(--b-pink-soft)',
+        color: 'var(--b-pink)',
         display: 'grid', placeItems: 'center',
         margin: '0 auto 14px',
-        border: '1px solid var(--a-border)',
       }}>
         <Users size={22} strokeWidth={2} />
       </div>
