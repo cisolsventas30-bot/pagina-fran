@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Search, LogOut, LayoutDashboard, ExternalLink, Menu } from 'lucide-react'
+import { LogOut, LayoutDashboard, ExternalLink, Menu } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import NotificationsBell from '@/components/NotificationsBell'
+import AdminSearch from '@/components/admin/AdminSearch'
 
 type Props = {
   user: {
@@ -47,14 +48,7 @@ export function AdminTopbar({ user, onMenuClick }: Props) {
         </div>
       </div>
 
-      <div className="admin-search">
-        <Search />
-        <input
-          type="text"
-          placeholder="Buscar curso, alumno o lección…"
-          aria-label="Buscar"
-        />
-      </div>
+      <AdminSearch />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Link
