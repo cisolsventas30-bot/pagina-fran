@@ -31,12 +31,21 @@ export default async function ReviewsPage() {
       </div>
 
       {!pending?.length ? (
-        <div className="text-center py-16 bg-mocha-50 rounded-xl border border-mocha-100">
-          <CapyMascot size={140} className="mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-ink-900 mb-2 tracking-tight">
+        <div
+          className="text-center"
+          style={{
+            padding: '56px 24px',
+            background: '#fff',
+            border: '1px solid rgba(95,77,54,.09)',
+            borderRadius: 18,
+            boxShadow: '0 1px 2px rgba(95,77,54,.05), 0 10px 26px -16px rgba(95,77,54,.16)',
+          }}
+        >
+          <CapyMascot size={130} className="mx-auto mb-4" />
+          <h3 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 24, fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--a-ink)', marginBottom: 6 }}>
             ¡Todo al día!
           </h3>
-          <p className="text-ink-600 max-w-sm mx-auto text-sm">
+          <p className="max-w-sm mx-auto" style={{ fontSize: 13.5, color: 'var(--a-ink-2)' }}>
             No hay respuestas pendientes de revisión
           </p>
         </div>
@@ -48,7 +57,10 @@ export default async function ReviewsPage() {
               href={`/admin/reviews/${attempt.id}`}
               className="flex items-center gap-4 p-5 hover:bg-ink-50 transition group"
             >
-              <div className="w-10 h-10 bg-mocha-100 text-mocha-700 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div
+                className="flex items-center justify-center flex-shrink-0"
+                style={{ width: 38, height: 38, borderRadius: 11, background: 'var(--b-pink-soft)', color: 'var(--b-pink)' }}
+              >
                 <FileText className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
