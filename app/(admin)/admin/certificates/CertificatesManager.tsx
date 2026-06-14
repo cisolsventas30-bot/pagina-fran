@@ -163,16 +163,17 @@ export default function CertificatesManager({
             {pending.map(e => (
               <div key={e.id} style={{
                 background: 'var(--a-warn-50, #FFFBF8)',
-                border: '1px solid var(--a-warn, #C2410C)',
-                borderRadius: 12, padding: '14px 16px',
+                border: '1px solid var(--a-warn-200, #F5C4B3)',
+                borderRadius: 16, padding: '16px 18px',
+                boxShadow: '0 6px 18px -12px rgba(194,65,12,.25)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
                     <div style={{
-                      width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                      background: 'var(--a-warn, #C2410C)', color: '#fff',
+                      width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                      background: 'linear-gradient(135deg, #7a6450, var(--b-pink))', color: '#fff',
                       display: 'grid', placeItems: 'center',
-                      fontSize: 13, fontWeight: 700,
+                      fontSize: 14, fontWeight: 700,
                     }}>
                       {(e.profiles?.full_name || e.profiles?.email || 'A')[0].toUpperCase()}
                     </div>
@@ -235,15 +236,15 @@ export default function CertificatesManager({
       </div>
 
       {certs.length === 0 ? (
-        <div className="card" style={{ padding: '48px 24px', textAlign: 'center' }}>
+        <div className="card" style={{ padding: '52px 24px', textAlign: 'center' }}>
           <div style={{
-            width: 54, height: 54, borderRadius: '50%',
-            background: 'var(--a-surface-2)', color: 'var(--a-brand)',
+            width: 56, height: 56, borderRadius: 16,
+            background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
             margin: '0 auto 14px', display: 'grid', placeItems: 'center',
           }}>
             <Award size={24} strokeWidth={2} />
           </div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--a-ink)', marginBottom: 6 }}>
+          <h3 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)', marginBottom: 6 }}>
             Aún no se han emitido certificados
           </h3>
           <p style={{ fontSize: 13, color: 'var(--a-ink-2)', maxWidth: 380, margin: '0 auto' }}>
@@ -280,10 +281,10 @@ export default function CertificatesManager({
             }} className="cert-row">
               <div className="cert-col-student" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                 <div style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: 'var(--a-side-bg)', color: 'var(--cream)',
+                  width: 34, height: 34, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #7a6450, var(--b-pink))', color: '#fff',
                   display: 'grid', placeItems: 'center',
-                  fontSize: 11, fontWeight: 700, flexShrink: 0,
+                  fontSize: 12, fontWeight: 700, flexShrink: 0,
                 }}>
                   {(cert.profiles?.full_name || cert.profiles?.email || 'A')[0].toUpperCase()}
                 </div>
