@@ -37,10 +37,10 @@ export default async function CoursesListPage() {
             <ChevronLeft size={12} strokeWidth={2.5} />
             Panel
           </Link>
-          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--a-ink)', margin: 0 }}>
+          <h1 className="page-title" style={{ margin: 0, fontSize: 30 }}>
             Cursos
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--a-ink-3)', marginTop: 4, marginBottom: 0 }}>
+          <p style={{ fontSize: 13, color: 'var(--a-ink-3)', marginTop: 6, marginBottom: 0 }}>
             {list.length} {list.length === 1 ? 'curso creado' : 'cursos creados'}
           </p>
         </div>
