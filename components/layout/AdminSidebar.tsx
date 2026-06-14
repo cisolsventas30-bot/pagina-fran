@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -38,11 +39,17 @@ export function AdminSidebar({ counts, open, onClose }: Props) {
         {onClose && (
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: '1.2rem', padding: '4px', marginLeft: 'auto', display: 'none' }} className="sidebar-close-btn">✕</button>
         )}
-        <Link href="/admin" style={{ textDecoration: 'none' }}>
-          <div className="admin-sidebar-brand-logo">
-            capy<span className="accent">ABA</span>
-          </div>
-          <div className="admin-sidebar-brand-role">Panel instructor</div>
+        <Link href="/admin" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 11 }}>
+          <span className="admin-sidebar-mascot">
+            <Image src="/capyaba-mascot.png" alt="capyABA" width={40} height={58}
+              style={{ objectFit: 'contain', display: 'block' }} />
+          </span>
+          <span>
+            <div className="admin-sidebar-brand-logo">
+              capy<span className="accent">ABA</span>
+            </div>
+            <div className="admin-sidebar-brand-role">Panel instructor</div>
+          </span>
         </Link>
       </div>
 

@@ -250,59 +250,83 @@ body {
   border-bottom: 1px solid rgba(255,255,255,0.06);
   margin-bottom: 16px;
 }
+.admin-sidebar-mascot {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 44px; height: 44px; border-radius: 13px;
+  background: linear-gradient(140deg, rgba(245,139,165,.22), rgba(245,185,122,.14));
+  border: 1px solid rgba(255,255,255,.08);
+  overflow: hidden;
+}
 .admin-sidebar-brand-logo {
-  font-size: 19px; font-weight: 800; letter-spacing: -0.03em; color: #fff;
+  font-size: 19px; font-weight: 800; letter-spacing: -0.035em; color: #fff;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
-.admin-sidebar-brand-logo .accent { color: var(--pink); }
+.admin-sidebar-brand-logo .accent { color: var(--b-pink); }
 .admin-sidebar-brand-role {
-  font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--a-side-ink-3); font-weight: 700; margin-top: 5px;
+  font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--a-side-ink-3); font-weight: 700; margin-top: 6px;
 }
 
 .admin-sidebar-section-label {
-  font-size: 9.5px; font-weight: 700;
+  font-size: 9px; font-weight: 800;
   color: var(--a-side-ink-3);
-  letter-spacing: 0.2em;
-  padding: 18px 14px 8px;
+  letter-spacing: 0.22em;
+  padding: 20px 14px 9px;
   text-transform: uppercase;
 }
 
 .admin-sidebar-item {
   display: flex; align-items: center; justify-content: space-between;
   gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
+  padding: 6px 11px 6px 8px;
+  border-radius: 11px;
   font-size: 13px; font-weight: 500;
   color: var(--a-side-ink-2);
   text-decoration: none;
   position: relative;
-  transition: background .15s, color .15s, transform .15s;
+  transition: background .18s, color .18s, transform .18s;
 }
 .admin-sidebar-item:hover {
-  background: var(--a-side-bg-2);
+  background: rgba(255,255,255,.04);
   color: var(--a-side-ink);
+  transform: translateX(2px);
 }
 .admin-sidebar-item.active {
-  background: linear-gradient(to right, rgba(245,215,142,.08), transparent 70%), var(--a-side-bg-3);
+  background: linear-gradient(100deg, rgba(245,139,165,.16), rgba(255,255,255,.03) 70%);
   color: #fff;
   font-weight: 600;
 }
-/* Acento dorado a la izquierda del item activo — sello editorial */
+/* Acento ROSA a la izquierda del item activo — sello de marca capyABA */
 .admin-sidebar-item.active::before {
   content: '';
   position: absolute;
   left: -12px;
-  top: 6px;
-  bottom: 6px;
-  width: 2px;
-  border-radius: 0 2px 2px 0;
-  background: var(--yellow);
+  top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--b-pink);
+  box-shadow: 0 0 12px rgba(245,139,165,.55);
 }
 .admin-sidebar-item .label { display: flex; align-items: center; gap: 11px; }
-.admin-sidebar-item .label svg { opacity: .85; transition: opacity .15s; }
-.admin-sidebar-item:hover .label svg,
-.admin-sidebar-item.active .label svg { opacity: 1; }
+/* Chip propio para cada icono — el activo se enciende en rosa */
+.admin-sidebar-item .label svg {
+  box-sizing: content-box;
+  width: 16px; height: 16px;
+  padding: 7px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.05);
+  color: var(--a-side-ink-2);
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+.admin-sidebar-item:hover .label svg {
+  background: rgba(255,255,255,.09);
+  color: #fff;
+}
+.admin-sidebar-item.active .label svg {
+  background: linear-gradient(135deg, var(--b-pink), #E8959A);
+  color: #fff;
+  box-shadow: 0 4px 12px -2px rgba(245,139,165,.5);
+}
 .admin-sidebar-item .count {
   font-size: 11px; font-weight: 700;
   color: var(--a-side-ink-3);
@@ -311,7 +335,7 @@ body {
 .admin-sidebar-item.active .count { color: rgba(255,255,255,0.6); }
 .admin-sidebar-item .pill {
   font-size: 10px; font-weight: 700;
-  background: var(--a-warn); color: #fff;
+  background: var(--b-pink); color: #fff;
   padding: 2px 7px; border-radius: 100px;
   font-variant-numeric: tabular-nums;
 }
@@ -379,7 +403,7 @@ body {
   transition: background .18s, color .18s, transform .15s;
   text-decoration: none;
 }
-.admin-iconbtn:hover { background: var(--a-surface); color: var(--a-ink); }
+.admin-iconbtn:hover { background: var(--b-pink-soft); color: var(--b-pink); }
 .admin-iconbtn:active { transform: scale(.96); }
 .admin-iconbtn:focus-visible {
   outline: none;
@@ -406,7 +430,7 @@ body {
   transition: transform .15s, box-shadow .2s;
   font-family: 'Plus Jakarta Sans', inherit;
 }
-.admin-avatar:hover { transform: translateY(-1px); box-shadow: 0 2px 0 var(--a-border-2), 0 6px 14px rgba(28,20,13,.18); }
+.admin-avatar:hover { transform: translateY(-1px); box-shadow: 0 0 0 3px var(--b-pink-soft), 0 6px 16px rgba(245,139,165,.30); }
 
 /* ── Botones admin ── */
 .btn-primary {
@@ -1494,19 +1518,25 @@ footer p, footer a, footer span {
 .db2-block { display: flex; flex-direction: column; gap: 14px; }
 .db2-block-head { display: flex; align-items: center; justify-content: space-between; }
 .db2-block-title {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 9px;
   font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.14em; color: var(--a-ink-2);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   margin: 0;
 }
-.db2-block-title svg { color: var(--b-mocha); }
+/* Icono de sección en chip propio rosa-suave */
+.db2-block-title svg {
+  box-sizing: content-box;
+  width: 14px; height: 14px;
+  padding: 6px; border-radius: 8px;
+  background: var(--b-pink-soft); color: var(--b-pink);
+}
 .db2-block-link {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 12px; font-weight: 700; color: var(--b-mocha);
-  text-decoration: none; transition: gap .15s;
+  font-size: 12px; font-weight: 700; color: var(--b-pink);
+  text-decoration: none; transition: gap .15s, color .15s;
 }
-.db2-block-link:hover { gap: 8px; }
+.db2-block-link:hover { gap: 9px; color: #E8959A; }
 
 .db2-card {
   background: #fff;
@@ -1653,7 +1683,7 @@ footer p, footer a, footer span {
 }
 .db2-bar-fill {
   height: 100%; border-radius: 100px;
-  background: linear-gradient(90deg, var(--b-mocha), var(--b-peach));
+  background: linear-gradient(90deg, var(--b-mocha), var(--b-pink) 55%, var(--b-peach));
   transition: width .5s ease;
 }
 .db2-sum-divider { height: 1px; background: var(--a-border); margin: 20px 0; }
