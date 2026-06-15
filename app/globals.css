@@ -1193,12 +1193,30 @@ footer p, footer a, footer span {
 
 /* ── Landing: mobile breakpoints ── */
 @media (max-width: 768px) {
-  /* Hero */
-  .hero-card { min-height: 75vh; border-radius: 16px; }
+  /* Hero — el texto se ancla abajo para no tapar el rostro */
+  .hero-card {
+    min-height: 72vh;
+    border-radius: 16px;
+    align-items: flex-end;
+  }
   .hero-lines { display: none; }
+  /* En celular el degradado va de abajo hacia arriba: oscurece el pie donde está el texto */
+  .hero-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(31,23,16,.94) 0%,
+      rgba(31,23,16,.80) 34%,
+      rgba(31,23,16,.30) 64%,
+      rgba(31,23,16,0) 100%
+    ) !important;
+  }
   .hero-text {
-    padding: 0 1.5rem;
-    padding-top: 6vh;
+    padding: 0 1.5rem 2.2rem;
+    padding-top: 0;
+  }
+  .hero-title {
+    font-size: clamp(2rem, 8.5vw, 2.6rem) !important;
+    margin-bottom: 1.1rem !important;
   }
 
   /* Service cards — stack vertically */
@@ -1207,7 +1225,7 @@ footer p, footer a, footer span {
     flex-direction: column !important;
     height: auto !important;
   }
-  .svc-card { min-height: 240px; }
+  .svc-card { min-height: 280px; }
   .svc-card:hover { flex: 1 !important; }
 
   /* Sections padding */
@@ -1243,7 +1261,7 @@ footer p, footer a, footer span {
 }
 
 @media (max-width: 480px) {
-  .footer-cols { grid-template-columns: 1fr; }
+  .footer-cols { grid-template-columns: 1fr 1fr; gap: 1.25rem 1rem; }
   .stats-grid  { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
 }
 

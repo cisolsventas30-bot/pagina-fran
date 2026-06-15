@@ -215,7 +215,7 @@ const SERVICES = [
     id: 'terapia-infantil',
     title: 'Terapia Infantil',
     desc: 'Sesiones ABA para potenciar habilidades comunicativas, sociales y adaptativas en cada niño.',
-    dot: '#6FCF97',
+    dot: '#F5B97A',
     img: '/terapia-infantil.png',
     wsp: 'Hola capyABA, me interesa la Terapia Infantil ABA para mi hijo/a 🧒',
     href: '/servicios#terapia-infantil',
@@ -224,7 +224,7 @@ const SERVICES = [
     id: 'sesiones-padres',
     title: 'Sesiones para Padres',
     desc: 'Capacitación a familias para convertirse en agentes de cambio en el hogar.',
-    dot: '#F5D78E',
+    dot: '#E6B23C',
     img: '/sesiones-padres.png',
     wsp: 'Hola capyABA, quisiera información sobre las Sesiones para Padres 👨‍👩‍👧',
     href: '/servicios#sesiones-padres',
@@ -239,7 +239,7 @@ const SERVICES = [
       'Formación teórica de IBA',
       'Cursos libres de capyABA',
     ],
-    dot: '#C4B0EC',
+    dot: '#F58BA5',
     img: '/cursos-ibt.png',
     wsp: 'Hola capyABA, me interesa información sobre los Cursos 📚',
     href: '/servicios#cursos',
@@ -248,7 +248,7 @@ const SERVICES = [
     id: 'supervisiones',
     title: 'Supervisiones',
     desc: 'Supervisiones a profesionales e instituciones.',
-    dot: '#4ecdc4',
+    dot: '#A47C68',
     img: '/supervisiones.png',
     wsp: 'Hola capyABA, quisiera información sobre las Supervisiones 🔬',
     href: '/servicios#supervisiones',
@@ -434,18 +434,29 @@ const serviceCardStyles = `
       gap: 0.75rem;
     }
     .svc-card {
-      min-height: 220px;
+      min-height: 280px;
       flex: none;
     }
     .svc-card:hover { flex: none; }
-    .svc-title { font-size: 1.45rem; }
-    .svc-card:hover .svc-title { font-size: 1.45rem; }
+    .svc-title { font-size: 1.4rem; }
+    .svc-card:hover .svc-title { font-size: 1.4rem; }
+    /* En celular no hay hover: el texto siempre va sobre un overlay fuerte y legible */
+    .svc-overlay {
+      background: linear-gradient(
+        to top,
+        rgba(8,6,3,0.94) 0%,
+        rgba(8,6,3,0.78) 38%,
+        rgba(8,6,3,0.32) 70%,
+        rgba(8,6,3,0.05) 100%
+      ) !important;
+    }
+    .svc-img { object-position: center 22%; }
     /* Always show description on mobile (no hover) */
     .svc-reveal {
       grid-template-rows: 1fr;
       opacity: 1;
     }
-    .svc-bottom { padding: 0 1.25rem 1.5rem; }
+    .svc-bottom { padding: 0 1.25rem 1.5rem; max-width: none; }
   }
 `
 
@@ -519,7 +530,7 @@ export default function Home() {
           />
 
           {/* Overlay gradiente — izquierda oscura, derecha transparente */}
-          <div style={{
+          <div className="hero-overlay" style={{
             position: 'absolute', inset: 0, zIndex: 1,
             background: 'linear-gradient(to right, rgba(31,23,16,.92) 0%, rgba(31,23,16,.80) 32%, rgba(31,23,16,.25) 60%, rgba(31,23,16,0) 100%)',
           }} />
@@ -536,7 +547,7 @@ export default function Home() {
               — Francesca Ramírez Bontá
             </div>
 
-            <h1 style={{
+            <h1 className="hero-title" style={{
               fontFamily: "'Poppins', system-ui, sans-serif",
               fontSize: 'clamp(2.6rem,5.4vw,4.8rem)',
               fontWeight: 600, letterSpacing: '-.03em', lineHeight: 1.08,
