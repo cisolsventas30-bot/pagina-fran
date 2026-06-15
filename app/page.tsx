@@ -250,6 +250,7 @@ const SERVICES = [
     desc: 'Supervisiones a profesionales e instituciones.',
     dot: '#A47C68',
     img: '/supervisiones.png',
+    pos: 'center center',
     wsp: 'Hola capyABA, quisiera información sobre las Supervisiones 🔬',
     href: '/servicios#supervisiones',
   },
@@ -468,7 +469,7 @@ function ServiceCards() {
         {SERVICES.map((s) => (
           <div key={s.id} className="svc-card">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={s.img} alt={s.title} className="svc-img" />
+            <img src={s.img} alt={s.title} className="svc-img" style={'pos' in s && s.pos ? { objectPosition: s.pos } : undefined} />
             <div className="svc-overlay" />
             <div className="svc-dot" style={{ background: s.dot }} />
 
