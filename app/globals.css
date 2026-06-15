@@ -252,12 +252,8 @@ body {
 }
 .admin-sidebar-mascot {
   display: grid; place-items: center; flex-shrink: 0;
-  width: 60px; height: 60px; border-radius: 17px;
-  background: linear-gradient(140deg, rgba(245,139,165,.26), rgba(245,185,122,.16));
-  border: 1px solid rgba(255,255,255,.08);
-  overflow: hidden;
 }
-.admin-sidebar-mascot :where(img) { max-height: 50px; width: auto; }
+.admin-sidebar-mascot :where(img) { max-height: 60px; width: auto; }
 .admin-sidebar-brand-logo {
   font-size: 22px; font-weight: 800; letter-spacing: -0.035em; color: #fff;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;

@@ -38,8 +38,8 @@ export function AdminSidebar({ counts, open, onClose }: Props) {
       <div className="admin-sidebar-brand">
         <Link href="/admin" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
           <span className="admin-sidebar-mascot">
-            <Image src="/capyaba-mascot.png" alt="capyABA" width={48} height={66}
-              style={{ objectFit: 'contain', display: 'block', width: 'auto', height: 50 }} />
+            <Image src="/capyaba-mascot.png" alt="capyABA" width={56} height={80}
+              style={{ objectFit: 'contain', display: 'block', width: 'auto', height: 60 }} />
           </span>
           <span style={{ minWidth: 0 }}>
             <div className="admin-sidebar-brand-logo">
