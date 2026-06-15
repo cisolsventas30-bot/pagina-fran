@@ -23,21 +23,21 @@ const LABEL_LINES = [
   {
     d: 'M-10,62 C100,58 240,42 400,36 C520,31 650,37 800,40',
     endX: 800, endY: 40,
-    color: 'rgba(111,207,151,0.85)', dotColor: '#6FCF97',
+    color: 'rgba(245,185,122,0.85)', dotColor: '#F5B97A',
     label: 'ANÁLISIS CONDUCTUAL APLICADO',
     dashLen: 820,
   },
   {
     d: 'M-10,88 C110,92 240,100 390,92 C520,85 660,78 800,82',
     endX: 800, endY: 82,
-    color: 'rgba(245,215,142,0.80)', dotColor: '#F5D78E',
+    color: 'rgba(245,139,165,0.85)', dotColor: '#F58BA5',
     label: 'CERTIFICADA IBAO · IBA / IBT',
     dashLen: 815,
   },
   {
     d: 'M-10,118 C120,122 260,132 410,138 C540,143 670,135 800,128',
     endX: 800, endY: 128,
-    color: 'rgba(196,176,236,0.72)', dotColor: '#C4B0EC',
+    color: 'rgba(164,124,104,0.80)', dotColor: '#A47C68',
     label: 'SUPERVISIÓN PROFESIONAL',
     dashLen: 825,
   },
@@ -351,9 +351,9 @@ const serviceCardStyles = `
     max-width: 320px;
   }
   .svc-title {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'Poppins', system-ui, sans-serif;
     font-size: 1.3rem;
-    font-weight: 400;
+    font-weight: 600;
     color: #fff;
     line-height: 1.2;
     margin: 0;
@@ -537,15 +537,15 @@ export default function Home() {
             </div>
 
             <h1 style={{
-              fontFamily: "'Fraunces','Georgia',serif",
-              fontSize: 'clamp(2.9rem,5.8vw,5.4rem)',
-              fontWeight: 400, letterSpacing: '-.025em', lineHeight: 1.05,
-              color: '#fff', maxWidth: 700, marginBottom: '1.6rem',
+              fontFamily: "'Poppins', system-ui, sans-serif",
+              fontSize: 'clamp(2.6rem,5.4vw,4.8rem)',
+              fontWeight: 600, letterSpacing: '-.03em', lineHeight: 1.08,
+              color: '#fff', maxWidth: 720, marginBottom: '1.6rem',
               animation: 'fadeUp .8s .45s ease both', opacity:0,
             }}>
-              Análisis conductual.{' '}
-              <em style={{ fontStyle:'italic', fontWeight:300, letterSpacing:'-.015em' }}>basado en evidencia</em>
-              {' '}para <strong style={{ fontWeight:500 }}>niños y familias</strong>
+              Análisis conductual{' '}
+              <span style={{ fontWeight:400 }}>y</span>{' '}
+              <strong style={{ fontWeight:700 }}>terapeutas</strong>
             </h1>
 
             <p style={{

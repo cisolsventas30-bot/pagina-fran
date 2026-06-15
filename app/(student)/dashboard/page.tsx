@@ -64,7 +64,7 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--a-ink)', lineHeight: 1, marginBottom: 8 }}>
+        <h1 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--a-ink)', lineHeight: 1, marginBottom: 8 }}>
           Hola, {firstName}
         </h1>
         <p className="text-ink-600">
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
 
       {active.length > 0 && (
         <section className="mb-10">
-          <h2 className="mb-4" style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)' }}>
+          <h2 className="mb-4" style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)' }}>
             Continúa aprendiendo
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
 
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)' }}>Todos mis cursos</h2>
+          <h2 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)' }}>Todos mis cursos</h2>
           <span className="text-sm text-ink-500">
             {(enrollments?.length || 0)} {(enrollments?.length || 0) === 1 ? 'curso' : 'cursos'}
           </span>

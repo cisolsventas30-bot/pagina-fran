@@ -101,7 +101,7 @@ function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
           <span style={{ display:'inline-block', background:'#1F1710', color:'#F4ECDF', padding:'4px 12px', borderRadius:100, fontSize:'.65rem', fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', marginBottom:'1rem' }}>
             {CERTS[active].badge}
           </span>
-          <h3 style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(1.4rem,2.5vw,2rem)', fontWeight:400, lineHeight:1.15, color:'#1F1710', marginBottom:'1rem', letterSpacing:'-.02em' }}>
+          <h3 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'clamp(1.4rem,2.5vw,2rem)', fontWeight:400, lineHeight:1.15, color:'#1F1710', marginBottom:'1rem', letterSpacing:'-.02em' }}>
             {CERTS[active].title}
           </h3>
           <p style={{ fontSize:'.95rem', color:'var(--muted)', lineHeight:1.6, marginBottom:'2rem' }}>
@@ -115,7 +115,7 @@ function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
               onMouseEnter={e => { if (active > 0) (e.currentTarget as HTMLButtonElement).style.background='#1F1710'; (e.currentTarget as HTMLButtonElement).style.color='#F4ECDF' }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background='transparent'; (e.currentTarget as HTMLButtonElement).style.color='#1F1710' }}
             >&#8592;</button>
-            <span style={{ fontFamily:"'Fraunces',serif", fontSize:'.9rem', color:'var(--muted)' }}>
+            <span style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'.9rem', color:'var(--muted)' }}>
               {active + 1} <span style={{ opacity:.4 }}>/ {CERTS.length}</span>
             </span>
             <button onClick={next} disabled={active === CERTS.length - 1}
@@ -174,7 +174,7 @@ function CertGallery({ items = CERTS }: { items?: CertItem[] }) {
               style={{ maxWidth:'85vw', maxHeight:'80vh', borderRadius:12, boxShadow:'0 40px 80px rgba(0,0,0,.6)', objectFit:'contain' }}
             />
             <div style={{ textAlign:'center' }}>
-              <p style={{ fontFamily:"'Fraunces',serif", fontSize:'1.2rem', color:'#F4ECDF', fontWeight:400, marginBottom:'.25rem' }}>{CERTS[open].title}</p>
+              <p style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.2rem', color:'#F4ECDF', fontWeight:400, marginBottom:'.25rem' }}>{CERTS[open].title}</p>
               <p style={{ fontSize:'.72rem', color:'rgba(244,236,223,.4)', letterSpacing:'.06em', textTransform:'uppercase' }}>{open+1} / {CERTS.length}</p>
             </div>
           </div>
@@ -635,7 +635,7 @@ export default function SobreMi() {
         <div className="section-inner-lg grid-2col">
           <div style={{ minWidth:0 }}>
             <div style={{ fontSize:'.8rem', fontWeight:600, marginBottom:'1.2rem', animation:'fadeUp .7s ease both' }}>— Sobre mí</div>
-            <h1 style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(3rem,5.5vw,4.8rem)', fontWeight:400, letterSpacing:'-.025em', lineHeight:1.02, marginBottom:'1.8rem', animation:'fadeUp .8s .1s ease both' }}>
+            <h1 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'clamp(3rem,5.5vw,4.8rem)', fontWeight:400, letterSpacing:'-.025em', lineHeight:1.02, marginBottom:'1.8rem', animation:'fadeUp .8s .1s ease both' }}>
               Soy <strong>Francesca</strong>,<br />la humana detrás de capyABA.
             </h1>
             <p style={{ fontSize:'1.15rem', color:'var(--muted)', lineHeight:1.55, maxWidth:520, marginBottom:'2rem', animation:'fadeUp .8s .2s ease both' }}>
@@ -719,7 +719,7 @@ export default function SobreMi() {
       {/* STORY */}
       <section className="dark-section">
         <div className="reveal" style={{ maxWidth:900, margin:'0 auto' }}>
-          <h2 style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(2.4rem,4.5vw,3.6rem)', fontWeight:400, letterSpacing:'-.025em', lineHeight:1.05, marginBottom:'3rem', color:'#F4ECDF' }}>
+          <h2 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'clamp(2.4rem,4.5vw,3.6rem)', fontWeight:400, letterSpacing:'-.025em', lineHeight:1.05, marginBottom:'3rem', color:'#F4ECDF' }}>
             Mi historia empieza con una <strong>pregunta:</strong> ¿como ayudar al mundo?
           </h2>
           <p style={{ fontSize:'1.2rem', color:'rgba(244,236,223,.78)', lineHeight:1.65, marginBottom:'1.5rem' }}>
@@ -734,7 +734,7 @@ export default function SobreMi() {
           <p style={{ fontSize:'1.2rem', color:'rgba(244,236,223,.78)', lineHeight:1.65, marginBottom:'1.5rem' }}>
             Mi propósito es hacer del mundo un lugar mejor para todos los niños que, con el tiempo, se convertirán en grandes adultos.
           </p>
-          <blockquote style={{ fontFamily:"'Fraunces',serif", fontSize:'1.8rem', fontWeight:400, lineHeight:1.2, letterSpacing:'-.015em', color:'#F5D78E', borderLeft:'3px solid #F5D78E', paddingLeft:'2rem', margin:'2rem 0' }}>
+          <blockquote style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.8rem', fontWeight:400, lineHeight:1.2, letterSpacing:'-.015em', color:'#F5D78E', borderLeft:'3px solid #F5D78E', paddingLeft:'2rem', margin:'2rem 0' }}>
             “Cada niño que recibe apoyo hoy, es un adulto que <em>mañana transforma el mundo</em>.”
           </blockquote>
         </div>
@@ -765,7 +765,7 @@ export default function SobreMi() {
               <div key={a.num} style={{ display:'grid', gridTemplateColumns:'50px 1fr', gap:'1rem', padding:'1.5rem 0', borderTop:'1px solid var(--border)' }}>
                 <div style={{ fontFamily:"'Fraunces',serif", fontSize:'1.5rem', fontWeight:500, color:'var(--muted)' }}>{a.num}</div>
                 <div>
-                  <h4 style={{ fontFamily:"'Fraunces',serif", fontSize:'1.3rem', fontWeight:500, marginBottom:'.4rem' }}>{a.title}</h4>
+                  <h4 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, marginBottom:'.4rem' }}>{a.title}</h4>
                   <p style={{ fontSize:'.93rem', color:'var(--muted)', lineHeight:1.5 }}>{a.desc}</p>
                 </div>
               </div>
@@ -791,7 +791,7 @@ export default function SobreMi() {
                 y el IntersectionObserver ya pasó) */}
             <div style={{ textAlign:'center', maxWidth:760, margin:'0 auto 3.5rem' }}>
               <h2 style={{
-                fontFamily:"'Fraunces',serif",
+                fontFamily:"'Poppins', system-ui, sans-serif",
                 fontSize:'clamp(2.4rem, 5vw, 3.8rem)', fontWeight:400,
                 letterSpacing:'-.025em', lineHeight:1.05,
                 color:'#1F1710', margin:0,

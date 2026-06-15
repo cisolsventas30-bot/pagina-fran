@@ -129,7 +129,7 @@ export default function MyCertificates({
       {pending.length > 0 && (
         <div style={{ marginBottom: 32 }}>
           <h2 style={{
-            fontFamily: "'Fraunces', Georgia, serif",
+            fontFamily: "'Poppins', system-ui, sans-serif",
             fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em',
             color: '#1F1710', marginBottom: 4,
           }}>
@@ -208,7 +208,7 @@ export default function MyCertificates({
         <div>
           {pending.length > 0 && (
             <h2 style={{
-              fontFamily: "'Fraunces', Georgia, serif",
+              fontFamily: "'Poppins', system-ui, sans-serif",
               fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em',
               color: '#1F1710', marginBottom: 16,
             }}>

@@ -45,7 +45,7 @@ function FAQ({ q, a }: { q:string; a:string }) {
   return (
     <div onClick={() => setOpen(!open)} style={{ borderTop:'1px solid var(--border)', padding:'1.8rem 0', cursor:'pointer' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:'1rem' }}>
-        <span style={{ fontFamily:"'Fraunces',serif", fontSize:'1.3rem', fontWeight:500, letterSpacing:'-.015em' }}>{q}</span>
+        <span style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, letterSpacing:'-.015em' }}>{q}</span>
         <div style={{ width:32, height:32, borderRadius:'50%', background:'#1F1710', color:'#F4ECDF', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', transition:'transform .3s', transform:open?'rotate(45deg)':'none', flexShrink:0 }}>+</div>
       </div>
       <div style={{ maxHeight:open?400:0, overflow:'hidden', transition:'max-height .4s ease', color:'var(--muted)', lineHeight:1.6, paddingTop:open?'1rem':0 }}>
@@ -113,7 +113,7 @@ export default function Servicios() {
             {PROCESS.map((p, i) => (
               <div key={p.num} className="reveal" style={{ background:'rgba(244,236,223,.06)', borderRadius:20, padding:'2rem', transitionDelay:`${i*.1}s` }}>
                 <div style={{ fontFamily:"'Fraunces',serif", fontSize:'3rem', fontWeight:400, color:'#F5D78E', lineHeight:1, marginBottom:'1.5rem' }}>{p.num}</div>
-                <h4 style={{ fontFamily:"'Fraunces',serif", fontSize:'1.3rem', fontWeight:500, color:'#F4ECDF', marginBottom:'.6rem' }}>{p.title}</h4>
+                <h4 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, color:'#F4ECDF', marginBottom:'.6rem' }}>{p.title}</h4>
                 <p style={{ fontSize:'.9rem', color:'rgba(244,236,223,.7)', lineHeight:1.5 }}>{p.desc}</p>
               </div>
             ))}

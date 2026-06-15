@@ -370,7 +370,7 @@ export default function NewCoursePage() {
           text-transform: uppercase; margin-bottom: 12px;
         }
         .nc-title {
-          font-family: 'Fraunces', serif; font-size: 32px; font-weight: 500;
+          font-family: 'Poppins', system-ui, sans-serif; font-size: 32px; font-weight: 600;
           color: var(--a-ink); letter-spacing: -0.035em; line-height: 1.05; margin-bottom: 8px;
         }
         .nc-subtitle { font-size: 13px; color: var(--a-ink-2); line-height: 1.55; max-width: 560px; }

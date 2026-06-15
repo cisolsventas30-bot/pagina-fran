@@ -42,7 +42,7 @@ export default async function ReviewsPage() {
           }}
         >
           <CapyMascot size={130} className="mx-auto mb-4" />
-          <h3 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 24, fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--a-ink)', marginBottom: 6 }}>
+          <h3 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 24, fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--a-ink)', marginBottom: 6 }}>
             ¡Todo al día!
           </h3>
           <p className="max-w-sm mx-auto" style={{ fontSize: 13.5, color: 'var(--a-ink-2)' }}>

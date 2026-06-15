@@ -48,7 +48,7 @@ export default async function CertificatesPage() {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 56px' }}>
       <div className="mb-8">
-        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--a-ink)', lineHeight: 1, marginBottom: 8 }}>
+        <h1 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--a-ink)', lineHeight: 1, marginBottom: 8 }}>
           Mis certificados
         </h1>
         <p className="text-ink-600">Tus logros en capyABA</p>

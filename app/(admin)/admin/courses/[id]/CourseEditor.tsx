@@ -555,7 +555,7 @@ export default function CourseEditor({ course }: { course: Course }) {
           {/* Header módulos */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--a-ink)', margin: 0 }}>Módulos del curso</h2>
+              <h2 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 22, fontWeight: 600, letterSpacing: '-0.03em', color: 'var(--a-ink)', margin: 0 }}>Módulos del curso</h2>
               <p style={{ fontSize: 12.5, color: 'var(--a-ink-3)', marginTop: 4, marginBottom: 0 }}>{modules.length} {modules.length === 1 ? 'módulo' : 'módulos'} · Arrastra para reordenar</p>
             </div>
             <button onClick={addModule} className="btn-secondary" style={{ gap: 6 }}><Plus size={14} strokeWidth={2.5} />Agregar módulo</button>

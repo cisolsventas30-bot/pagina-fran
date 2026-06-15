@@ -40,7 +40,7 @@ export default function Emprendimientos() {
                   <span style={{ display:'inline-block', background:'#1F1710', color:'#F4ECDF', padding:'6px 14px', borderRadius:100, fontSize:'.72rem', fontWeight:600, letterSpacing:'.05em', textTransform:'uppercase' }}>{v.role}</span>
                 </div>
                 <h2 className="section-title" style={{ marginBottom:'.5rem' }}>{v.title}</h2>
-                <p style={{ fontFamily:"'Fraunces',serif", fontSize:'1.2rem', fontStyle:'italic', color:'var(--muted)', marginBottom:'1.5rem' }}>— {v.tagline}</p>
+                <p style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.2rem', fontStyle:'italic', color:'var(--muted)', marginBottom:'1.5rem' }}>— {v.tagline}</p>
                 <p style={{ fontSize:'1.1rem', color:'var(--muted)', lineHeight:1.55, marginBottom:'2rem' }}>{v.desc}</p>
                 <a href={wa(v.wsp)} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Preguntar por WhatsApp</a>
               </div>
@@ -63,7 +63,7 @@ export default function Emprendimientos() {
             {ECO.map((e, i) => (
               <div key={e.name} className="reveal" style={{ background:'rgba(244,236,223,.06)', borderRadius:20, padding:'2rem', transitionDelay:`${i*.1}s` }}>
                 <div style={{ fontSize:'.7rem', fontWeight:600, letterSpacing:'.08em', textTransform:'uppercase', color:'#F5D78E', marginBottom:'1rem' }}>{e.type}</div>
-                <h3 style={{ fontFamily:"'Fraunces',serif", fontSize:'1.4rem', fontWeight:500, color:'#F4ECDF', marginBottom:'.6rem' }}>{e.name}</h3>
+                <h3 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.4rem', fontWeight:600, color:'#F4ECDF', marginBottom:'.6rem' }}>{e.name}</h3>
                 <p style={{ fontSize:'.9rem', color:'rgba(244,236,223,.7)', lineHeight:1.5 }}>{e.desc}</p>
               </div>
             ))}

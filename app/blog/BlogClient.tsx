@@ -117,7 +117,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
           bottom: '-0.05em',
           right: '-0.04em',
           fontSize: 'clamp(8rem, 18vw, 22rem)',
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Poppins', system-ui, sans-serif",
           fontWeight: 300,
           color: 'rgba(31,23,16,0.04)',
           lineHeight: 1,
@@ -139,7 +139,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
           </div>
 
           <h1 style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Poppins', system-ui, sans-serif",
             fontSize: 'clamp(2.8rem, 6vw, 5rem)',
             fontWeight: 300,
             lineHeight: 1.08,
@@ -212,7 +212,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
                 </div>
 
                 <h2 style={{
-                  fontFamily: "'Fraunces', serif",
+                  fontFamily: "'Poppins', system-ui, sans-serif",
                   fontSize: 'clamp(1.8rem, 2.8vw, 2.5rem)',
                   fontWeight: 400,
                   letterSpacing: '-.025em',
@@ -282,7 +282,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
                 Todos los artículos
               </div>
               <h2 style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Poppins', system-ui, sans-serif",
                 fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
                 fontWeight: 400,
                 letterSpacing: '-.025em',
@@ -381,7 +381,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
 
                 <div style={{ padding: '1.4rem 1.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
                   <h3 style={{
-                    fontFamily: "'Fraunces', serif",
+                    fontFamily: "'Poppins', system-ui, sans-serif",
                     fontSize: '1.22rem',
                     fontWeight: 400,
                     lineHeight: 1.25,
@@ -450,7 +450,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
               Navega por tema
             </div>
             <h2 style={{
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Poppins', system-ui, sans-serif",
               fontSize: 'clamp(1.8rem, 3vw, 2.6rem)',
               fontWeight: 400,
               letterSpacing: '-.025em',
@@ -508,7 +508,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
                 <div>
                   <div style={{ fontSize: '1.8rem', marginBottom: '.8rem' }}>{CAT_ICONS[name]}</div>
                   <h4 style={{
-                    fontFamily: "'Fraunces', serif",
+                    fontFamily: "'Poppins', system-ui, sans-serif",
                     fontSize: '1.4rem',
                     fontWeight: 400,
                     letterSpacing: '-.015em',

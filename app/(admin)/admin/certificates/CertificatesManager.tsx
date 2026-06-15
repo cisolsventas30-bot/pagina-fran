@@ -244,7 +244,7 @@ export default function CertificatesManager({
           }}>
             <Award size={24} strokeWidth={2} />
           </div>
-          <h3 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)', marginBottom: 6 }}>
+          <h3 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)', marginBottom: 6 }}>
             Aún no se han emitido certificados
           </h3>
           <p style={{ fontSize: 13, color: 'var(--a-ink-2)', maxWidth: 380, margin: '0 auto' }}>

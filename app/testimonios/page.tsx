@@ -104,13 +104,13 @@ export default function Testimonios() {
 
       <section className="dark-section">
         <div className="reveal" style={{ maxWidth:1000, margin:'0 auto', textAlign:'center' }}>
-          <div style={{ fontFamily:"'Fraunces',serif", fontSize:'7rem', lineHeight:.5, color:'#F5D78E', opacity:.45, marginBottom:'1rem' }}>&ldquo;</div>
-          <blockquote style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(1.8rem,3.2vw,2.8rem)', fontWeight:400, lineHeight:1.15, letterSpacing:'-.02em', color:'#F4ECDF', marginBottom:'3rem' }}>
+          <div style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'7rem', lineHeight:.5, color:'#F5D78E', opacity:.45, marginBottom:'1rem' }}>&ldquo;</div>
+          <blockquote style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'clamp(1.8rem,3.2vw,2.8rem)', fontWeight:400, lineHeight:1.15, letterSpacing:'-.02em', color:'#F4ECDF', marginBottom:'3rem' }}>
             Su explicación es muy detallada, sus métodos son muy dinámicos, además de ser una profesional con mucho carisma. Mi pequeño está feliz de tenerla como su miss Fran y está{' '}
             <em style={{ color:'#F5D78E' }}>avanzando con sus terapias</em>.
           </blockquote>
           <div style={{ display:'inline-flex', alignItems:'center', gap:16 }}>
-            <div style={{ width:56, height:56, borderRadius:'50%', background:'#C8DFB0', color:'#1F1710', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fraunces',serif", fontSize:'1.15rem', fontWeight:700 }}>RS</div>
+            <div style={{ width:56, height:56, borderRadius:'50%', background:'#C8DFB0', color:'#1F1710', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.15rem', fontWeight:700 }}>RS</div>
             <div style={{ textAlign:'left' }}>
               <strong style={{ display:'block', color:'#F4ECDF', fontWeight:600 }}>Rosa S. M.</strong>
               <span style={{ color:'rgba(244,236,223,.6)', fontSize:'.9rem' }}>Mamá · Terapia Infantil · Lima, Perú</span>
@@ -185,7 +185,7 @@ export default function Testimonios() {
               </div>
 
               {/* Quote */}
-              <p style={{ fontFamily:"'Fraunces',serif", fontSize:'.97rem', lineHeight:1.6, color:'#2A2118', margin:0 }}>
+              <p style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'.97rem', lineHeight:1.6, color:'#2A2118', margin:0 }}>
                 <span style={{ fontSize:'1.6rem', lineHeight:0, verticalAlign:'-.3em', marginRight:3, color:t.accent, fontFamily:'Georgia,serif' }}>&ldquo;</span>
                 {t.quote}
                 <span style={{ fontSize:'1.6rem', lineHeight:0, verticalAlign:'-.3em', marginLeft:3, color:t.accent, fontFamily:'Georgia,serif' }}>&rdquo;</span>
@@ -331,7 +331,7 @@ function ReviewForm({ onClose }: { onClose: () => void }) {
         {success ? (
           <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌟</div>
-            <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.6rem', color: '#1F1710', marginBottom: '.6rem' }}>
+            <h3 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: '1.6rem', color: '#1F1710', marginBottom: '.6rem' }}>
               ¡Gracias por tu reseña!
             </h3>
             <p style={{ color: '#6B5E4E', fontSize: '.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
@@ -350,7 +350,7 @@ function ReviewForm({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <>
-            <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.7rem', color: '#1F1710', marginBottom: '.3rem' }}>
+            <h3 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: '1.7rem', color: '#1F1710', marginBottom: '.3rem' }}>
               Deja tu reseña ✍️
             </h3>
             <p style={{ color: '#6B5E4E', fontSize: '.85rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
