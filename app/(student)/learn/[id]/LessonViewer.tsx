@@ -105,7 +105,7 @@ type Item = {
   numbering?: string  // ej. "1.1", "1.2"
 }
 
-type Tab = 'content' | 'activities' | 'notes'
+type Tab = 'content' | 'activities' | 'notes' | 'comments'
 
 
 /* ═════════════════════════════════════════════════════
@@ -508,9 +508,9 @@ export default function LessonViewer(props: Props) {
         />
       </div>
 
-      {/* COMENTARIOS — debajo del player en desktop; tras la lista de contenido en móvil */}
+      {/* COMENTARIOS — debajo del player SOLO en desktop (en móvil van como pestaña del sidebar) */}
       {currentItem?.type === 'lesson' && (
-        <div style={{ gridArea: 'comments', padding: '0 32px 80px', minWidth: 0 }}>
+        <div className="learn-desktop-comments" style={{ gridArea: 'comments', padding: '0 32px 80px', minWidth: 0 }}>
           <LessonComments lessonId={currentItem.id} previewMode={!!previewMode} />
         </div>
       )}
@@ -538,6 +538,12 @@ export default function LessonViewer(props: Props) {
           <SidebarTab active={activeTab === 'content'} onClick={() => setActiveTab('content')} icon={<BookOpen size={14} strokeWidth={2.2} />} label="Contenido" />
           <SidebarTab active={activeTab === 'activities'} onClick={() => setActiveTab('activities')} icon={<ListChecks size={14} strokeWidth={2.2} />} label="Actividades" />
           <SidebarTab active={activeTab === 'notes'} onClick={() => setActiveTab('notes')} icon={<StickyNote size={14} strokeWidth={2.2} />} label="Apuntes" />
+          {/* Pestaña Comentarios — solo visible en móvil */}
+          {currentItem?.type === 'lesson' && (
+            <span className="learn-comments-tab">
+              <SidebarTab active={activeTab === 'comments'} onClick={() => setActiveTab('comments')} icon={<MessageCircle size={14} strokeWidth={2.2} />} label="Comentarios" />
+            </span>
+          )}
         </div>
 
         {/* Contenido de la tab */}
@@ -573,29 +579,34 @@ export default function LessonViewer(props: Props) {
               previewMode={!!previewMode}
             />
           )}
+          {activeTab === 'comments' && currentItem?.type === 'lesson' && (
+            <div style={{ padding: 12 }}>
+              <LessonComments lessonId={currentItem.id} previewMode={!!previewMode} />
+            </div>
+          )}
         </div>
       </aside>
 
       <style>{`
+        /* La pestaña "Comentarios" del sidebar solo se ve en móvil */
+        .learn-comments-tab { display: none; }
+
         @media (max-width: 1100px) {
           .learn-grid {
             grid-template-columns: 1fr !important;
-            /* En móvil: video/lección → lista de contenido → comentarios */
-            grid-template-areas: "main" "sidebar" "comments" !important;
-            grid-template-rows: auto auto auto !important;
+            /* En móvil: video/lección → lista de contenido (con pestaña Comentarios) */
+            grid-template-areas: "main" "sidebar" !important;
+            grid-template-rows: auto auto !important;
           }
           .learn-grid aside {
             position: static !important;
             height: auto !important;
-            max-height: 70vh;
             border-left: none !important;
             border-top: 1px solid rgba(31,23,16,0.08);
-            border-bottom: 1px solid rgba(31,23,16,0.08);
           }
-          .learn-grid > div[style*="comments"] {
-            padding-left: 24px !important;
-            padding-right: 24px !important;
-          }
+          /* En móvil los comentarios van como pestaña del sidebar, no debajo del video */
+          .learn-desktop-comments { display: none !important; }
+          .learn-comments-tab { display: inline-flex; }
         }
       `}</style>
     </div>
