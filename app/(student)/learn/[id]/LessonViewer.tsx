@@ -478,12 +478,14 @@ export default function LessonViewer(props: Props) {
     <div className="learn-grid" style={{
       display: 'grid',
       gridTemplateColumns: '1fr 440px',
+      gridTemplateAreas: '"main sidebar" "comments sidebar"',
+      gridTemplateRows: 'auto 1fr',
       gap: 0,
       minHeight: 'calc(100vh - 52px)',
       background: '#F5F2EB',
     }}>
       {/* MAIN — player + contenido */}
-      <div style={{ padding: '24px 32px 80px', minWidth: 0 }}>
+      <div style={{ gridArea: 'main', padding: '24px 32px 24px', minWidth: 0 }}>
         <MainPlayer
           item={currentItem}
           enrollmentId={enrollmentId}
@@ -506,8 +508,16 @@ export default function LessonViewer(props: Props) {
         />
       </div>
 
+      {/* COMENTARIOS — debajo del player en desktop; tras la lista de contenido en móvil */}
+      {currentItem?.type === 'lesson' && (
+        <div style={{ gridArea: 'comments', padding: '0 32px 80px', minWidth: 0 }}>
+          <LessonComments lessonId={currentItem.id} previewMode={!!previewMode} />
+        </div>
+      )}
+
       {/* SIDEBAR */}
       <aside style={{
+        gridArea: 'sidebar',
         background: '#fff',
         borderLeft: '1px solid rgba(31,23,16,0.08)',
         position: 'sticky', top: 0,
@@ -570,12 +580,21 @@ export default function LessonViewer(props: Props) {
         @media (max-width: 1100px) {
           .learn-grid {
             grid-template-columns: 1fr !important;
+            /* En móvil: video/lección → lista de contenido → comentarios */
+            grid-template-areas: "main" "sidebar" "comments" !important;
+            grid-template-rows: auto auto auto !important;
           }
           .learn-grid aside {
             position: static !important;
             height: auto !important;
+            max-height: 70vh;
             border-left: none !important;
             border-top: 1px solid rgba(31,23,16,0.08);
+            border-bottom: 1px solid rgba(31,23,16,0.08);
+          }
+          .learn-grid > div[style*="comments"] {
+            padding-left: 24px !important;
+            padding-right: 24px !important;
           }
         }
       `}</style>
@@ -1402,11 +1421,6 @@ function MainPlayer({
         <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(31,23,16,0.08)' }}>
           {navBar}
         </div>
-      )}
-
-      {/* Comentarios — debajo de la lección */}
-      {item.type === 'lesson' && (
-        <LessonComments lessonId={item.id} previewMode={previewMode} />
       )}
     </>
   )
