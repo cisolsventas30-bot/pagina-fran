@@ -64,7 +64,7 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl lg:text-4xl font-bold text-ink-900 tracking-tight mb-1 tracking-tight">
+        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--a-ink)', lineHeight: 1, marginBottom: 8 }}>
           Hola, {firstName}
         </h1>
         <p className="text-ink-600">
@@ -73,15 +73,15 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <QuickStat icon={<BookOpen className="w-4 h-4" />} label="En curso" value={active.length} />
-        <QuickStat icon={<Award className="w-4 h-4" />} label="Completados" value={completed.length} />
-        <QuickStat icon={<Clock className="w-4 h-4" />} label="Horas" value={totalHours} />
-        <QuickStat icon={<TrendingUp className="w-4 h-4" />} label="Lecciones" value={totalCompletedLessons} />
+        <QuickStat tone="mocha" icon={<BookOpen size={18} strokeWidth={2} />} label="En curso" value={active.length} />
+        <QuickStat tone="peach" icon={<Award size={18} strokeWidth={2} />} label="Completados" value={completed.length} />
+        <QuickStat tone="pink" icon={<Clock size={18} strokeWidth={2} />} label="Horas" value={totalHours} />
+        <QuickStat tone="gold" icon={<TrendingUp size={18} strokeWidth={2} />} label="Lecciones" value={totalCompletedLessons} />
       </div>
 
       {active.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-xl font-bold text-ink-900 mb-4 tracking-tight">
+          <h2 className="mb-4" style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)' }}>
             Continúa aprendiendo
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
 
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-ink-900 tracking-tight">Todos mis cursos</h2>
+          <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--a-ink)' }}>Todos mis cursos</h2>
           <span className="text-sm text-ink-500">
             {(enrollments?.length || 0)} {(enrollments?.length || 0) === 1 ? 'curso' : 'cursos'}
           </span>
@@ -114,14 +114,14 @@ export default async function DashboardPage() {
   )
 }
 
-function QuickStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+function QuickStat({ icon, label, value, tone = 'mocha' }: { icon: React.ReactNode; label: string; value: string | number; tone?: 'mocha' | 'peach' | 'pink' | 'gold' }) {
   return (
-    <div className="p-4 rounded-lg border border-ink-200 bg-white shadow-card">
-      <div className="inline-flex w-8 h-8 items-center justify-center rounded-md bg-mocha-100 text-mocha-700">
-        {icon}
+    <div className={`db2-kpi tone-${tone}`} style={{ padding: '18px 20px 16px' }}>
+      <div className="db2-kpi-top">
+        <span className="db2-kpi-label">{label}</span>
+        <span className="db2-kpi-ico">{icon}</span>
       </div>
-      <p className="text-xs text-ink-500 mt-3 font-medium">{label}</p>
-      <p className="text-2xl font-bold text-ink-900 mt-0.5 tracking-tight">{value}</p>
+      <div className="db2-kpi-value">{value}</div>
     </div>
   )
 }
