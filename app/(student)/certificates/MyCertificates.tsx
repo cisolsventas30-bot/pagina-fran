@@ -129,7 +129,8 @@ export default function MyCertificates({
       {pending.length > 0 && (
         <div style={{ marginBottom: 32 }}>
           <h2 style={{
-            fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em',
+            fontFamily: "'Fraunces', Georgia, serif",
+            fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em',
             color: '#1F1710', marginBottom: 4,
           }}>
             🎓 Listo para certificar
@@ -141,19 +142,19 @@ export default function MyCertificates({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
             {pending.map(e => (
               <div key={e.id} style={{
-                borderRadius: 14,
-                border: '2px dashed #C4A882',
-                background: 'linear-gradient(135deg, #FDF8F2 0%, #F5EDE0 100%)',
+                borderRadius: 16,
+                border: '1.5px dashed var(--b-pink)',
+                background: 'linear-gradient(135deg, var(--b-pink-soft) 0%, #fff 70%)',
                 padding: 20,
                 display: 'flex', flexDirection: 'column', gap: 12,
               }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{
-                    width: 44, height: 44, borderRadius: 10,
-                    background: '#EDE3D6',
+                    width: 46, height: 46, borderRadius: 13,
+                    background: 'var(--b-pink-soft)',
                     display: 'grid', placeItems: 'center', flexShrink: 0,
                   }}>
-                    <Award size={22} strokeWidth={2} color="#8B6F47" />
+                    <Award size={22} strokeWidth={2} color="var(--b-pink)" />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{
@@ -207,7 +208,8 @@ export default function MyCertificates({
         <div>
           {pending.length > 0 && (
             <h2 style={{
-              fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em',
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontSize: 22, fontWeight: 500, letterSpacing: '-0.025em',
               color: '#1F1710', marginBottom: 16,
             }}>
               Mis certificados
@@ -220,11 +222,12 @@ export default function MyCertificates({
           }}>
             {certs.map((cert) => (
               <div key={cert.id} style={{
-                borderRadius: 14,
-                border: '1px solid #E8DDD0',
-                background: '#FEFCF9',
+                borderRadius: 16,
+                border: '1px solid rgba(95,77,54,.12)',
+                background: '#fff',
                 padding: 20,
                 display: 'flex', flexDirection: 'column', gap: 12,
+                boxShadow: '0 1px 2px rgba(95,77,54,.05), 0 10px 26px -16px rgba(95,77,54,.16)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{

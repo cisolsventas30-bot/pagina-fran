@@ -31,7 +31,7 @@ export default async function CatalogPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl lg:text-4xl font-bold text-ink-900 tracking-tight mb-1">
+        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 'clamp(28px, 3.4vw, 38px)', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--a-ink)', lineHeight: 1, marginBottom: 8 }}>
           Catálogo de cursos
         </h1>
         <p className="text-ink-600">

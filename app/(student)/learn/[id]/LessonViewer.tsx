@@ -1272,8 +1272,8 @@ function MainPlayer({
   // Para lecciones se inyecta justo debajo del video; para otros tipos va al final.
   const navBar = (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      flexWrap: 'wrap', gap: 12, margin: '2px 0 22px',
+      display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+      flexWrap: 'wrap', gap: 10,
     }}>
       <div>
         {prevItem && (
@@ -1442,24 +1442,29 @@ function LessonPlayer({ lesson, currentIdx, totalItems, previewMode, onVideoProg
         />
       )}
 
-      {/* Título y meta */}
+      {/* Título a la izquierda + acciones (Marcar como vista / Siguiente) en la misma fila */}
       <div style={{
-        fontSize: 11, color: '#8A7860', fontWeight: 600,
-        letterSpacing: '0.04em', marginBottom: 4,
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        gap: 16, flexWrap: 'wrap', marginBottom: 18,
       }}>
-        Clase {currentIdx + 1} de {totalItems}
-        {lesson.duration_minutes ? ` · ${lesson.duration_minutes} min` : ''}
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{
+            fontSize: 11, color: '#8A7860', fontWeight: 600,
+            letterSpacing: '0.04em', marginBottom: 4,
+          }}>
+            Clase {currentIdx + 1} de {totalItems}
+            {lesson.duration_minutes ? ` · ${lesson.duration_minutes} min` : ''}
+          </div>
+          <h1 style={{
+            fontSize: 26, fontWeight: 800, color: '#1F1710',
+            letterSpacing: '-0.025em',
+            margin: 0, lineHeight: 1.2,
+          }}>
+            {lesson.title}
+          </h1>
+        </div>
+        {actions && <div style={{ flexShrink: 0, paddingTop: 4 }}>{actions}</div>}
       </div>
-      <h1 style={{
-        fontSize: 26, fontWeight: 800, color: '#1F1710',
-        letterSpacing: '-0.025em',
-        marginBottom: 14, lineHeight: 1.2,
-      }}>
-        {lesson.title}
-      </h1>
-
-      {/* Acciones (Anterior / Marcar como vista / Siguiente) — justo bajo el video */}
-      {actions}
 
       {/* Contenido textual */}
       {lesson.content && (
