@@ -643,13 +643,13 @@ function ContentTab({
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1F1710' }}>
             Contenido del curso
           </span>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#185FA5' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--b-pink)' }}>
             {progressPct}%
           </span>
         </div>
         <div style={{
-          height: 6,
-          background: '#E6F1FB',
+          height: 7,
+          background: 'var(--b-pink-soft)',
           borderRadius: 100,
           overflow: 'hidden',
           marginBottom: 6,
@@ -657,8 +657,8 @@ function ContentTab({
           <div style={{
             width: `${progressPct}%`,
             height: '100%',
-            background: '#185FA5',
-            transition: 'width .25s ease',
+            background: 'linear-gradient(90deg, var(--b-mocha), var(--b-pink) 60%, var(--b-peach))',
+            transition: 'width .35s ease',
             borderRadius: 100,
           }} />
         </div>
@@ -892,10 +892,10 @@ function getItemVisual(item: Item) {
     return { thumbnail: null, icon: <ClipboardList size={20} strokeWidth={2.2} />, bg: '#FAECE7', fg: '#993C1D' }
   }
   if (item.type === 'forum') {
-    return { thumbnail: null, icon: <MessageCircle size={20} strokeWidth={2.2} />, bg: '#E6F1FB', fg: '#185FA5' }
+    return { thumbnail: null, icon: <MessageCircle size={20} strokeWidth={2.2} />, bg: 'var(--b-pink-soft)', fg: 'var(--b-pink)' }
   }
   if (item.type === 'resource') {
-    return { thumbnail: null, icon: <FileArchive size={20} strokeWidth={2.2} />, bg: '#EEEDFE', fg: '#534AB7' }
+    return { thumbnail: null, icon: <FileArchive size={20} strokeWidth={2.2} />, bg: 'var(--b-mocha-soft)', fg: 'var(--b-mocha)' }
   }
   return { thumbnail: null, icon: <FileText size={20} strokeWidth={2.2} />, bg: '#F5EFE6', fg: '#6B5E4E' }
 }
@@ -961,8 +961,8 @@ function ActivitiesTab({
                 statusBg = '#E1F5EE'
               } else {
                 status = 'Enviado · En revisión'
-                statusColor = '#185FA5'
-                statusBg = '#E6F1FB'
+                statusColor = 'var(--b-pink)'
+                statusBg = 'var(--b-pink-soft)'
               }
             }
           }

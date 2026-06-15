@@ -192,10 +192,10 @@ export default function LessonComments({ lessonId, previewMode }: Props) {
 
       {/* Banner explicativo */}
       <div style={{
-        background: '#E6F1FB',
-        color: '#185FA5',
+        background: 'var(--b-pink-soft)',
+        color: '#5F4D36',
         padding: 12,
-        borderRadius: 8,
+        borderRadius: 10,
         fontSize: 12, lineHeight: 1.5,
         marginBottom: 18,
         display: 'flex', alignItems: 'flex-start', gap: 8,
@@ -251,7 +251,7 @@ export default function LessonComments({ lessonId, previewMode }: Props) {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '8px 18px',
-              background: '#185FA5', color: '#fff',
+              background: 'var(--b-pink)', color: '#fff',
               border: 'none', borderRadius: 100,
               fontSize: 12, fontWeight: 700,
               cursor: submitting || !newComment.trim() ? 'not-allowed' : 'pointer',
@@ -385,7 +385,7 @@ function CommentBubble({
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 4,
                 background: 'transparent', border: 'none',
-                fontSize: 11, fontWeight: 700, color: '#185FA5',
+                fontSize: 11, fontWeight: 700, color: 'var(--b-pink)',
                 cursor: 'pointer', padding: 0, fontFamily: 'inherit',
                 letterSpacing: '0.04em',
               }}
@@ -455,7 +455,7 @@ function CommentBubble({
                 disabled={submitting || !replyContent.trim()}
                 style={{
                   padding: '6px 14px',
-                  background: '#185FA5', color: '#fff',
+                  background: 'var(--b-pink)', color: '#fff',
                   border: 'none', borderRadius: 100,
                   fontSize: 11, fontWeight: 700,
                   cursor: submitting ? 'not-allowed' : 'pointer',
