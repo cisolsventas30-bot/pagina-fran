@@ -74,6 +74,7 @@ type Props = {
   courseId: string
   enrollmentId: string
   previewMode?: boolean
+  courseCompleted?: boolean
   modules: Module[]
   progress: { lesson_id: string; watch_percentage: number; completed_at: string | null }[]
   passingScore: number
@@ -113,7 +114,7 @@ type Tab = 'content' | 'activities' | 'notes'
 
 export default function LessonViewer(props: Props) {
   const {
-    courseId, enrollmentId, previewMode, modules, progress, passingScore,
+    courseId, enrollmentId, previewMode, courseCompleted, modules, progress, passingScore,
     quizzesByModule, assignmentsByModule, resourcesByModule, forumsByModule,
     courseLevelQuizzes, courseLevelAssignments, courseLevelResources, courseLevelForums,
     attemptsByQuizId, submissionsByAssignmentId, forumsWithUserPost,
@@ -542,6 +543,7 @@ export default function LessonViewer(props: Props) {
               completedCount={completedCount}
               totalCount={totalCount}
               passingScore={passingScore}
+              courseCompleted={courseCompleted}
             />
           )}
           {activeTab === 'activities' && (
@@ -620,7 +622,7 @@ function SidebarTab({ active, onClick, icon, label }: {
 
 function ContentTab({
   byModule, currentItemKey, openModules, onToggleModule, onGoToItem,
-  progressPct, completedCount, totalCount, passingScore,
+  progressPct, completedCount, totalCount, passingScore, courseCompleted,
 }: {
   byModule: { module: Module | null; items: Item[] }[]
   currentItemKey?: string
@@ -631,6 +633,7 @@ function ContentTab({
   completedCount: number
   totalCount: number
   passingScore: number
+  courseCompleted?: boolean
 }) {
   return (
     <div>
@@ -665,6 +668,18 @@ function ContentTab({
         <div style={{ fontSize: 11, color: '#8A7860' }}>
           {completedCount} de {totalCount} completados · Aprobación: {passingScore}%
         </div>
+
+        {/* Certificado obtenido — ubicación con sentido: junto al progreso */}
+        {courseCompleted && (
+          <Link href="/certificates" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            marginTop: 12, padding: '10px 14px',
+            background: '#1F1710', color: '#F4ECDF',
+            borderRadius: 100, fontSize: 12.5, fontWeight: 700, textDecoration: 'none',
+          }}>
+            <Award size={14} strokeWidth={2.2} /> Ver mi certificado
+          </Link>
+        )}
       </div>
 
       {/* Listado de módulos */}
@@ -1253,6 +1268,69 @@ function MainPlayer({
     )
   }
 
+  // Barra de navegación (Anterior / Marcar como vista / Siguiente).
+  // Para lecciones se inyecta justo debajo del video; para otros tipos va al final.
+  const navBar = (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      flexWrap: 'wrap', gap: 12, margin: '2px 0 22px',
+    }}>
+      <div>
+        {prevItem && (
+          <button
+            onClick={() => onGoToItem(prevItem.key)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '10px 18px', background: 'transparent',
+              border: '1px solid rgba(31,23,16,0.15)', borderRadius: 100,
+              fontSize: 13, fontWeight: 600, color: '#1F1710',
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            <ChevronLeft size={14} strokeWidth={2.2} /> Anterior
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        {item.type === 'lesson' && !isCompleted && !previewMode && (
+          <button
+            onClick={onMarkComplete}
+            disabled={marking}
+            style={{
+              padding: '10px 18px', background: '#fff', color: '#0F6E56',
+              border: '1.5px solid #0F6E56', borderRadius: 100,
+              fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            {marking ? 'Guardando…' : '✓ Marcar como vista'}
+          </button>
+        )}
+        {nextItem ? (
+          <button
+            onClick={() => onGoToItem(nextItem.key)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '11px 22px', background: '#1F1710', color: '#F4ECDF',
+              border: 'none', borderRadius: 100,
+              fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            Siguiente <SkipForward size={14} strokeWidth={2.2} />
+          </button>
+        ) : (
+          <Link href={previewMode ? '/admin' : '/certificates'} style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '11px 22px', background: 'var(--b-pink-soft)', color: 'var(--b-pink)',
+            borderRadius: 100, fontSize: 13, fontWeight: 700, textDecoration: 'none',
+          }}>
+            <Award size={14} strokeWidth={2.2} />
+            {previewMode ? 'Volver al panel' : 'Ver mi certificado'}
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <>
       {/* Player principal */}
@@ -1263,6 +1341,7 @@ function MainPlayer({
           totalItems={totalItems}
           previewMode={previewMode}
           onVideoProgress={onVideoProgress}
+          actions={navBar}
         />
       )}
 
@@ -1318,86 +1397,14 @@ function MainPlayer({
           : <ForumViewer forum={item.data} enrollmentId={enrollmentId} onCompleted={() => onForumCompleted(item.id)} />
       )}
 
-      {/* Footer con navegación */}
-      <div style={{
-        marginTop: 28,
-        padding: '20px 0 0',
-        borderTop: '1px solid rgba(31,23,16,0.08)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: 12,
-      }}>
-        <div>
-          {prevItem && (
-            <button
-              onClick={() => onGoToItem(prevItem.key)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '10px 18px',
-                background: 'transparent',
-                border: '1px solid rgba(31,23,16,0.15)',
-                borderRadius: 100,
-                fontSize: 13, fontWeight: 600, color: '#1F1710',
-                cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              <ChevronLeft size={14} strokeWidth={2.2} />
-              Anterior
-            </button>
-          )}
+      {/* Para tipos que no son lección (quiz, asignación, recurso, foro) la navegación va al final */}
+      {item.type !== 'lesson' && (
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(31,23,16,0.08)' }}>
+          {navBar}
         </div>
+      )}
 
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          {item.type === 'lesson' && !isCompleted && !previewMode && (
-            <button
-              onClick={onMarkComplete}
-              disabled={marking}
-              style={{
-                padding: '10px 18px',
-                background: '#fff',
-                color: '#0F6E56',
-                border: '1.5px solid #0F6E56',
-                borderRadius: 100,
-                fontSize: 13, fontWeight: 700,
-                cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              {marking ? 'Guardando…' : '✓ Marcar como vista'}
-            </button>
-          )}
-
-          {nextItem ? (
-            <button
-              onClick={() => onGoToItem(nextItem.key)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '11px 22px',
-                background: '#1F1710', color: '#F4ECDF',
-                border: 'none',
-                borderRadius: 100,
-                fontSize: 13, fontWeight: 700,
-                cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              Siguiente
-              <SkipForward size={14} strokeWidth={2.2} />
-            </button>
-          ) : (
-            <Link href={previewMode ? '/admin' : '/certificates'} style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '11px 22px',
-              background: '#E1F5EE', color: '#0F6E56',
-              borderRadius: 100,
-              fontSize: 13, fontWeight: 700,
-              textDecoration: 'none',
-            }}>
-              <Award size={14} strokeWidth={2.2} />
-              {previewMode ? 'Volver al panel' : 'Fin del curso'}
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Comentarios — DESPUÉS de los botones de navegación para que no los empujen abajo */}
+      {/* Comentarios — debajo de la lección */}
       {item.type === 'lesson' && (
         <LessonComments lessonId={item.id} previewMode={previewMode} />
       )}
@@ -1410,12 +1417,13 @@ function MainPlayer({
    LESSON PLAYER — video + título + descripción
    ═════════════════════════════════════════════════════ */
 
-function LessonPlayer({ lesson, currentIdx, totalItems, previewMode, onVideoProgress }: {
+function LessonPlayer({ lesson, currentIdx, totalItems, previewMode, onVideoProgress, actions }: {
   lesson: Lesson
   currentIdx: number
   totalItems: number
   previewMode: boolean
   onVideoProgress?: (lessonId: string, percent: number) => void
+  actions?: React.ReactNode
 }) {
   const youtubeId = extractYouTubeId(lesson.video_url)
   const vimeoId = extractVimeoId(lesson.video_url)
@@ -1449,6 +1457,9 @@ function LessonPlayer({ lesson, currentIdx, totalItems, previewMode, onVideoProg
       }}>
         {lesson.title}
       </h1>
+
+      {/* Acciones (Anterior / Marcar como vista / Siguiente) — justo bajo el video */}
+      {actions}
 
       {/* Contenido textual */}
       {lesson.content && (

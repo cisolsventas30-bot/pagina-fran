@@ -259,22 +259,6 @@ export default async function CourseDetailPage({
                 Vista previa (admin)
               </span>
             )}
-            {!previewMode && effectiveEnrollment.status === 'completed' && (
-              <Link
-                href="/certificates"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '6px 12px',
-                  background: '#1F1710', color: '#F4ECDF',
-                  borderRadius: 100,
-                  fontSize: 12, fontWeight: 700,
-                  textDecoration: 'none',
-                }}
-              >
-                <Award size={13} strokeWidth={2.2} />
-                Certificado
-              </Link>
-            )}
           </div>
         </div>
       </div>
@@ -283,6 +267,7 @@ export default async function CourseDetailPage({
         courseId={course.id}
         enrollmentId={effectiveEnrollment.id}
         previewMode={previewMode}
+        courseCompleted={!previewMode && effectiveEnrollment.status === 'completed'}
         modules={sortedModules}
         progress={progress || []}
         passingScore={course.passing_score}
