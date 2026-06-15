@@ -554,7 +554,9 @@ export default function Home() {
               color: '#fff', maxWidth: 720, marginBottom: '1.6rem',
               animation: 'fadeUp .8s .45s ease both', opacity:0,
             }}>
-              Análisis conductual{' '}
+              <strong style={{ fontWeight:700 }}>Análisis conductual</strong>{' '}
+              <span style={{ fontWeight:400 }}>para</span>{' '}
+              <strong style={{ fontWeight:700 }}>niños</strong>{' '}
               <span style={{ fontWeight:400 }}>y</span>{' '}
               <strong style={{ fontWeight:700 }}>terapeutas</strong>
             </h1>
