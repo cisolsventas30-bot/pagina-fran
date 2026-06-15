@@ -1215,8 +1215,8 @@ footer p, footer a, footer span {
     padding-top: 0;
   }
   .hero-title {
-    font-size: clamp(2rem, 8.5vw, 2.6rem) !important;
-    margin-bottom: 1.1rem !important;
+    font-size: clamp(1.65rem, 6.8vw, 2.1rem) !important;
+    margin-bottom: 1rem !important;
   }
 
   /* Service cards — stack vertically */
