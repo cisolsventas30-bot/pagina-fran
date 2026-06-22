@@ -65,22 +65,7 @@ export default function CoursePreviewPage(props: Props) {
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1F1710', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textAlign: 'center' }}>
             {title}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            {price != null && (
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#5F4D36' }}>
-                {priceLabel ?? `S/ ${price.toFixed(2)}`}
-              </span>
-            )}
-            <BuyButton
-              courseId={courseId}
-              courseTitle={title}
-              price={price ?? null}
-              priceUsd={priceUsd ?? null}
-              priceLabel={priceLabel ?? undefined}
-              userEmail={userEmail}
-              waUrl={waUrl}
-            />
-          </div>
+          <div style={{ flexShrink: 0, width: 80 }} />
         </div>
       </div>
 
