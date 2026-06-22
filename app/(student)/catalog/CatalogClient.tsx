@@ -145,7 +145,7 @@ function LockedCard({ course, userEmail }: { course: Course; userEmail: string }
         </div>
       </Link>
 
-      <div className="px-4 pb-4 pt-2">
+      <div className="px-4 pb-4 pt-2" onClick={e => e.stopPropagation()}>
         {hasPen || hasUsd ? (
           <BuyButton
             courseId={course.id}
