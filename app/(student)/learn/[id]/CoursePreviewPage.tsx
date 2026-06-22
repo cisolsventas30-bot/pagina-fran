@@ -56,7 +56,7 @@ export default function CoursePreviewPage(props: Props) {
     <div style={{ minHeight: '100vh', background: '#fff' }}>
 
       {/* Topbar */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 30, background: '#fff', borderBottom: '1px solid #EBEBEB', padding: '0 24px' }}>
+      <div style={{ position: 'sticky', top: 64, zIndex: 30, background: '#fff', borderBottom: '1px solid #EBEBEB', padding: '0 24px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <Link href="/catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#6B5E4E', textDecoration: 'none', flexShrink: 0 }}>
             <ChevronLeft size={14} strokeWidth={2.2} />
