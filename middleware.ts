@@ -1,16 +1,16 @@
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 /**
- * Middleware que:
- * 1. Redirige HTTP → HTTPS en producción (requerido por Culqi: SSL en todas las URLs)
- * 2. Añade el pathname actual como header para layouts/server components
- * 3. Rate limiting en endpoints de pago para prevenir card testing / fraude
+ * Middleware de capyABA (Corregido y Tipado Completo)
+ * 1. Sincroniza y propaga correctamente las cookies de autenticación de Supabase SSR.
+ * 2. Redirige HTTP → HTTPS en producción (Requerido por Culqi: SSL en todas las URLs).
+ * 3. Añade el pathname actual como header para layouts/server components.
+ * 4. Controla el Rate Limiting en pasarelas de pago basado en usuario autenticado o IP.
  */
 
 // ── Rate limiting en memoria (edge-compatible) ────────────────────────────
-// Almacena { intentos, timestamp_primer_intento } por clave (userId o IP)
-// Límite: 5 intentos por ventana de 10 minutos por usuario/IP
 const PAYMENT_RATE_LIMIT = 5
 const PAYMENT_WINDOW_MS = 10 * 60 * 1000 // 10 minutos
 
@@ -21,7 +21,6 @@ function isRateLimited(key: string): boolean {
   const record = attempts.get(key)
 
   if (!record || now - record.windowStart > PAYMENT_WINDOW_MS) {
-    // Primera vez o ventana expirada: resetear
     attempts.set(key, { count: 1, windowStart: now })
     return false
   }
@@ -34,7 +33,6 @@ function isRateLimited(key: string): boolean {
   return false
 }
 
-// Limpiar entradas viejas cada 100 requests para no acumular memoria
 let cleanupCounter = 0
 function maybeCleanup() {
   cleanupCounter++
@@ -46,11 +44,51 @@ function maybeCleanup() {
     }
   }
 }
-
 // ─────────────────────────────────────────────────────────────────────────
 
-export function middleware(request: NextRequest) {
-  // ── HTTPS redirect (Culqi requirement: SSL en todas las URLs) ──
+export async function middleware(request: NextRequest) {
+  // 1. Crear una respuesta base clonando los headers originales de la petición
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  // 2. Inicializar el cliente SSR encargado de refrescar e inyectar cookies asíncronamente
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        // Aquí está el tipado maestro que elimina el error de TypeScript
+        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+          
+          cookiesToSet.forEach(({ name, value }) => 
+            request.cookies.set(name, value)
+          )
+          
+          // Clonamos y reconstruimos la respuesta aplicando las nuevas cookies actualizadas
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // 3. Evalúa la sesión de Supabase de manera segura (Refresca tokens expirados y asienta cookies)
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // ── HTTPS redirect (Requerimiento estricto de Culqi en Producción) ──
   const proto = request.headers.get('x-forwarded-proto')
   if (proto === 'http' && process.env.NODE_ENV === 'production') {
     const httpsUrl = request.nextUrl.clone()
@@ -67,27 +105,15 @@ export function middleware(request: NextRequest) {
   if (isPaymentEndpoint && request.method === 'POST') {
     maybeCleanup()
 
-    // Usar el header de Supabase auth como clave si está disponible,
-    // si no, usar la IP como fallback
     const ip =
       request.headers.get('x-real-ip') ||
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       'unknown'
 
-    // Intentamos leer el sub del JWT del cookie de Supabase para identificar al usuario
-    // (el JWT no está verificado aquí, solo usamos el sub como clave de rate limit)
+    // Usamos de forma segura el ID del usuario provisto por la sesión sincronizada
     let rateLimitKey = ip
-    try {
-      const authCookie =
-        request.cookies.get('sb-access-token')?.value ||
-        // Supabase SSR usa este formato de cookie
-        [...request.cookies.getAll()].find(c => c.name.includes('auth-token'))?.value
-      if (authCookie) {
-        const payload = JSON.parse(atob(authCookie.split('.')[1]))
-        if (payload?.sub) rateLimitKey = `user:${payload.sub}`
-      }
-    } catch {
-      // Si no se puede parsear el JWT, usar IP
+    if (user) {
+      rateLimitKey = `user:${user.id}`
     }
 
     if (isRateLimited(rateLimitKey)) {
@@ -99,25 +125,20 @@ export function middleware(request: NextRequest) {
   }
   // ─────────────────────────────────────────────────────────────────────
 
-  // ── Pathname header para server components ──
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-pathname', pathname)
+  // ── Inyección de Pathname header para Server Components ──
+  response.headers.set('x-pathname', pathname)
 
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  })
+  return response
 }
 
 export const config = {
   matcher: [
     /*
      * Aplica a todas las rutas excepto:
-     * - _next/static (assets estáticos)
-     * - _next/image (imágenes optimizadas)
+     * - _next/static (archivos estáticos)
+     * - _next/image (imágenes optimizadas por Next)
      * - favicon.ico
-     * - archivos públicos
+     * - archivos con funciones o recursos públicos (svg, png, jpg, woff2, etc.)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ttf|woff|woff2)$).*)',
   ],
