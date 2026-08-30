@@ -60,6 +60,11 @@ export default function DevolucionesPage() {
               el curso (viendo cualquier lección), o si han transcurrido más de 7 días calendario
               desde la habilitación del acceso.
             </li>
+            <li>
+              <strong>Devolución parcial o total por incumplimiento:</strong> Si el curso ya inició,
+              el estudiante podrá solicitar devolución si el servicio no cumple lo ofrecido (ej.
+              fallas técnicas graves, certificado no entregado, contenidos distintos a lo publicitado).
+            </li>
           </ul>
         </Section>
 
