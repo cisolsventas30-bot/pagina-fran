@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidad | capyABA',
+  title: 'Política de Privacidad',
   description: 'Política de privacidad y tratamiento de datos personales de la plataforma capyABA.',
+  alternates: { canonical: '/privacidad' },
 }
 
 export default function PrivacidadPage() {

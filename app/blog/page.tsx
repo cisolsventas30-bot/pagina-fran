@@ -1,5 +1,19 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import BlogClient from './BlogClient'
+
+export const metadata: Metadata = {
+  title: 'Blog — Análisis Conductual Aplicado',
+  description:
+    'Artículos sobre Análisis Conductual Aplicado (ABA), terapia infantil, crianza basada en evidencia y desarrollo profesional en capyABA.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    title: 'Blog — Análisis Conductual Aplicado | capyABA',
+    description:
+      'Artículos sobre ABA, terapia infantil, crianza basada en evidencia y desarrollo profesional.',
+    url: '/blog',
+  },
+}
 
 export const revalidate = 60
 

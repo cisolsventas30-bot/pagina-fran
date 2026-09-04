@@ -765,7 +765,7 @@ export default function SobreMi() {
               <div key={a.num} style={{ display:'grid', gridTemplateColumns:'50px 1fr', gap:'1rem', padding:'1.5rem 0', borderTop:'1px solid var(--border)' }}>
                 <div style={{ fontFamily:"'Fraunces',serif", fontSize:'1.5rem', fontWeight:500, color:'var(--muted)' }}>{a.num}</div>
                 <div>
-                  <h4 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, marginBottom:'.4rem' }}>{a.title}</h4>
+                  <h3 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, marginBottom:'.4rem' }}>{a.title}</h3>
                   <p style={{ fontSize:'.93rem', color:'var(--muted)', lineHeight:1.5 }}>{a.desc}</p>
                 </div>
               </div>

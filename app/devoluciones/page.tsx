@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Política de Cambios y Devoluciones | capyABA',
+  title: 'Política de Cambios y Devoluciones',
   description: 'Política de cambios y devoluciones de la plataforma capyABA.',
+  alternates: { canonical: '/devoluciones' },
 }
 
 export default function DevolucionesPage() {

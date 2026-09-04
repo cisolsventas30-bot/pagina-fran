@@ -113,7 +113,7 @@ export default function Servicios() {
             {PROCESS.map((p, i) => (
               <div key={p.num} className="reveal" style={{ background:'rgba(244,236,223,.06)', borderRadius:20, padding:'2rem', transitionDelay:`${i*.1}s` }}>
                 <div style={{ fontFamily:"'Fraunces',serif", fontSize:'3rem', fontWeight:400, color:'#F5D78E', lineHeight:1, marginBottom:'1.5rem' }}>{p.num}</div>
-                <h4 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, color:'#F4ECDF', marginBottom:'.6rem' }}>{p.title}</h4>
+                <h3 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, color:'#F4ECDF', marginBottom:'.6rem' }}>{p.title}</h3>
                 <p style={{ fontSize:'.9rem', color:'rgba(244,236,223,.7)', lineHeight:1.5 }}>{p.desc}</p>
               </div>
             ))}

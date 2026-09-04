@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Términos y Condiciones | capyABA',
+  title: 'Términos y Condiciones',
   description: 'Términos y condiciones de uso de la plataforma capyABA.',
+  alternates: { canonical: '/terminos' },
 }
 
 export default function TerminosPage() {
