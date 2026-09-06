@@ -104,6 +104,11 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
   const [captionsOn, setCaptionsOn] = useState(false)
   const progRef = useRef<HTMLDivElement>(null)
   const draggingRef = useRef(false)
+  // Auto-ocultar controles (como YouTube) y control de estado para subtítulos
+  const [controlsVisible, setControlsVisible] = useState(true)
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const playingRef = useRef(false)
+  const ccDetectedRef = useRef(false)
 
   const reportProgress = useCallback((pct: number) => {
     if (pct === lastReportedRef.current) return
@@ -127,6 +132,19 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
       const player = playerRef.current
       if (!player) return
       try {
+        // Detectar subtítulos una sola vez y apagarlos por defecto
+        if (youtubeId && !ccDetectedRef.current && player.getOptions) {
+          const opts: string[] = player.getOptions() || []
+          const mod = opts.indexOf('captions') !== -1 ? 'captions'
+                    : opts.indexOf('cc') !== -1 ? 'cc' : null
+          if (mod) {
+            ccDetectedRef.current = true
+            setCcModule(mod)
+            setCcAvailable(true)
+            try { player.setOption(mod, 'track', {}) } catch {}
+            setCaptionsOn(false)
+          }
+        }
         let cur = 0, dur = 0
         if (youtubeId) {
           cur = player.getCurrentTime?.() || 0
@@ -170,21 +188,24 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
             },
             onStateChange: (e: any) => {
               // 1 = playing, 2 = paused, 0 = ended
-              if (e.data === 1) { setPlaying(true); startTicking() }
-              else if (e.data === 0) { setPlaying(false); reportProgress(100); stopTicking() }
-              else { setPlaying(false); stopTicking() }
+              if (e.data === 1) { setPlaying(true); playingRef.current = true; startTicking() }
+              else if (e.data === 0) { setPlaying(false); playingRef.current = false; reportProgress(100); stopTicking() }
+              else { setPlaying(false); playingRef.current = false; stopTicking() }
             },
             // Se dispara cuando el módulo de subtítulos queda disponible.
             onApiChange: () => {
               try {
                 const p = playerRef.current
-                const opts: string[] = p.getOptions?.() || []
+                if (ccDetectedRef.current || !p.getOptions) return
+                const opts: string[] = p.getOptions() || []
                 const mod = opts.indexOf('captions') !== -1 ? 'captions'
                           : opts.indexOf('cc') !== -1 ? 'cc' : null
                 if (mod) {
-                  const tracks = p.getOption(mod, 'tracklist') || []
+                  ccDetectedRef.current = true
                   setCcModule(mod)
-                  setCcAvailable(Array.isArray(tracks) && tracks.length > 0)
+                  setCcAvailable(true)
+                  try { p.setOption(mod, 'track', {}) } catch {}   // apagar por defecto
+                  setCaptionsOn(false)
                 }
               } catch {}
             },
@@ -281,6 +302,17 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
     return false
   }, [])
 
+  // Mostrar controles y programar que se oculten solos tras 2.6s sin actividad
+  const showControls = useCallback(() => {
+    setControlsVisible(true)
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    hideTimerRef.current = setTimeout(() => {
+      if (playingRef.current) setControlsVisible(false)
+    }, 2600)
+  }, [])
+
+  useEffect(() => () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current) }, [])
+
   // Avanzar/retroceder (clic o arrastre sobre la barra de progreso)
   const seekToClientX = useCallback((clientX: number) => {
     const el = progRef.current
@@ -323,6 +355,8 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
     <div
       ref={wrapRef}
       onContextMenu={blockContext}
+      onMouseMove={showControls}
+      onMouseLeave={() => { if (playingRef.current) setControlsVisible(false) }}
       style={{
         position: 'relative',
         width: '100%',
@@ -333,6 +367,7 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
         overflow: 'hidden',
         marginBottom: 18,
         userSelect: 'none',
+        cursor: controlsVisible || !playing ? 'default' : 'none',
       }}
     >
       {/* iframe de YouTube — sin eventos de puntero (los captura la capa) */}
@@ -381,6 +416,9 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
           position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 4,
           padding: '10px 12px 12px',
           background: 'linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.35) 60%, transparent 100%)',
+          opacity: controlsVisible || !playing ? 1 : 0,
+          pointerEvents: controlsVisible || !playing ? 'auto' : 'none',
+          transition: 'opacity .25s ease',
         }}
       >
         {/* Progreso — clic o arrastre para avanzar/retroceder */}
