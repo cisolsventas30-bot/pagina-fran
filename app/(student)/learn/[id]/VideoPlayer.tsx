@@ -349,26 +349,29 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
         style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'pointer', background: 'transparent' }}
       />
 
-      {/* Botón grande central cuando está pausado */}
-      {ready && !playing && (
-        <button
+      {/* Cubierta OPACA cuando no reproduce (pausado / antes de iniciar / fin).
+          Oculta el título, "Mirar en YouTube" y los videos relacionados que
+          YouTube muestra y que no se pueden quitar con parámetros del embed. */}
+      {!playing && (
+        <div
           onClick={togglePlay}
-          aria-label="Reproducir"
+          onContextMenu={blockContext}
           style={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-            zIndex: 3, width: 72, height: 72, borderRadius: '50%', border: 'none',
-            background: 'rgba(0,0,0,.55)', color: '#fff', cursor: 'pointer',
+            position: 'absolute', inset: 0, zIndex: 3, cursor: 'pointer',
+            background: '#0c0a08',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-        </button>
-      )}
-
-      {/* Cargando */}
-      {!ready && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.7)', fontSize: 14 }}>
-          Cargando…
+          {ready ? (
+            <span style={{
+              width: 72, height: 72, borderRadius: '50%', background: 'rgba(255,255,255,.14)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+            }}>
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+            </span>
+          ) : (
+            <span style={{ color: 'rgba(255,255,255,.7)', fontSize: 14 }}>Cargando…</span>
+          )}
         </div>
       )}
 
