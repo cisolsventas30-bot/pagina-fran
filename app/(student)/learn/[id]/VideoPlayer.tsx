@@ -98,6 +98,10 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
   const [current, setCurrent] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isFs, setIsFs] = useState(false)
+  // Subtítulos (CC). El módulo puede llamarse 'captions' (HTML5) o 'cc' (legacy).
+  const [ccModule, setCcModule] = useState<string | null>(null)
+  const [ccAvailable, setCcAvailable] = useState(false)
+  const [captionsOn, setCaptionsOn] = useState(false)
 
   const reportProgress = useCallback((pct: number) => {
     if (pct === lastReportedRef.current) return
@@ -168,6 +172,20 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
               else if (e.data === 0) { setPlaying(false); reportProgress(100); stopTicking() }
               else { setPlaying(false); stopTicking() }
             },
+            // Se dispara cuando el módulo de subtítulos queda disponible.
+            onApiChange: () => {
+              try {
+                const p = playerRef.current
+                const opts: string[] = p.getOptions?.() || []
+                const mod = opts.indexOf('captions') !== -1 ? 'captions'
+                          : opts.indexOf('cc') !== -1 ? 'cc' : null
+                if (mod) {
+                  const tracks = p.getOption(mod, 'tracklist') || []
+                  setCcModule(mod)
+                  setCcAvailable(Array.isArray(tracks) && tracks.length > 0)
+                }
+              } catch {}
+            },
           },
         })
       })
@@ -233,6 +251,21 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
       else { p?.unMute?.(); setMuted(false) }
     } catch {}
   }, [])
+
+  const toggleCaptions = useCallback(() => {
+    const p = playerRef.current
+    if (!p || !ccModule) return
+    try {
+      if (captionsOn) {
+        p.setOption(ccModule, 'track', {})   // ocultar
+        setCaptionsOn(false)
+      } else {
+        const tracks = p.getOption(ccModule, 'tracklist') || []
+        p.setOption(ccModule, 'track', tracks[0] || { languageCode: 'es' })
+        setCaptionsOn(true)
+      }
+    } catch {}
+  }, [ccModule, captionsOn])
 
   const toggleFullscreen = useCallback(() => {
     const el = wrapRef.current
@@ -341,6 +374,17 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
           </span>
 
           <div style={{ flex: 1 }} />
+
+          {/* Subtítulos (solo si el video tiene subtítulos disponibles) */}
+          {ccAvailable && (
+            <button onClick={toggleCaptions} aria-label="Subtítulos" title="Subtítulos" style={btn}>
+              <span style={{
+                fontSize: 12, fontWeight: 700, lineHeight: 1, padding: '2px 4px', borderRadius: 3,
+                border: `1.5px solid ${captionsOn ? '#E8959A' : 'rgba(255,255,255,.6)'}`,
+                color: captionsOn ? '#E8959A' : '#fff',
+              }}>CC</span>
+            </button>
+          )}
 
           {/* Volumen */}
           <button onClick={toggleMute} aria-label={muted || volume === 0 ? 'Activar sonido' : 'Silenciar'} style={btn}>
