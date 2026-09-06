@@ -102,6 +102,8 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
   const [ccModule, setCcModule] = useState<string | null>(null)
   const [ccAvailable, setCcAvailable] = useState(false)
   const [captionsOn, setCaptionsOn] = useState(false)
+  const progRef = useRef<HTMLDivElement>(null)
+  const draggingRef = useRef(false)
 
   const reportProgress = useCallback((pct: number) => {
     if (pct === lastReportedRef.current) return
@@ -279,6 +281,29 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
     return false
   }, [])
 
+  // Avanzar/retroceder (clic o arrastre sobre la barra de progreso)
+  const seekToClientX = useCallback((clientX: number) => {
+    const el = progRef.current
+    const p = playerRef.current
+    if (!el || !p || duration <= 0) return
+    const rect = el.getBoundingClientRect()
+    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    const t = frac * duration
+    try { p.seekTo?.(t, true); setCurrent(t) } catch {}
+  }, [duration])
+
+  useEffect(() => {
+    if (!youtubeId) return
+    const move = (e: MouseEvent) => { if (draggingRef.current) seekToClientX(e.clientX) }
+    const up = () => { draggingRef.current = false }
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+    return () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+    }
+  }, [youtubeId, seekToClientX])
+
   if (!youtubeId && !vimeoId) return null
 
   // ── VIMEO: comportamiento anterior (reproductor nativo) ──────────────────
@@ -355,9 +380,16 @@ export default function VideoPlayer({ youtubeId, vimeoId, title, onProgress }: P
           background: 'linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.35) 60%, transparent 100%)',
         }}
       >
-        {/* Progreso (solo visual, no permite adelantar) */}
-        <div style={{ height: 4, borderRadius: 4, background: 'rgba(255,255,255,.28)', overflow: 'hidden', marginBottom: 10 }}>
-          <div style={{ width: `${pct}%`, height: '100%', background: '#E8959A', transition: 'width .25s linear' }} />
+        {/* Progreso — clic o arrastre para avanzar/retroceder */}
+        <div
+          ref={progRef}
+          onMouseDown={(e) => { draggingRef.current = true; seekToClientX(e.clientX) }}
+          style={{ padding: '6px 0', marginBottom: 4, cursor: 'pointer' }}
+        >
+          <div style={{ position: 'relative', height: 5, borderRadius: 4, background: 'rgba(255,255,255,.28)' }}>
+            <div style={{ width: `${pct}%`, height: '100%', background: '#E8959A', borderRadius: 4 }} />
+            <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 12, height: 12, borderRadius: '50%', background: '#E8959A', boxShadow: '0 0 0 1px rgba(0,0,0,.2)' }} />
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#fff' }}>
