@@ -244,7 +244,10 @@ export default async function AdminDashboard() {
 }
 
 function getGreeting() {
-  const hour = new Date().getHours()
+  // El servidor corre en UTC; usamos la hora de Perú para el saludo
+  const hour = Number(
+    new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: 'America/Lima' }).format(new Date())
+  )
   if (hour < 12) return 'Buenos días'
   if (hour < 19) return 'Buenas tardes'
   return 'Buenas noches'
