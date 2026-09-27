@@ -10,7 +10,7 @@ import {
   PlayCircle, FileText, ClipboardList, MessageCircle, FileArchive,
   CheckCircle2, Circle, ChevronDown, ChevronRight, Award,
   SkipForward, ChevronLeft, Save, BookOpen, ListChecks, StickyNote,
-  Clock,
+  Clock, Lock,
 } from 'lucide-react'
 import QuizInline from './QuizInline'
 import AssignmentInline from './AssignmentInline'
@@ -310,15 +310,44 @@ export default function LessonViewer(props: Props) {
     progressMap, attemptsState, submissionsState, forumsCompletedState,
   ])
 
-  // Item actual (de URL ?item= o el primero)
+  // ── Avance secuencial ─────────────────────────────────────────────────────
+  // Cada item se libera recién cuando el anterior está completado (clase vista,
+  // quiz aprobado o enviado a revisión, asignación enviada, foro con aporte).
+  // Los recursos no bloquean (no tienen estado completable), pero sí quedan
+  // bloqueados si hay una actividad pendiente antes que ellos.
+  // En vista previa (admin) o con el curso ya completado no se bloquea nada.
+  const sequentialLock = !previewMode && !courseCompleted
+  const { lockedKeys, blockingItem } = useMemo(() => {
+    const locked = new Set<string>()
+    let blocking: Item | null = null
+    if (!sequentialLock) return { lockedKeys: locked, blockingItem: blocking }
+    for (const item of allItems) {
+      if (blocking) { locked.add(item.key); continue }
+      if (item.type === 'resource') continue
+      const cleared = item.done || (item.type === 'quiz' && !!attemptsState[item.id]?.needs_review)
+      if (!cleared) blocking = item
+    }
+    return { lockedKeys: locked, blockingItem: blocking as Item | null }
+  }, [allItems, attemptsState, sequentialLock])
+
+  // Ref con el último set de bloqueos: goToItem se llama desde setTimeout
+  // (auto-avance tras completar) y necesita ver el desbloqueo recién calculado.
+  const lockedKeysRef = useRef(lockedKeys)
+  lockedKeysRef.current = lockedKeys
+  const blockingItemRef = useRef(blockingItem)
+  blockingItemRef.current = blockingItem
+
+  // Item actual (de URL ?item=, o donde se quedó el alumno, o el primero)
   const itemFromUrl = searchParams.get('item') || initialItemKey
   const currentItem = itemFromUrl
     ? allItems.find(i => i.key === itemFromUrl) || allItems[0]
-    : allItems[0]
+    : blockingItem || allItems[0]
+  const currentLocked = !!currentItem && lockedKeys.has(currentItem.key)
 
   const currentIdx = currentItem ? allItems.findIndex(i => i.key === currentItem.key) : -1
   const prevItem = currentIdx > 0 ? allItems[currentIdx - 1] : null
   const nextItem = currentIdx >= 0 && currentIdx < allItems.length - 1 ? allItems[currentIdx + 1] : null
+  const nextLocked = !!nextItem && lockedKeys.has(nextItem.key)
 
   // Cuando cambia la URL, abre el módulo del item actual
   useEffect(() => {
@@ -328,6 +357,16 @@ export default function LessonViewer(props: Props) {
   }, [currentItem?.moduleId])
 
   function goToItem(key: string) {
+    if (lockedKeysRef.current.has(key)) {
+      const pending = blockingItemRef.current
+      showToast(
+        pending
+          ? `Completa "${pending.title}" para desbloquear esta actividad`
+          : 'Completa la actividad anterior para continuar',
+        'info'
+      )
+      return
+    }
     const params = new URLSearchParams(searchParams.toString())
     params.set('item', key)
     router.push(`/learn/${courseId}?${params.toString()}`, { scroll: false })
@@ -501,6 +540,9 @@ export default function LessonViewer(props: Props) {
           onForumCompleted={onForumCompleted}
           prevItem={prevItem}
           nextItem={nextItem}
+          locked={currentLocked}
+          nextLocked={nextLocked}
+          blockingItem={blockingItem}
           onGoToItem={goToItem}
           onVideoProgress={handleVideoProgress}
           attemptForCurrentQuiz={currentItem?.type === 'quiz' ? attemptsState[currentItem.id] : undefined}
@@ -509,7 +551,7 @@ export default function LessonViewer(props: Props) {
       </div>
 
       {/* COMENTARIOS — debajo del player SOLO en desktop (en móvil van como pestaña del sidebar) */}
-      {currentItem?.type === 'lesson' && (
+      {currentItem?.type === 'lesson' && !currentLocked && (
         <div className="learn-desktop-comments" style={{ gridArea: 'comments', padding: '0 32px 80px', minWidth: 0 }}>
           <LessonComments lessonId={currentItem.id} previewMode={!!previewMode} />
         </div>
@@ -551,6 +593,7 @@ export default function LessonViewer(props: Props) {
           {activeTab === 'content' && (
             <ContentTab
               byModule={byModule}
+              lockedKeys={lockedKeys}
               currentItemKey={currentItem?.key}
               openModules={openModules}
               onToggleModule={toggleModule}
@@ -565,6 +608,7 @@ export default function LessonViewer(props: Props) {
           {activeTab === 'activities' && (
             <ActivitiesTab
               allItems={allItems}
+              lockedKeys={lockedKeys}
               currentItemKey={currentItem?.key}
               onGoToItem={goToItem}
               attemptsState={attemptsState}
@@ -579,7 +623,7 @@ export default function LessonViewer(props: Props) {
               previewMode={!!previewMode}
             />
           )}
-          {activeTab === 'comments' && currentItem?.type === 'lesson' && (
+          {activeTab === 'comments' && currentItem?.type === 'lesson' && !currentLocked && (
             <div style={{ padding: 12 }}>
               <LessonComments lessonId={currentItem.id} previewMode={!!previewMode} />
             </div>
@@ -651,10 +695,11 @@ function SidebarTab({ active, onClick, icon, label }: {
    ═════════════════════════════════════════════════════ */
 
 function ContentTab({
-  byModule, currentItemKey, openModules, onToggleModule, onGoToItem,
+  byModule, lockedKeys, currentItemKey, openModules, onToggleModule, onGoToItem,
   progressPct, completedCount, totalCount, passingScore, courseCompleted,
 }: {
   byModule: { module: Module | null; items: Item[] }[]
+  lockedKeys: Set<string>
   currentItemKey?: string
   openModules: Set<string>
   onToggleModule: (id: string) => void
@@ -781,6 +826,7 @@ function ContentTab({
                       key={item.key}
                       item={item}
                       isActive={item.key === currentItemKey}
+                      locked={lockedKeys.has(item.key)}
                       onClick={() => onGoToItem(item.key)}
                     />
                   ))}
@@ -799,9 +845,10 @@ function ContentTab({
    ITEM ROW — una entrada del sidebar (item de cualquier tipo)
    ═════════════════════════════════════════════════════ */
 
-function ItemRow({ item, isActive, onClick }: {
+function ItemRow({ item, isActive, locked, onClick }: {
   item: Item
   isActive: boolean
+  locked?: boolean
   onClick: () => void
 }) {
   const visual = getItemVisual(item)
@@ -816,11 +863,14 @@ function ItemRow({ item, isActive, onClick }: {
         border: 'none',
         borderLeft: isActive ? '3px solid #1F1710' : '3px solid transparent',
         display: 'flex', alignItems: 'center', gap: 12,
-        cursor: 'pointer', fontFamily: 'inherit',
+        cursor: locked ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
         textAlign: 'left',
         transition: 'background .1s',
         position: 'relative',
+        opacity: locked ? 0.55 : 1,
       }}
+      aria-disabled={locked || undefined}
+      title={locked ? 'Completa la actividad anterior para desbloquear' : undefined}
       onMouseEnter={(e) => {
         if (!isActive) e.currentTarget.style.background = '#FAF7F2'
       }}
@@ -900,6 +950,8 @@ function ItemRow({ item, isActive, onClick }: {
       <div style={{ flexShrink: 0 }}>
         {item.done ? (
           <CheckCircle2 size={18} strokeWidth={2.2} style={{ color: '#1D9E75' }} />
+        ) : locked ? (
+          <Lock size={16} strokeWidth={2.2} style={{ color: '#B8A88E' }} />
         ) : (
           <Circle size={18} strokeWidth={2} style={{ color: '#D9CEB8' }} />
         )}
@@ -951,10 +1003,11 @@ function getItemVisual(item: Item) {
    ═════════════════════════════════════════════════════ */
 
 function ActivitiesTab({
-  allItems, currentItemKey, onGoToItem,
+  allItems, lockedKeys, currentItemKey, onGoToItem,
   attemptsState, submissionsState, passingScore,
 }: {
   allItems: Item[]
+  lockedKeys: Set<string>
   currentItemKey?: string
   onGoToItem: (key: string) => void
   attemptsState: Record<string, any>
@@ -979,8 +1032,9 @@ function ActivitiesTab({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {activities.map(item => {
           const isActive = item.key === currentItemKey
+          const locked = lockedKeys.has(item.key)
           const visual = getItemVisual(item)
-          let status = 'Pendiente'
+          let status = locked ? 'Bloqueado' : 'Pendiente'
           let statusColor = '#8A7860'
           let statusBg = '#F5EFE6'
 
@@ -1022,9 +1076,11 @@ function ActivitiesTab({
                 borderRadius: 10,
                 padding: 12,
                 display: 'flex', alignItems: 'center', gap: 10,
-                cursor: 'pointer', fontFamily: 'inherit',
+                cursor: locked ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
                 textAlign: 'left',
+                opacity: locked ? 0.55 : 1,
               }}
+              aria-disabled={locked || undefined}
             >
               <div style={{
                 width: 36, height: 36, borderRadius: 6,
@@ -1032,7 +1088,7 @@ function ActivitiesTab({
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                {visual.icon}
+                {locked ? <Lock size={18} strokeWidth={2.2} /> : visual.icon}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
@@ -1268,7 +1324,7 @@ function MainPlayer({
   item, enrollmentId, previewMode, passingScore, currentIdx, totalItems,
   isCompleted, marking, onMarkComplete,
   onQuizSubmitted, onAssignmentSubmitted, onForumCompleted,
-  prevItem, nextItem, onGoToItem, onVideoProgress,
+  prevItem, nextItem, locked, nextLocked, blockingItem, onGoToItem, onVideoProgress,
   attemptForCurrentQuiz, submissionForCurrentAssignment,
 }: {
   item: Item | undefined
@@ -1285,6 +1341,9 @@ function MainPlayer({
   onForumCompleted: (forumId: string) => void
   prevItem: Item | null
   nextItem: Item | null
+  locked: boolean
+  nextLocked: boolean
+  blockingItem: Item | null
   onGoToItem: (key: string) => void
   onVideoProgress: (lessonId: string, percent: number) => void
   attemptForCurrentQuiz: any
@@ -1297,6 +1356,60 @@ function MainPlayer({
       </div>
     )
   }
+
+  // Item bloqueado (p. ej. se entró por URL directa): no se muestra su contenido
+  if (locked) {
+    return (
+      <div style={{
+        padding: '56px 32px', textAlign: 'center',
+        background: '#fff',
+        border: '1px solid rgba(31,23,16,0.08)',
+        borderRadius: 12,
+      }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: '50%',
+          background: '#F5EFE6', color: '#8A7860',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 16,
+        }}>
+          <Lock size={24} strokeWidth={2.2} />
+        </div>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1F1710', margin: '0 0 8px' }}>
+          {item.title}
+        </h2>
+        <p style={{
+          fontSize: 14, color: '#6B5E4E', lineHeight: 1.6,
+          maxWidth: 460, margin: '0 auto 20px',
+        }}>
+          Este contenido se desbloquea cuando completes las actividades anteriores del curso.
+        </p>
+        {blockingItem && (
+          <button
+            onClick={() => onGoToItem(blockingItem.key)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '11px 22px', background: '#1F1710', color: '#F4ECDF',
+              border: 'none', borderRadius: 100,
+              fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            Ir a: {blockingItem.numbering ? `${blockingItem.numbering} ` : ''}{blockingItem.title}
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  const hasVideo = item.type === 'lesson'
+    && !!(extractYouTubeId(item.data?.video_url) || extractVimeoId(item.data?.video_url))
+
+  // Qué le falta al alumno para liberar el siguiente item
+  const pendingHint = !nextLocked ? null
+    : item.type === 'lesson' ? (hasVideo ? 'Mira el video completo para continuar' : 'Marca la clase como vista para continuar')
+    : item.type === 'quiz' ? 'Aprueba el cuestionario para continuar'
+    : item.type === 'assignment' ? 'Envía la asignación para continuar'
+    : item.type === 'forum' ? 'Publica en el foro para continuar'
+    : 'Completa esta actividad para continuar'
 
   // Barra de navegación (Anterior / Marcar como vista / Siguiente).
   // Para lecciones se inyecta justo debajo del video; para otros tipos va al final.
@@ -1322,7 +1435,7 @@ function MainPlayer({
         )}
       </div>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        {item.type === 'lesson' && !isCompleted && !previewMode && (
+        {item.type === 'lesson' && !hasVideo && !isCompleted && !previewMode && (
           <button
             onClick={onMarkComplete}
             disabled={marking}
@@ -1338,13 +1451,19 @@ function MainPlayer({
         {nextItem ? (
           <button
             onClick={() => onGoToItem(nextItem.key)}
+            disabled={nextLocked}
+            title={pendingHint || undefined}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '11px 22px', background: '#1F1710', color: '#F4ECDF',
+              padding: '11px 22px',
+              background: nextLocked ? '#E8E0D2' : '#1F1710',
+              color: nextLocked ? '#8A7860' : '#F4ECDF',
               border: 'none', borderRadius: 100,
-              fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+              fontSize: 13, fontWeight: 700,
+              cursor: nextLocked ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
             }}
           >
+            {nextLocked && <Lock size={13} strokeWidth={2.2} />}
             Siguiente <SkipForward size={14} strokeWidth={2.2} />
           </button>
         ) : (
@@ -1358,6 +1477,15 @@ function MainPlayer({
           </Link>
         )}
       </div>
+      {pendingHint && (
+        <div style={{
+          flexBasis: '100%', textAlign: 'right',
+          fontSize: 12, color: '#8A7860',
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 5,
+        }}>
+          <Lock size={11} strokeWidth={2.2} /> {pendingHint}
+        </div>
+      )}
     </div>
   )
 

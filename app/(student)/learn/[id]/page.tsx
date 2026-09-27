@@ -108,7 +108,7 @@ export default async function CourseDetailPage({
   const quizIds = (quizzes || []).map(q => q.id)
   const { data: attempts } = (previewMode || !quizIds.length) ? { data: [] } : await supabase
     .from('quiz_attempts')
-    .select('quiz_id, score, passed, submitted_at')
+    .select('quiz_id, score, passed, needs_review, submitted_at')
     .eq('enrollment_id', effectiveEnrollment.id)
     .in('quiz_id', quizIds)
     // Ignoramos intentos sin enviar (started_at sin submitted_at) — no son completados aún

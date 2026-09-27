@@ -15,7 +15,7 @@ type Question = {
 type Props = {
   quizId: string
   enrollmentId: string
-  existingAttempt?: { score: number; passed: boolean; submitted_at: string }
+  existingAttempt?: { score: number; passed: boolean; needs_review?: boolean; submitted_at: string }
   onSubmitted: (attempt: any) => void
 }
 
@@ -28,7 +28,7 @@ export default function QuizInline({ quizId, enrollmentId, existingAttempt, onSu
     existingAttempt ? {
       score: existingAttempt.score,
       passed: existingAttempt.passed,
-      needsReview: false,
+      needsReview: !!existingAttempt.needs_review,
     } : null
   )
   const [loading, setLoading] = useState(true)
@@ -85,6 +85,7 @@ export default function QuizInline({ quizId, enrollmentId, existingAttempt, onSu
       quiz_id: quizId,
       score: data.score,
       passed: data.passed,
+      needs_review: !!data.needsReview,
       submitted_at: new Date().toISOString(),
     })
   }
