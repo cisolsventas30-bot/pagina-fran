@@ -67,7 +67,7 @@ function buildUnifiedItems(mod: Module, quizzes: QuizItem[], assignments: Assign
   for (const a of assignments) items.push({ key: `assignment:${a.id}`, type: 'assignment', id: a.id, title: a.title, meta: `${a.fields_count} ${a.fields_count === 1 ? 'campo' : 'campos'}`, order: a.order })
   for (const r of resources) items.push({ key: `resource:${r.id}`, type: 'resource', id: r.id, title: r.title, meta: r.resource_type === 'file' ? 'Archivo' : 'Enlace', order: r.order })
   for (const f of forums) items.push({ key: `forum:${f.id}`, type: 'forum', id: f.id, title: f.title, meta: 'Foro', order: f.order })
-  return items.sort((a, b) => a.order - b.order)
+  return items.sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
 }
 
 function getItemVisual(type: ItemType) {
@@ -226,7 +226,7 @@ function EvaluationItem({ courseId, type, item }: { courseId: string; type: 'qui
 }
 
 /* ── ReorderPanel ── */
-function ReorderPanel({ moduleIndex, moduleId, unifiedItems, onReordered }: { moduleIndex: number; moduleId: string; unifiedItems: UnifiedItem[]; onReordered: () => void }) {
+function ReorderPanel({ moduleIndex, moduleId, unifiedItems, onReordered }: { moduleIndex: number; moduleId: string; unifiedItems: UnifiedItem[]; onReordered: (items: UnifiedItem[]) => void }) {
   const [open, setOpen] = useState(false)
   return (
     <div style={{ marginTop: 10 }}>
@@ -399,6 +399,16 @@ export default function CourseEditor({ course }: { course: Course }) {
     if (lesson && !lesson._new) setDeletedLessonIds([...deletedLessonIds, lessonId])
     setModules(modules.map(m => m.id === moduleId ? { ...m, lessons: m.lessons.filter(l => l.id !== lessonId) } : m))
     if (expandedLesson === lessonId) setExpandedLesson(null)
+  }
+  // El reordenamiento se guarda directo en la DB; hay que copiar el nuevo order de
+  // las lecciones al estado local. Si no, "Guardar cambios" las devolvía al orden
+  // anterior (el estado local no se reinicia con router.refresh()).
+  function applyReorder(moduleId: string, items: UnifiedItem[]) {
+    const orderById = new Map(items.filter(i => i.type === 'lesson').map(i => [i.id, i.order]))
+    setModules(prev => prev.map(m => m.id !== moduleId ? m : {
+      ...m,
+      lessons: m.lessons.map(l => orderById.has(l.id) ? { ...l, order: orderById.get(l.id)! } : l),
+    }))
   }
   function updateLesson(moduleId: string, lessonId: string, patch: Partial<Lesson>) {
     setModules(modules.map(m => m.id === moduleId ? { ...m, lessons: m.lessons.map(l => l.id === lessonId ? { ...l, ...patch } : l) } : m))
@@ -692,7 +702,7 @@ export default function CourseEditor({ course }: { course: Course }) {
                                 <ClipboardList size={12} strokeWidth={2.2} /> Asignación
                               </Link>
                             </div>
-                            <ReorderPanel moduleIndex={mi} moduleId={mod.id} unifiedItems={unifiedItems} onReordered={() => router.refresh()} />
+                            <ReorderPanel moduleIndex={mi} moduleId={mod.id} unifiedItems={unifiedItems} onReordered={items => { applyReorder(mod.id, items); router.refresh() }} />
                           </div>
                         )}
                       </div>

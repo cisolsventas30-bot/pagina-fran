@@ -69,11 +69,11 @@ export default async function EditCoursePage({
   ] = await Promise.all([
     supabase
       .from('quizzes')
-      .select('id, title, description, type, passing_score, module_id, course_id, questions(count)')
+      .select('*, questions(count)')  // * incluye "order" (para respetar el orden manual)
       .eq('course_id', params.id),
     supabase
       .from('assignments')
-      .select('id, title, instructions, fields, created_at, module_id, course_id')
+      .select('*')
       .eq('course_id', params.id),
     supabase
       .from('enrollments')
@@ -90,7 +90,7 @@ export default async function EditCoursePage({
       .eq('course_id', params.id),
     supabase
       .from('course_forums')
-      .select('id, title, description, module_id, course_id')
+      .select('*')
       .eq('course_id', params.id),
   ])
 
@@ -125,6 +125,7 @@ export default async function EditCoursePage({
       type: q.type,
       passing_score: q.passing_score,
       questions_count: q.questions?.[0]?.count || 0,
+      order: q.order ?? 999,
     }
     if (q.module_id) {
       if (!quizzesByModule[q.module_id]) quizzesByModule[q.module_id] = []
@@ -139,6 +140,7 @@ export default async function EditCoursePage({
       id: a.id,
       title: a.title,
       fields_count: (a.fields as any[])?.length || 0,
+      order: a.order ?? 999,
     }
     if (a.module_id) {
       if (!assignmentsByModule[a.module_id]) assignmentsByModule[a.module_id] = []
@@ -176,7 +178,7 @@ export default async function EditCoursePage({
     const item = { id: f.id, title: f.title, description: f.description, module_id: f.module_id, module_title: moduleTitleForForum }
     if (f.module_id) {
       if (!forumsByModule[f.module_id]) forumsByModule[f.module_id] = []
-      forumsByModule[f.module_id].push({ id: f.id, title: f.title, description: f.description })
+      forumsByModule[f.module_id].push({ id: f.id, title: f.title, description: f.description, order: f.order ?? 999 })
     } else {
       courseLevelForums.push({ id: f.id, title: f.title, description: f.description })
     }
