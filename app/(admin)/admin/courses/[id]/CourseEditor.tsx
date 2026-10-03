@@ -384,7 +384,11 @@ export default function CourseEditor({ course }: { course: Course }) {
     setModules(modules.map(m => {
       if (m.id !== moduleId) return m
       const allOrders = [...m.lessons.map(l => l.order), ...(quizzesByModule[m.id] || []).map(q => q.order), ...(assignmentsByModule[m.id] || []).map(a => a.order), ...(resourcesByModule[m.id] || []).map(r => r.order), ...(forumsByModule[m.id] || []).map(f => f.order)]
-      const maxOrder = allOrders.length > 0 ? Math.max(...allOrders) : -1
+      // Solo órdenes numéricos: evaluaciones/asignaciones/foros pueden venir sin
+      // "order" y Math.max con undefined da NaN → la lección se guardaba sin orden
+      // (NOT NULL) y Supabase respondía 400.
+      const validOrders = allOrders.filter((o): o is number => typeof o === 'number' && Number.isFinite(o))
+      const maxOrder = validOrders.length > 0 ? Math.max(...validOrders) : m.lessons.length - 1
       return { ...m, lessons: [...m.lessons, { id: crypto.randomUUID(), title: '', video_url: '', content: '', duration_minutes: 10, order: maxOrder + 1, _new: true }] }
     }))
   }
@@ -398,6 +402,12 @@ export default function CourseEditor({ course }: { course: Course }) {
   }
   function updateLesson(moduleId: string, lessonId: string, patch: Partial<Lesson>) {
     setModules(modules.map(m => m.id === moduleId ? { ...m, lessons: m.lessons.map(l => l.id === lessonId ? { ...l, ...patch } : l) } : m))
+  }
+
+  // Entero válido para columnas int (NaN/undefined/'' rompen el insert con 400)
+  function safeInt<T>(v: unknown, fallback: T): number | T {
+    const n = typeof v === 'number' ? v : parseInt(String(v), 10)
+    return Number.isFinite(n) ? Math.round(n) : fallback
   }
 
   async function handleSave() {
@@ -427,7 +437,7 @@ export default function CourseEditor({ course }: { course: Course }) {
       if (mod._new) {
         const { data: newMod, error: modErr } = await supabase.from('modules').insert({ course_id: course.id, title: mod.title, description: mod.description, order: mi }).select().single()
         if (modErr || !newMod) { errors.push(`Módulo "${mod.title}": ${modErr?.message || 'no se pudo crear'}`); savedModules.push(mod); continue }
-        const toInsert = mod.lessons.map((l, li) => ({ module_id: newMod.id, title: l.title, video_url: l.video_url, content: l.content, duration_minutes: l.duration_minutes, order: l.order ?? li }))
+        const toInsert = mod.lessons.map((l, li) => ({ module_id: newMod.id, title: l.title, video_url: l.video_url, content: l.content, duration_minutes: safeInt(l.duration_minutes, null), order: safeInt(l.order, li) }))
         const { data: inserted, error: lesErr } = toInsert.length > 0
           ? await supabase.from('lessons').insert(toInsert).select('id')
           : { data: [], error: null }
@@ -441,7 +451,7 @@ export default function CourseEditor({ course }: { course: Course }) {
         if (modErr) errors.push(`Módulo "${mod.title}": ${modErr.message}`)
         const lessons: Lesson[] = []
         for (const lesson of mod.lessons) {
-          const fields = { title: lesson.title, video_url: lesson.video_url, content: lesson.content, duration_minutes: lesson.duration_minutes, order: lesson.order }
+          const fields = { title: lesson.title, video_url: lesson.video_url, content: lesson.content, duration_minutes: safeInt(lesson.duration_minutes, null), order: safeInt(lesson.order, mod.lessons.indexOf(lesson)) }
           if (lesson._new) {
             const { data: ins, error: e } = await supabase.from('lessons').insert({ module_id: mod.id, ...fields }).select('id').single()
             if (e || !ins) { errors.push(`Lección "${lesson.title || 'sin título'}": ${e?.message || 'no se pudo crear'}`); lessons.push(lesson); continue }
