@@ -1587,6 +1587,10 @@ function LessonPlayer({ lesson, currentIdx, totalItems, previewMode, onVideoProg
       {/* Video con tracking de progreso (YouTube/Vimeo Player API) */}
       {hasVideo && (
         <VideoPlayer
+          // key: remonta el reproductor al cambiar de clase. YouTube reemplaza el
+          // <div> contenedor por su iframe, así que reutilizar el componente
+          // dejaba el segundo video sin dónde montarse (pantalla vacía).
+          key={lesson.id}
           videoUrl={lesson.video_url || ''}
           youtubeId={youtubeId}
           vimeoId={vimeoId}
