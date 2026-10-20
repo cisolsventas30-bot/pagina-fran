@@ -352,9 +352,9 @@ const serviceCardStyles = `
     max-width: 320px;
   }
   .svc-title {
-    font-family: 'Poppins', system-ui, sans-serif;
+    font-family: var(--font-sans);
     font-size: 1.3rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #fff;
     line-height: 1.2;
     margin: 0;
@@ -542,29 +542,22 @@ export default function Home() {
 
           {/* Hero text — sobre el card */}
           <div className="hero-text">
-            <div style={{ fontSize:'.78rem', fontWeight:600, color:'rgba(244,236,223,.6)',
-              marginBottom:'1.1rem', letterSpacing:'.06em', textTransform:'uppercase',
+            <div className="eyebrow" style={{ color:'rgba(244,236,223,.7)',
+              marginBottom:'1.1rem',
               animation:'fadeUp .7s .3s ease both', opacity:0 }}>
-              — Francesca Ramírez Bontá
+              Francesca Ramírez Bontá
             </div>
 
-            <h1 className="hero-title" style={{
-              fontFamily: "'Poppins', system-ui, sans-serif",
-              fontSize: 'clamp(2.6rem,5.4vw,4.8rem)',
-              fontWeight: 600, letterSpacing: '-.03em', lineHeight: 1.08,
+            {/* Un solo peso (800) en todo el título: antes mezclaba 400/600/700/800 */}
+            <h1 className="hero-title display" style={{
               color: '#fff', maxWidth: 720, marginBottom: '1.6rem',
               animation: 'fadeUp .8s .45s ease both', opacity:0,
             }}>
-              <strong style={{ fontWeight:800 }}>capy<span style={{ color:'#E8959A' }}>ABA</span></strong>{' — '}
-              <strong style={{ fontWeight:700 }}>Análisis conductual</strong>{' '}
-              <span style={{ fontWeight:400 }}>para</span>{' '}
-              <strong style={{ fontWeight:700 }}>niños</strong>{' '}
-              <span style={{ fontWeight:400 }}>y</span>{' '}
-              <strong style={{ fontWeight:700 }}>terapeutas</strong>
+              capy<span style={{ color:'#E8959A' }}>ABA</span> — Análisis conductual para niños y terapeutas
             </h1>
 
-            <p style={{
-              fontSize: '1.1rem', color: 'rgba(244,236,223,.75)', lineHeight: 1.58,
+            <p className="t-lead" style={{
+              color: 'rgba(244,236,223,.78)',
               maxWidth: 480, marginBottom: '2.2rem',
               animation: 'fadeUp .8s .6s ease both', opacity:0,
             }}>
@@ -635,7 +628,7 @@ export default function Home() {
             La plataforma de análisis conductual que{' '}
             <strong>transforma vidas</strong>
           </h2>
-          <p style={{ fontSize:'1.15rem', color:'var(--muted)', lineHeight:1.55, maxWidth:680, margin:'0 auto 2.5rem' }}>
+          <p className="t-lead" style={{ maxWidth:680, margin:'0 auto 2.5rem' }}>
             Acompañando a familias, estudiantes y profesionales con intervenciones
             validadas, personalizadas y alineadas con los estándares de la IBAO.
           </p>
@@ -661,11 +654,11 @@ export default function Home() {
               Soy <strong>capyABA</strong>,{' '}
               <em>psicóloga, neuropsicóloga y analista conductual</em>.
             </h2>
-            <p style={{ fontSize:'1.1rem', color:'rgba(244,236,223,.72)', lineHeight:1.6, marginBottom:'1rem' }}>
+            <p className="t-lead" style={{ color:'rgba(244,236,223,.75)', marginBottom:'1rem' }}>
               Especialista en terapia infantil, certificada como IBA y IBT por la IBAO.
               Apasionada por la actividad científica y comprometida con la divulgación.
             </p>
-            <p style={{ fontSize:'1.1rem', color:'rgba(244,236,223,.72)', lineHeight:1.6, marginBottom:'2rem' }}>
+            <p className="t-lead" style={{ color:'rgba(244,236,223,.75)', marginBottom:'2rem' }}>
               Busco que el conocimiento llegue de manera clara y práctica para ayudar
               a las personas en su vida cotidiana.
             </p>
@@ -696,21 +689,18 @@ export default function Home() {
             <h2 className="section-title" style={{ marginBottom:'1.2rem' }}>
               Mejorando vidas a través del <strong>análisis conductual</strong>
             </h2>
-            <p style={{ fontSize:'1.1rem', color:'var(--muted)', lineHeight:1.5 }}>
+            <p className="t-lead">
               Guiando a familias, estudiantes y profesionales hacia rutas de desarrollo más claras.
             </p>
           </div>
           <div className="stats-grid">
             {STATS.map((s, i) => (
-              <div key={s.num} className="reveal"
-                style={{ paddingTop:'2rem', borderTop:'1px solid rgba(31,23,16,.15)',
-                  transitionDelay:`${i*.1}s` }}>
-                <div style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(2.6rem,4.5vw,4.5rem)',
-                  fontWeight:300, letterSpacing:'-.035em', lineHeight:1, marginBottom:'1.2rem' }}>
+              <div key={s.num} className="reveal stat-item"
+                style={{ transitionDelay:`${i*.1}s` }}>
+                <div className="t-stat" data-countup={/^\d/.test(s.num) ? '' : undefined} style={{ marginBottom:'1rem' }}>
                   {s.num}
                 </div>
-                <div style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", fontSize:'1rem',
-                  fontWeight:500, lineHeight:1.4, letterSpacing:'-.01em' }}>{s.label}</div>
+                <div style={{ fontSize:'1rem', fontWeight:500, lineHeight:1.5, color:'var(--muted)', maxWidth:260 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -720,8 +710,7 @@ export default function Home() {
       {/* ══ FINAL CTA ══ */}
       <section id="contacto" className="landing-cta-section">
         <div className="reveal">
-          <h2 className="section-title" style={{ maxWidth:860, margin:'0 auto 3rem',
-            fontSize:'clamp(2.8rem,5.5vw,5rem)' }}>
+          <h2 className="section-title section-title--cta" style={{ maxWidth:860, margin:'0 auto 3rem' }}>
             Lleva tu familia o carrera al <strong>siguiente nivel</strong>
           </h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>

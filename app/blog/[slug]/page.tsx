@@ -98,9 +98,9 @@ function BlockRenderer({ block, index, numberStart }: { block: Block; index: num
 
   if (!content) return null
 
-  if (type === 'heading1') return <h2 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 28, fontWeight: 700, letterSpacing: '-.02em', color: '#1a1a18', lineHeight: 1.25, margin: '52px 0 14px' }} />
-  if (type === 'heading2') return <h3 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 22, fontWeight: 700, color: '#1a1a18', lineHeight: 1.3, margin: '40px 0 10px' }} />
-  if (type === 'heading3') return <h4 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 18, fontWeight: 700, color: '#1a1a18', lineHeight: 1.4, margin: '28px 0 8px' }} />
+  if (type === 'heading1') return <h2 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 30, fontWeight: 800, letterSpacing: '-.03em', color: '#1a1a18', lineHeight: 1.25, margin: '52px 0 14px' }} />
+  if (type === 'heading2') return <h3 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 23, fontWeight: 800, letterSpacing: '-.025em', color: '#1a1a18', lineHeight: 1.3, margin: '40px 0 10px' }} />
+  if (type === 'heading3') return <h4 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 19, fontWeight: 700, letterSpacing: '-.015em', color: '#1a1a18', lineHeight: 1.4, margin: '28px 0 8px' }} />
 
   if (type === 'quote') return (
     <blockquote style={{ margin: '36px 0', padding: '20px 24px', borderLeft: '4px solid #c4783c', background: 'linear-gradient(to right, #fdf6f0, transparent)', borderRadius: '0 10px 10px 0' }}>
@@ -145,7 +145,7 @@ function BlockRenderer({ block, index, numberStart }: { block: Block; index: num
   )
 
   // Render as div (not p) so inline <ul>/<ol> from the editor are valid HTML
-  return <div {...sh} className="bp-paragraph" style={{ fontFamily: BLOG_FONT, fontSize: 18, color: '#2a2825', lineHeight: 1.85, margin: '0 0 24px' }} />
+  return <div {...sh} className="bp-paragraph" style={{ fontFamily: BLOG_FONT, fontSize: 17, color: '#2a2825', lineHeight: 1.8, margin: '0 0 24px' }} />
 }
 
 // ── Página principal ──────────────────────────────────────────────────────────
@@ -229,15 +229,15 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           display: inline-block; padding: 5px 16px; border-radius: 100px;
           background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3);
           font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-          margin-bottom: 18px; backdrop-filter: blur(8px); font-family: system-ui, sans-serif;
+          margin-bottom: 18px; backdrop-filter: blur(8px); font-family: inherit;
         }
         .bp-hero-title {
-          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 52px; font-weight: 700;
-          color: #fff; line-height: 1.08; letter-spacing: -.025em;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: clamp(2.25rem, 4.4vw, 3.5rem); font-weight: 800;
+          color: #fff; line-height: 1.08; letter-spacing: -.035em; text-wrap: balance;
           margin: 0 0 14px; text-shadow: 0 2px 24px rgba(0,0,0,.4); max-width: 720px;
         }
         .bp-hero-excerpt {
-          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 19px; font-style: italic;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 19px; font-weight: 400;
           color: rgba(255,255,255,.88); margin: 0; line-height: 1.55;
           text-shadow: 0 1px 10px rgba(0,0,0,.35); max-width: 580px;
         }
@@ -252,14 +252,14 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           display: inline-block; padding: 5px 16px; border-radius: 100px;
           background: #f2e8dc; color: #7a4020;
           font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-          margin-bottom: 20px; font-family: system-ui, sans-serif;
+          margin-bottom: 20px; font-family: inherit;
         }
         .bp-nc-title {
-          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 48px; font-weight: 700;
-          color: #1a1a18; line-height: 1.1; letter-spacing: -.025em; margin: 0 0 16px;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: clamp(2.25rem, 4.4vw, 3.5rem); font-weight: 800;
+          color: #1a1a18; line-height: 1.1; letter-spacing: -.035em; text-wrap: balance; margin: 0 0 16px;
         }
         .bp-nc-excerpt {
-          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 19px; font-style: italic;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 19px; font-weight: 400;
           color: #7a7168; margin: 0; line-height: 1.6;
         }
 

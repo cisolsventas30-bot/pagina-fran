@@ -117,9 +117,9 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
           bottom: '-0.05em',
           right: '-0.04em',
           fontSize: 'clamp(8rem, 18vw, 22rem)',
-          fontFamily: "'Poppins', system-ui, sans-serif",
-          fontWeight: 300,
-          color: 'rgba(31,23,16,0.04)',
+          fontFamily: 'var(--font-sans)',
+          fontWeight: 800,
+          color: 'rgba(31,23,16,0.035)',
           lineHeight: 1,
           pointerEvents: 'none',
           userSelect: 'none',
@@ -138,25 +138,12 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
             </span>
           </div>
 
-          <h1 style={{
-            fontFamily: "'Poppins', system-ui, sans-serif",
-            fontSize: 'clamp(2.8rem, 6vw, 5rem)',
-            fontWeight: 300,
-            lineHeight: 1.08,
-            letterSpacing: '-.03em',
-            color: 'var(--dark)',
-            marginBottom: '1.5rem',
-          }}>
+          <h1 className="display" style={{ color: 'var(--dark)', marginBottom: '1.5rem' }}>
             Ciencia del comportamiento{' '}
-            <em style={{ fontStyle: 'italic', fontWeight: 300 }}>sin complicaciones</em>
+            <strong>sin complicaciones</strong>
           </h1>
 
-          <p style={{
-            fontSize: 'clamp(1rem, 1.5vw, 1.15rem)',
-            color: 'var(--muted)',
-            lineHeight: 1.7,
-            maxWidth: 580,
-          }}>
+          <p className="t-lead" style={{ maxWidth: 580 }}>
             Artículos, guías y recursos para familias, estudiantes y profesionales que quieren entender cómo funciona el aprendizaje humano.
           </p>
         </div>
@@ -212,13 +199,14 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
                 </div>
 
                 <h2 style={{
-                  fontFamily: "'Poppins', system-ui, sans-serif",
-                  fontSize: 'clamp(1.8rem, 2.8vw, 2.5rem)',
-                  fontWeight: 400,
-                  letterSpacing: '-.025em',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 'clamp(1.75rem, 2.6vw, 2.25rem)',
+                  fontWeight: 800,
+                  letterSpacing: '-.03em',
                   lineHeight: 1.15,
                   color: '#fff',
-                }}>
+                  textWrap: 'balance',
+                } as React.CSSProperties}>
                   {featured.title}
                 </h2>
 
@@ -281,15 +269,8 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
               <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '.5rem' }}>
                 Todos los artículos
               </div>
-              <h2 style={{
-                fontFamily: "'Poppins', system-ui, sans-serif",
-                fontSize: 'clamp(1.8rem, 3vw, 2.4rem)',
-                fontWeight: 400,
-                letterSpacing: '-.025em',
-                lineHeight: 1.1,
-                color: 'var(--dark)',
-              }}>
-                Explora el <em style={{ fontStyle: 'italic' }}>archivo</em>
+              <h2 className="section-title" style={{ color: 'var(--dark)' }}>
+                Explora el <strong>archivo</strong>
               </h2>
             </div>
 
@@ -380,14 +361,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
                 </div>
 
                 <div style={{ padding: '1.4rem 1.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
-                  <h3 style={{
-                    fontFamily: "'Poppins', system-ui, sans-serif",
-                    fontSize: '1.22rem',
-                    fontWeight: 400,
-                    lineHeight: 1.25,
-                    letterSpacing: '-.015em',
-                    color: 'var(--dark)',
-                  }}>
+                  <h3 className="t-h3" style={{ color: 'var(--dark)' }}>
                     {p.title}
                   </h3>
 
@@ -449,14 +423,8 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
             <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '.6rem' }}>
               Navega por tema
             </div>
-            <h2 style={{
-              fontFamily: "'Poppins', system-ui, sans-serif",
-              fontSize: 'clamp(1.8rem, 3vw, 2.6rem)',
-              fontWeight: 400,
-              letterSpacing: '-.025em',
-              color: 'var(--dark)',
-            }}>
-              Encuentra lo que <em style={{ fontStyle: 'italic' }}>necesitas</em>
+            <h2 className="section-title" style={{ color: 'var(--dark)' }}>
+              Encuentra lo que <strong>necesitas</strong>
             </h2>
           </div>
 
@@ -507,14 +475,7 @@ export default function BlogClient({ posts }: { posts: Post[] }) {
 
                 <div>
                   <div style={{ fontSize: '1.8rem', marginBottom: '.8rem' }}>{CAT_ICONS[name]}</div>
-                  <h4 style={{
-                    fontFamily: "'Poppins', system-ui, sans-serif",
-                    fontSize: '1.4rem',
-                    fontWeight: 400,
-                    letterSpacing: '-.015em',
-                    color: colors.fg,
-                    lineHeight: 1.2,
-                  }}>
+                  <h4 className="t-h3" style={{ color: colors.fg }}>
                     {name}
                   </h4>
                 </div>
