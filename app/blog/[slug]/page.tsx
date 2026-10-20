@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 import { CopyLinkButton } from './CopyLinkButton'
 import { Nav, Footer, WspBubble } from '@/components/shared'
+import { BLOG_FONT, splitListItems } from '@/lib/blog/list-items'
 
 interface Block {
   id: string
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 // ── Renderizador de bloques ────────────────────────────────────────────────────
 
-function BlockRenderer({ block, index }: { block: Block; index: number }) {
+function BlockRenderer({ block, index, numberStart }: { block: Block; index: number; numberStart?: number }) {
   const { type, meta } = block
   // content puede ser string HTML, string plano, o en casos raros un objeto
   const rawContent = typeof block.content === 'string' ? block.content : ''
@@ -97,13 +98,13 @@ function BlockRenderer({ block, index }: { block: Block; index: number }) {
 
   if (!content) return null
 
-  if (type === 'heading1') return <h2 {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 700, letterSpacing: '-.02em', color: '#1a1a18', lineHeight: 1.25, margin: '52px 0 14px' }} />
-  if (type === 'heading2') return <h3 {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: '#1a1a18', lineHeight: 1.3, margin: '40px 0 10px' }} />
-  if (type === 'heading3') return <h4 {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#1a1a18', lineHeight: 1.4, margin: '28px 0 8px' }} />
+  if (type === 'heading1') return <h2 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 28, fontWeight: 700, letterSpacing: '-.02em', color: '#1a1a18', lineHeight: 1.25, margin: '52px 0 14px' }} />
+  if (type === 'heading2') return <h3 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 22, fontWeight: 700, color: '#1a1a18', lineHeight: 1.3, margin: '40px 0 10px' }} />
+  if (type === 'heading3') return <h4 {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 18, fontWeight: 700, color: '#1a1a18', lineHeight: 1.4, margin: '28px 0 8px' }} />
 
   if (type === 'quote') return (
     <blockquote style={{ margin: '36px 0', padding: '20px 24px', borderLeft: '4px solid #c4783c', background: 'linear-gradient(to right, #fdf6f0, transparent)', borderRadius: '0 10px 10px 0' }}>
-      <p {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 19, fontStyle: 'italic', color: '#4a4540', lineHeight: 1.7, margin: 0 }} />
+      <p {...sh} style={{ fontFamily: BLOG_FONT, fontSize: 19, fontStyle: 'italic', color: '#4a4540', lineHeight: 1.7, margin: 0 }} />
     </blockquote>
   )
 
@@ -114,18 +115,27 @@ function BlockRenderer({ block, index }: { block: Block; index: number }) {
     </div>
   )
 
+  // Cada línea/párrafo de una lista es su propio punto (antes salía todo en una sola viñeta)
   if (type === 'bullet') return (
-    <div style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start', paddingLeft: 4 }}>
-      <span style={{ color: '#c4783c', fontSize: 20, lineHeight: 1.7, flexShrink: 0 }}>•</span>
-      <p {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 17, color: '#2a2825', lineHeight: 1.75, margin: 0 }} />
-    </div>
+    <>
+      {splitListItems(content).map((item, i) => (
+        <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start', paddingLeft: 4 }}>
+          <span style={{ color: '#c4783c', fontSize: 20, lineHeight: 1.7, flexShrink: 0 }}>•</span>
+          <p dangerouslySetInnerHTML={{ __html: item }} style={{ fontFamily: BLOG_FONT, fontSize: 17, color: '#2a2825', lineHeight: 1.75, margin: 0 }} />
+        </div>
+      ))}
+    </>
   )
 
   if (type === 'numbered') return (
-    <div style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start', paddingLeft: 4 }}>
-      <span style={{ color: '#c4783c', fontSize: 14, fontWeight: 700, fontFamily: 'system-ui', flexShrink: 0, marginTop: 3, minWidth: 22 }}>{index + 1}.</span>
-      <p {...sh} style={{ fontFamily: 'Georgia, serif', fontSize: 17, color: '#2a2825', lineHeight: 1.75, margin: 0 }} />
-    </div>
+    <>
+      {splitListItems(content).map((item, i) => (
+        <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start', paddingLeft: 4 }}>
+          <span style={{ color: '#c4783c', fontSize: 14, fontWeight: 700, fontFamily: 'system-ui', flexShrink: 0, marginTop: 3, minWidth: 22 }}>{(numberStart ?? index + 1) + i}.</span>
+          <p dangerouslySetInnerHTML={{ __html: item }} style={{ fontFamily: BLOG_FONT, fontSize: 17, color: '#2a2825', lineHeight: 1.75, margin: 0 }} />
+        </div>
+      ))}
+    </>
   )
 
   if (type === 'code') return (
@@ -135,7 +145,7 @@ function BlockRenderer({ block, index }: { block: Block; index: number }) {
   )
 
   // Render as div (not p) so inline <ul>/<ol> from the editor are valid HTML
-  return <div {...sh} className="bp-paragraph" style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#2a2825', lineHeight: 1.85, margin: '0 0 24px' }} />
+  return <div {...sh} className="bp-paragraph" style={{ fontFamily: BLOG_FONT, fontSize: 18, color: '#2a2825', lineHeight: 1.85, margin: '0 0 24px' }} />
 }
 
 // ── Página principal ──────────────────────────────────────────────────────────
@@ -222,12 +232,12 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           margin-bottom: 18px; backdrop-filter: blur(8px); font-family: system-ui, sans-serif;
         }
         .bp-hero-title {
-          font-family: Georgia, serif; font-size: 52px; font-weight: 700;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 52px; font-weight: 700;
           color: #fff; line-height: 1.08; letter-spacing: -.025em;
           margin: 0 0 14px; text-shadow: 0 2px 24px rgba(0,0,0,.4); max-width: 720px;
         }
         .bp-hero-excerpt {
-          font-family: Georgia, serif; font-size: 19px; font-style: italic;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 19px; font-style: italic;
           color: rgba(255,255,255,.88); margin: 0; line-height: 1.55;
           text-shadow: 0 1px 10px rgba(0,0,0,.35); max-width: 580px;
         }
@@ -245,11 +255,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           margin-bottom: 20px; font-family: system-ui, sans-serif;
         }
         .bp-nc-title {
-          font-family: Georgia, serif; font-size: 48px; font-weight: 700;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 48px; font-weight: 700;
           color: #1a1a18; line-height: 1.1; letter-spacing: -.025em; margin: 0 0 16px;
         }
         .bp-nc-excerpt {
-          font-family: Georgia, serif; font-size: 19px; font-style: italic;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 19px; font-style: italic;
           color: #7a7168; margin: 0; line-height: 1.6;
         }
 
@@ -280,6 +290,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         /* Contenido artículo */
         .bp-content { min-width: 0; }
         .bp-content-inner { overflow: hidden; }
+        /* Texto pegado desde Word/Docs trae su propia fuente en línea: se ignora
+           para que todo el artículo use la tipografía del sitio */
+        .bp-content :not(pre):not(code)[style*="font-family"], .bp-content font[face] { font-family: inherit !important; }
         .bp-content-inner::after { content: ''; display: table; clear: both; }
 
         /* Sidebar */
@@ -345,10 +358,10 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         }
 
         /* Texto lateral imagen */
-        .bp-side-text { font-family: Georgia, serif; font-size: 17px; line-height: 1.8; color: #2a2825; }
+        .bp-side-text { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 17px; line-height: 1.8; color: #2a2825; }
         .bp-side-text p { margin: 0 0 16px; }
-        .bp-side-text h1, .bp-side-text h2 { font-family: Georgia, serif; font-size: 22px; font-weight: 700; color: #1a1a18; line-height: 1.3; margin: 0 0 12px; }
-        .bp-side-text h3 { font-family: Georgia, serif; font-size: 18px; font-weight: 700; color: #1a1a18; margin: 0 0 10px; }
+        .bp-side-text h1, .bp-side-text h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; color: #1a1a18; line-height: 1.3; margin: 0 0 12px; }
+        .bp-side-text h3 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 18px; font-weight: 700; color: #1a1a18; margin: 0 0 10px; }
         .bp-side-text strong, .bp-side-text b { font-weight: 700; color: #1a1a18; }
 
         /* ── Inline lists, links and styles dentro de párrafos del editor ── */
@@ -378,7 +391,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         /* Artículos relacionados */
         .bp-related { max-width: 1280px; margin: 0 auto; padding: 0 60px 100px; }
         .bp-related-title {
-          font-family: Georgia, serif; font-size: 28px; font-weight: 700;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 28px; font-weight: 700;
           color: #1a1a18; margin-bottom: 28px;
         }
         .bp-related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -391,7 +404,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         .bp-related-img { width: 100%; height: 180px; object-fit: cover; display: block; }
         .bp-related-body { padding: 20px 22px; }
         .bp-related-cat { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #c4783c; margin-bottom: 8px; font-family: system-ui, sans-serif; }
-        .bp-related-ttl { font-family: Georgia, serif; font-size: 16px; font-weight: 700; color: #1a1a18; line-height: 1.35; margin-bottom: 10px; }
+        .bp-related-ttl { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #1a1a18; line-height: 1.35; margin-bottom: 10px; }
         .bp-related-meta { font-size: 12px; color: #9a9186; font-family: system-ui, sans-serif; }
 
         /* Responsive */
@@ -469,7 +482,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             <article className="bp-content" id="post-content">
               <div className="bp-content-inner">
                 {blocks.length === 0 ? (
-                  <p style={{ color: '#9a9186', fontStyle: 'italic', fontFamily: 'Georgia, serif', fontSize: 18 }}>
+                  <p style={{ color: '#9a9186', fontStyle: 'italic', fontFamily: BLOG_FONT, fontSize: 18 }}>
                     Este artículo aún no tiene contenido publicado.
                   </p>
                 ) : (
@@ -489,9 +502,16 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                             <div style={{ flex:1, height:1, background:'#ddd8cf' }} />
                           </div>
                         )}
-                        {visibleBlocks.map((block, i) => (
-                          <BlockRenderer key={block.id || i} block={block} index={i} />
-                        ))}
+                        {(() => {
+                          // Numeración continua entre bloques "Lista numerada" seguidos
+                          let n = 1
+                          return visibleBlocks.map((block, i) => {
+                            if (block.type !== 'numbered') { n = 1; return <BlockRenderer key={block.id || i} block={block} index={i} /> }
+                            const start = n
+                            n += Math.max(1, splitListItems(typeof block.content === 'string' ? block.content : '').length)
+                            return <BlockRenderer key={block.id || i} block={block} index={i} numberStart={start} />
+                          })
+                        })()}
                       </div>
                     )
                   })

@@ -14,6 +14,7 @@ import { useState, useRef, useCallback, useLayoutEffect, useEffect } from 'react
 import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { BLOG_FONT, splitListItems } from '@/lib/blog/list-items'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -393,7 +394,7 @@ function SideTextArea({ blockId, value, onChange, placeholder }: {
       {empty && !focused && (
         <div style={{
           position:'absolute', top:0, left:0, pointerEvents:'none',
-          color:'#ccc', fontFamily:'Georgia, serif', fontSize:16,
+          color:'#ccc', fontFamily:BLOG_FONT, fontSize:16,
           lineHeight:1.75, userSelect:'none',
         }}>{placeholder}</div>
       )}
@@ -408,7 +409,7 @@ function SideTextArea({ blockId, value, onChange, placeholder }: {
         onKeyUp={saveRange}
         style={{
           outline:'none', minHeight:40, wordBreak:'break-word',
-          fontFamily:'Georgia, serif', fontSize:16, lineHeight:1.75,
+          fontFamily:BLOG_FONT, fontSize:16, lineHeight:1.75,
           color:'#2a2825',
         }}
       />
@@ -585,6 +586,83 @@ function ImageBlock({ block, onUpdateMeta, sb }: {
   )
 }
 
+// ── ListItemsEditor ───────────────────────────────────────────────────────────
+// Una "Lista viñeta" puede tener varios puntos: cada uno es una fila con su
+// propia viñeta. Enter crea un punto nuevo, Backspace en un punto vacío lo
+// borra y al pegar texto con varios párrafos se separa en un punto por párrafo.
+// Se guarda como texto con un punto por línea (la página pública lo separa igual).
+
+function ListItemsEditor({ numbered, content, onChange }: {
+  numbered: boolean
+  content: string
+  onChange: (content: string) => void
+}) {
+  const [items, setItems] = useState<string[]>(() => {
+    const parsed = splitListItems(content || '').map(i => i.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' '))
+    return parsed.length ? parsed : ['']
+  })
+  const refs = useRef<(HTMLTextAreaElement | null)[]>([])
+  const focusIdx = useRef<number | null>(null)
+
+  useLayoutEffect(() => {
+    refs.current.forEach(t => { if (t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px' } })
+    if (focusIdx.current !== null) {
+      const t = refs.current[focusIdx.current]
+      if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length) }
+      focusIdx.current = null
+    }
+  }, [items])
+
+  function commit(next: string[], focus?: number) {
+    if (focus !== undefined) focusIdx.current = focus
+    setItems(next)
+    onChange(next.join('\n'))
+  }
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+          {numbered
+            ? <span style={{ color:'#c4783c', fontSize:14, fontWeight:700, fontFamily:'system-ui', lineHeight:'1.75', flexShrink:0, minWidth:22, marginTop:1, userSelect:'none' }}>{i + 1}.</span>
+            : <span style={{ color:'#c4783c', fontSize:20, lineHeight:'1.6', flexShrink:0, marginTop:2, userSelect:'none' }}>•</span>}
+          <textarea
+            ref={el => { refs.current[i] = el }}
+            value={item}
+            rows={1}
+            placeholder={i === 0 ? (numbered ? 'Punto numerado… (Enter = nuevo punto)' : 'Punto de lista… (Enter = nuevo punto)') : ''}
+            onChange={e => commit(items.map((it, j) => j === i ? e.target.value : it))}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                const t = e.currentTarget
+                const before = item.slice(0, t.selectionStart), after = item.slice(t.selectionEnd)
+                commit([...items.slice(0, i), before, after, ...items.slice(i + 1)], i + 1)
+              } else if (e.key === 'Backspace' && item === '' && items.length > 1) {
+                e.preventDefault()
+                commit(items.filter((_, j) => j !== i), Math.max(0, i - 1))
+              }
+            }}
+            onPaste={e => {
+              const text = e.clipboardData.getData('text/plain')
+              if (!/\n/.test(text)) return
+              e.preventDefault()
+              const parts = text.split(/\r?\n/).map(x => x.trim()).filter(Boolean)
+              if (!parts.length) return
+              const t = e.currentTarget
+              const before = item.slice(0, t.selectionStart), after = item.slice(t.selectionEnd)
+              parts[0] = before + parts[0]
+              parts[parts.length - 1] = parts[parts.length - 1] + after
+              commit([...items.slice(0, i), ...parts, ...items.slice(i + 1)], i + parts.length - 1)
+            }}
+            style={{ flex:1, border:'none', outline:'none', resize:'none', fontFamily:BLOG_FONT, fontSize:16, color:'#2a2825', background:'transparent', lineHeight:1.75, padding:0, overflow:'hidden' }}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── BlockContent ──────────────────────────────────────────────────────────────
 
 function BlockContent({ block, upd, updMeta, sb }: {
@@ -599,14 +677,14 @@ function BlockContent({ block, upd, updMeta, sb }: {
     onCommit: (html: string) => upd({ content: html }),
   })
 
-  if (block.type==='paragraph') return <RichTextArea {...rte('Escribe aquí...', { fontFamily:'Georgia, serif', fontSize:16, color:'#2a2825' })} />
-  if (block.type==='heading1')  return <RichTextArea {...rte('Título H1...', { fontFamily:'Georgia, serif', fontSize:30, fontWeight:'700', lineHeight:'1.2', color:'#1a1a18' })} />
-  if (block.type==='heading2')  return <RichTextArea {...rte('Título H2...', { fontFamily:'Georgia, serif', fontSize:22, fontWeight:'700', color:'#1a1a18' })} />
-  if (block.type==='heading3')  return <RichTextArea {...rte('Subtítulo H3...', { fontFamily:'Georgia, serif', fontSize:17, fontWeight:'700', color:'#1a1a18' })} />
+  if (block.type==='paragraph') return <RichTextArea {...rte('Escribe aquí...', { fontFamily:BLOG_FONT, fontSize:16, color:'#2a2825' })} />
+  if (block.type==='heading1')  return <RichTextArea {...rte('Título H1...', { fontFamily:BLOG_FONT, fontSize:30, fontWeight:'700', lineHeight:'1.2', color:'#1a1a18' })} />
+  if (block.type==='heading2')  return <RichTextArea {...rte('Título H2...', { fontFamily:BLOG_FONT, fontSize:22, fontWeight:'700', color:'#1a1a18' })} />
+  if (block.type==='heading3')  return <RichTextArea {...rte('Subtítulo H3...', { fontFamily:BLOG_FONT, fontSize:17, fontWeight:'700', color:'#1a1a18' })} />
 
   if (block.type==='quote') return (
     <div style={{ borderLeft:'4px solid #c4783c', paddingLeft:16, background:'linear-gradient(to right,#fdf6f0,transparent)', padding:'12px 16px', borderLeftWidth:4, borderLeftStyle:'solid', borderLeftColor:'#c4783c', borderRadius:'0 8px 8px 0' }}>
-      <RichTextArea {...rte('Una cita importante...', { fontFamily:'Georgia, serif', fontSize:17, fontStyle:'italic', color:'#4a4540' })} />
+      <RichTextArea {...rte('Una cita importante...', { fontFamily:BLOG_FONT, fontSize:17, fontStyle:'italic', color:'#4a4540' })} />
     </div>
   )
   if (block.type==='callout') {
@@ -632,31 +710,13 @@ function BlockContent({ block, upd, updMeta, sb }: {
       </div>
     )
   }
-  if (block.type==='bullet') return (
-    <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
-      <span style={{ color:'#c4783c', fontSize:20, lineHeight:'1.6', flexShrink:0, marginTop:2, userSelect:'none' }}>•</span>
-      <textarea
-        value={block.content.replace(/<[^>]+>/g, '')}
-        onChange={e => upd({ content: e.target.value })}
-        placeholder="Punto de lista..."
-        rows={Math.max(1, Math.ceil((block.content.replace(/<[^>]+>/g, '').length || 1) / 60))}
-        style={{ flex:1, border:'none', outline:'none', resize:'none', fontFamily:'Georgia, serif', fontSize:16, color:'#2a2825', background:'transparent', lineHeight:1.75, padding:0, overflow:'hidden' }}
-        onInput={e => { const t = e.currentTarget; t.style.height='auto'; t.style.height=t.scrollHeight+'px' }}
-      />
-    </div>
-  )
-  if (block.type==='numbered') return (
-    <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
-      <span style={{ color:'#c4783c', fontSize:14, fontWeight:700, fontFamily:'system-ui', lineHeight:'1.75', flexShrink:0, minWidth:22, marginTop:1, userSelect:'none' }}>1.</span>
-      <textarea
-        value={block.content.replace(/<[^>]+>/g, '')}
-        onChange={e => upd({ content: e.target.value })}
-        placeholder="Punto numerado..."
-        rows={Math.max(1, Math.ceil((block.content.replace(/<[^>]+>/g, '').length || 1) / 60))}
-        style={{ flex:1, border:'none', outline:'none', resize:'none', fontFamily:'Georgia, serif', fontSize:16, color:'#2a2825', background:'transparent', lineHeight:1.75, padding:0, overflow:'hidden' }}
-        onInput={e => { const t = e.currentTarget; t.style.height='auto'; t.style.height=t.scrollHeight+'px' }}
-      />
-    </div>
+  if (block.type==='bullet' || block.type==='numbered') return (
+    <ListItemsEditor
+      key={block.id}
+      numbered={block.type==='numbered'}
+      content={block.content}
+      onChange={content => upd({ content })}
+    />
   )
   if (block.type==='code') return (
     <textarea value={block.content} onChange={e => upd({ content: e.target.value })}
@@ -934,7 +994,7 @@ function PreviewBlock({ block, index }: { block: Block; index: number }) {
           </figure>
           <div
             dangerouslySetInnerHTML={{ __html: meta.sideText }}
-            style={{ fontFamily:'Georgia, serif', fontSize:17, lineHeight:1.8, color:'#2a2825' }}
+            style={{ fontFamily:BLOG_FONT, fontSize:17, lineHeight:1.8, color:'#2a2825' }}
           />
           <div style={{ clear:'both' }} />
         </div>
@@ -954,12 +1014,12 @@ function PreviewBlock({ block, index }: { block: Block; index: number }) {
     )
   }
   if (!content) return null
-  if (type==='heading1') return <h2 {...sh} style={{ fontFamily:'Georgia,serif', fontSize:30, fontWeight:700, color:'#1a1a18', lineHeight:1.25, margin:'48px 0 12px', letterSpacing:'-.025em' }} />
-  if (type==='heading2') return <h3 {...sh} style={{ fontFamily:'Georgia,serif', fontSize:22, fontWeight:700, color:'#1a1a18', lineHeight:1.3, margin:'36px 0 10px', letterSpacing:'-.015em' }} />
-  if (type==='heading3') return <h4 {...sh} style={{ fontFamily:'Georgia,serif', fontSize:18, fontWeight:700, color:'#1a1a18', lineHeight:1.4, margin:'28px 0 8px' }} />
+  if (type==='heading1') return <h2 {...sh} style={{ fontFamily:BLOG_FONT, fontSize:30, fontWeight:700, color:'#1a1a18', lineHeight:1.25, margin:'48px 0 12px', letterSpacing:'-.025em' }} />
+  if (type==='heading2') return <h3 {...sh} style={{ fontFamily:BLOG_FONT, fontSize:22, fontWeight:700, color:'#1a1a18', lineHeight:1.3, margin:'36px 0 10px', letterSpacing:'-.015em' }} />
+  if (type==='heading3') return <h4 {...sh} style={{ fontFamily:BLOG_FONT, fontSize:18, fontWeight:700, color:'#1a1a18', lineHeight:1.4, margin:'28px 0 8px' }} />
   if (type==='quote') return (
     <blockquote style={{ margin:'32px 0', paddingLeft:20, borderLeft:'3px solid #c4783c' }}>
-      <p {...sh} style={{ fontFamily:'Georgia,serif', fontSize:20, fontStyle:'italic', color:'#4a4540', lineHeight:1.7, margin:0 }} />
+      <p {...sh} style={{ fontFamily:BLOG_FONT, fontSize:20, fontStyle:'italic', color:'#4a4540', lineHeight:1.7, margin:0 }} />
     </blockquote>
   )
   if (type==='callout') return (
@@ -968,24 +1028,24 @@ function PreviewBlock({ block, index }: { block: Block; index: number }) {
       <p {...sh} style={{ fontFamily:'system-ui,sans-serif', fontSize:15, color:'#5c3d1e', lineHeight:1.65, margin:0 }} />
     </div>
   )
-  if (type==='bullet') return (
-    <div style={{ display:'flex', gap:10, marginBottom:8, alignItems:'flex-start', paddingLeft:4 }}>
-      <span style={{ color:'#c4783c', fontSize:20, lineHeight:1.7, flexShrink:0 }}>•</span>
-      <p {...sh} style={{ fontFamily:'Georgia,serif', fontSize:17, color:'#2a2825', lineHeight:1.75, margin:0 }} />
-    </div>
-  )
-  if (type==='numbered') return (
-    <div style={{ display:'flex', gap:10, marginBottom:8, alignItems:'flex-start', paddingLeft:4 }}>
-      <span style={{ color:'#c4783c', fontSize:14, fontWeight:700, fontFamily:'system-ui', flexShrink:0, marginTop:3, minWidth:22 }}>{index+1}.</span>
-      <p {...sh} style={{ fontFamily:'Georgia,serif', fontSize:17, color:'#2a2825', lineHeight:1.75, margin:0 }} />
-    </div>
+  if (type==='bullet' || type==='numbered') return (
+    <>
+      {splitListItems(content).map((item, i) => (
+        <div key={i} style={{ display:'flex', gap:10, marginBottom:8, alignItems:'flex-start', paddingLeft:4 }}>
+          {type==='numbered'
+            ? <span style={{ color:'#c4783c', fontSize:14, fontWeight:700, fontFamily:'system-ui', flexShrink:0, marginTop:3, minWidth:22 }}>{i+1}.</span>
+            : <span style={{ color:'#c4783c', fontSize:20, lineHeight:1.7, flexShrink:0 }}>•</span>}
+          <p dangerouslySetInnerHTML={{ __html: item }} style={{ fontFamily:BLOG_FONT, fontSize:17, color:'#2a2825', lineHeight:1.75, margin:0 }} />
+        </div>
+      ))}
+    </>
   )
   if (type==='code') return (
     <pre style={{ background:'#1c1c1a', borderRadius:12, padding:'18px 22px', overflow:'auto', margin:'28px 0' }}>
       <code style={{ fontFamily:"'Fira Mono',Consolas,monospace", fontSize:13, color:'#d4d4d4', lineHeight:1.65 }}>{content}</code>
     </pre>
   )
-  return <p {...sh} style={{ fontFamily:'Georgia,serif', fontSize:18, color:'#2a2825', lineHeight:1.8, margin:'0 0 22px' }} />
+  return <p {...sh} style={{ fontFamily:BLOG_FONT, fontSize:18, color:'#2a2825', lineHeight:1.8, margin:'0 0 22px' }} />
 }
 
 // ── BlogPostEditor (principal) ────────────────────────────────────────────────
@@ -1474,9 +1534,9 @@ const CSS = `
 .v6-url-inp:focus{border-color:var(--brand);}
 
 /* Título */
-.v6-title{width:100%;border:none;outline:none;background:transparent;font-family:Georgia,serif;font-size:46px;font-weight:700;line-height:1.12;color:var(--ink);letter-spacing:-.03em;margin-bottom:12px;}
+.v6-title{width:100%;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:46px;font-weight:700;line-height:1.12;color:var(--ink);letter-spacing:-.03em;margin-bottom:12px;}
 .v6-title::placeholder{color:#ddd;}
-.v6-excerpt{width:100%;border:none;outline:none;background:transparent;font-family:Georgia,serif;font-size:19px;line-height:1.6;color:var(--muted);margin-bottom:28px;font-style:italic;}
+.v6-excerpt{width:100%;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:19px;line-height:1.6;color:var(--muted);margin-bottom:28px;font-style:italic;}
 .v6-excerpt::placeholder{color:#e0dbd4;}
 .v6-hr{border:none;border-top:1.5px solid var(--border);margin-bottom:24px;}
 
@@ -1503,8 +1563,8 @@ const CSS = `
 .v6-prev-cover{width:100%;height:340px;border-radius:18px;overflow:hidden;margin-bottom:36px;}
 .v6-prev-cover img{width:100%;height:100%;object-fit:cover;}
 .v6-prev-cat{display:inline-flex;padding:4px 14px;border-radius:20px;background:#e9d5c0;color:#7a3e10;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px;}
-.v6-prev-title{font-family:Georgia,serif;font-size:42px;font-weight:700;line-height:1.14;letter-spacing:-.03em;color:var(--ink);margin:0 0 14px;}
-.v6-prev-ex{font-family:Georgia,serif;font-size:19px;font-style:italic;color:var(--muted);line-height:1.6;border-left:3px solid var(--brand);padding-left:18px;margin:0 0 24px;}
+.v6-prev-title{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:42px;font-weight:700;line-height:1.14;letter-spacing:-.03em;color:var(--ink);margin:0 0 14px;}
+.v6-prev-ex{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:19px;font-style:italic;color:var(--muted);line-height:1.6;border-left:3px solid var(--brand);padding-left:18px;margin:0 0 24px;}
 .v6-prev-meta{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border);}
 .v6-prev-av{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .v6-prev-tag{padding:3px 10px;background:var(--brand-l);color:var(--brand);border-radius:20px;font-size:11px;font-weight:700;}
