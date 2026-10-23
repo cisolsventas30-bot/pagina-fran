@@ -25,6 +25,9 @@ export async function POST(req: NextRequest) {
   let earnedPoints = 0
   let needsReview = false
 
+  // 1. Creamos una lista para guardar el resultado de cada pregunta
+  const questionResults: Record<string, { isCorrect: boolean | null; pointsEarned: number }> = {}
+
   for (const ans of (attempt.attempt_answers as any[])) {
     const q = ans.questions
     totalPoints += q.points
@@ -59,6 +62,13 @@ export async function POST(req: NextRequest) {
     }
 
     earnedPoints += pointsEarned
+
+    // 2. Guardamos únicamente si acertó o no (NUNCA agregamos q.correct_answer aquí)
+    questionResults[ans.question_id] = {
+      isCorrect,
+      pointsEarned,
+    }
+
     await supabase
       .from('attempt_answers')
       .update({ is_correct: isCorrect, points_earned: pointsEarned })
@@ -77,7 +87,6 @@ export async function POST(req: NextRequest) {
     })
     .eq('id', attemptId)
 
-  // Si tiene ensayos pendientes de revisión, notifica a admins
   if (needsReview) {
     await notifyAllAdmins({
       type: 'quiz_review',
@@ -87,5 +96,11 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  return NextResponse.json({ score, passed, needsReview })
+  // 3. Enviamos questionResults de regreso al frontend
+  return NextResponse.json({
+    score,
+    passed,
+    needsReview,
+    questionResults,
+  })
 }
