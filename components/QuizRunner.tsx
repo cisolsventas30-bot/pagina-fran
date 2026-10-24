@@ -13,6 +13,13 @@ type Question = {
   points: number
 }
 
+type SubmissionResult = {
+  score: number
+  passed: boolean
+  needsReview: boolean
+  questionResults?: Record<string, { isCorrect: boolean | null; pointsEarned: number }>
+}
+
 type Props = {
   quizId: string
   quizTitle: string
@@ -53,9 +60,14 @@ export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions,
       method: 'POST',
       body: JSON.stringify({ attemptId: attempt.id }),
     })
-    const data = await res.json()
+    const data: SubmissionResult = await res.json()
     setResult(data)
     setSubmitting(false)
+  }
+function handleRetry() {
+    setResult(null)
+    setAnswers({})
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   if (result) {
@@ -79,6 +91,70 @@ export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions,
         <p className="text-sm text-ink-500">
           Umbral de aprobación: {passingScore}%
         </p>
+        {!result.passed && !result.needsReview && (
+          <div className="pt-2">
+            <button
+              onClick={handleRetry}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink-900 text-white text-sm font-semibold hover:bg-ink-800 transition-colors shadow-sm"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Volver a intentar
+            </button>
+          </div>
+        )}
+
+        {/* Desglose de retroalimentación sin revelar claves correctas */}
+        {result.questionResults && !result.needsReview && (
+          <div className="mt-10 pt-6 border-t border-ink-200 text-left space-y-4">
+            <h3 className="text-lg font-bold text-ink-900 mb-3">
+              Revisión de tu intento:
+            </h3>
+
+            {questions.map((q, idx) => {
+              const resInfo = result.questionResults?.[q.id]
+              const isWrong = resInfo?.isCorrect === false
+              const isRight = resInfo?.isCorrect === true
+  
+
+  return (
+                <div
+                  key={q.id}
+                  className={`p-4 rounded-xl border transition-all ${
+                    isWrong
+                      ? 'bg-red-50/70 border-red-200 text-red-950'
+                      : isRight
+                      ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+                      : 'bg-stone-50 border-stone-200 text-stone-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between font-semibold text-sm mb-1">
+                    <span>Pregunta {idx + 1}</span>
+                    {isWrong && (
+                      <span className="text-xs bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full font-bold">
+                        Incorrecta ✕
+                      </span>
+                    )}
+                    {isRight && (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold">
+                        Correcta ✓
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-sm text-ink-800 mt-1">
+                    {q.question_text}
+                  </p>
+
+                  {isWrong && (
+                    <p className="text-xs text-red-600 font-medium mt-2">
+                      ⚠️ Respuesta incorrecta. Te sugerimos repasar los contenidos y lecturas de este módulo antes de volver a intentarlo[cite: 7].
+                    </p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     )
   }
