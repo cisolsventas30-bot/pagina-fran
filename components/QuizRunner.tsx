@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle2, XCircle, FileText } from 'lucide-react'
+import { CheckCircle2, XCircle, FileText, RotateCcw } from 'lucide-react'
 import { CapyMascot } from '@/components/ui/CapyLogo'
 
 type Question = {
   id: string
-  type: 'single_choice' | 'multiple_choice' | 'true_false' | 'short_answer' | 'essay'
+  type: 'single_choice' | 'multiple_choice' | 'true_false' | 'short_answer' | 'essay' | string
   question_text: string
-  options?: { id: string; text: string }[]
+  options?: any
   points: number
 }
 
@@ -31,7 +31,7 @@ type Props = {
 export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions, passingScore }: Props) {
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [submitting, setSubmitting] = useState(false)
-  const [result, setResult] = useState<{ score: number; passed: boolean; needsReview: boolean } | null>(null)
+  const [result, setResult] = useState<SubmissionResult | null>(null)
 
   async function submit() {
     setSubmitting(true)
@@ -47,7 +47,10 @@ export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions,
       .select()
       .single()
 
-    if (!attempt) { setSubmitting(false); return }
+    if (!attempt) { 
+      setSubmitting(false)
+      return 
+    }
 
     const answerRows = questions.map((q) => ({
       attempt_id: attempt.id,
@@ -64,33 +67,45 @@ export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions,
     setResult(data)
     setSubmitting(false)
   }
-function handleRetry() {
+
+  function handleRetry() {
     setResult(null)
     setAnswers({})
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   if (result) {
     return (
-      <div className="max-w-2xl mx-auto p-8 text-center">
-        <CapyMascot size={160} className="mx-auto mb-6" />
-        <h2 className="text-3xl font-bold mb-2">
-          {result.needsReview ? 'Enviado para revisión' : result.passed ? '¡Aprobado!' : 'No aprobado'}
+      <div className="max-w-2xl mx-auto p-8 text-center space-y-6">
+        <CapyMascot size={160} className="mx-auto mb-2" />
+        
+        <h2 className="text-3xl font-bold">
+          {result.needsReview 
+            ? 'Enviado para revisión' 
+            : result.passed 
+            ? '¡Aprobado!' 
+            : 'No aprobado'}
         </h2>
+
         {!result.needsReview && (
-          <p className={`text-5xl font-semibold my-6 ${result.passed ? 'text-mocha-600' : 'text-red-600'}`}>
+          <p className={`text-5xl font-semibold my-4 ${result.passed ? 'text-mocha-600' : 'text-red-600'}`}>
             {result.score.toFixed(1)}%
           </p>
         )}
+
         {result.needsReview && (
-          <p className="text-ink-600 my-6">
+          <p className="text-ink-600 my-4">
             Tu examen contiene preguntas que requieren revisión manual.
             Tu instructor calificará pronto.
           </p>
         )}
+
         <p className="text-sm text-ink-500">
-          Umbral de aprobación: {passingScore}%
+          Nota mínima para aprobar: {passingScore}%
         </p>
+
         {!result.passed && !result.needsReview && (
           <div className="pt-2">
             <button
@@ -103,7 +118,7 @@ function handleRetry() {
           </div>
         )}
 
-        {/* Desglose de retroalimentación sin revelar claves correctas */}
+        {/* Desglose de preguntas falladas sin revelar la respuesta correcta */}
         {result.questionResults && !result.needsReview && (
           <div className="mt-10 pt-6 border-t border-ink-200 text-left space-y-4">
             <h3 className="text-lg font-bold text-ink-900 mb-3">
@@ -114,9 +129,8 @@ function handleRetry() {
               const resInfo = result.questionResults?.[q.id]
               const isWrong = resInfo?.isCorrect === false
               const isRight = resInfo?.isCorrect === true
-  
 
-  return (
+              return (
                 <div
                   key={q.id}
                   className={`p-4 rounded-xl border transition-all ${
@@ -147,7 +161,7 @@ function handleRetry() {
 
                   {isWrong && (
                     <p className="text-xs text-red-600 font-medium mt-2">
-                      ⚠️ Respuesta incorrecta. Te sugerimos repasar los contenidos y lecturas de este módulo antes de volver a intentarlo[cite: 7].
+                      ⚠️ Respuesta incorrecta. Te sugerimos repasar los contenidos y lecturas de este módulo antes de volver a intentarlo.
                     </p>
                   )}
                 </div>
@@ -177,7 +191,7 @@ function handleRetry() {
 
           {q.type === 'single_choice' && (
             <div className="space-y-2">
-              {q.options?.map((opt) => (
+              {(q.options as any[])?.map((opt: any) => (
                 <label key={opt.id} className="flex items-center gap-3 cursor-pointer p-3 rounded-md border border-ink-200 hover:bg-mocha-50 has-[:checked]:bg-mocha-50 has-[:checked]:border-mocha-400">
                   <input
                     type="radio" name={q.id} value={opt.id}
@@ -192,7 +206,7 @@ function handleRetry() {
 
           {q.type === 'multiple_choice' && (
             <div className="space-y-2">
-              {q.options?.map((opt) => {
+              {(q.options as any[])?.map((opt: any) => {
                 const selected = (answers[q.id] || []) as string[]
                 return (
                   <label key={opt.id} className="flex items-center gap-3 cursor-pointer p-3 rounded-md border border-ink-200 hover:bg-mocha-50 has-[:checked]:bg-mocha-50 has-[:checked]:border-mocha-400">
