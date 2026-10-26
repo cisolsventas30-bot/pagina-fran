@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import QuizFeedback from '@/components/QuizFeedback'
 import { CheckCircle2, XCircle, FileText } from 'lucide-react'
 import { CapyMascot } from '@/components/ui/CapyLogo'
 
@@ -24,38 +25,50 @@ type Props = {
 export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions, passingScore }: Props) {
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [submitting, setSubmitting] = useState(false)
+  const [attemptId, setAttemptId] = useState<string>()
+  const [submitError, setSubmitError] = useState('')
   const [result, setResult] = useState<{ score: number; passed: boolean; needsReview: boolean } | null>(null)
 
   async function submit() {
     setSubmitting(true)
-    const supabase = createClient()
+    setSubmitError('')
+    try {
+      const supabase = createClient()
 
-    const { data: attempt } = await supabase
-      .from('quiz_attempts')
-      .insert({
-        enrollment_id: enrollmentId,
-        quiz_id: quizId,
-        started_at: new Date().toISOString(),
+      const { data: attempt } = await supabase
+        .from('quiz_attempts')
+        .insert({
+          enrollment_id: enrollmentId,
+          quiz_id: quizId,
+          started_at: new Date().toISOString(),
+        })
+        .select()
+        .single()
+
+      if (!attempt) throw new Error('No se pudo crear el intento. Vuelve a intentar.')
+
+      const answerRows = questions.map((q) => ({
+        attempt_id: attempt.id,
+        question_id: q.id,
+        answer: answers[q.id] ?? null,
+      }))
+      const { error: answersError } = await supabase.from('attempt_answers').insert(answerRows)
+      if (answersError) throw new Error('No se pudieron guardar las respuestas. Vuelve a intentar.')
+
+      const res = await fetch('/api/quiz/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attemptId: attempt.id }),
       })
-      .select()
-      .single()
-
-    if (!attempt) { setSubmitting(false); return }
-
-    const answerRows = questions.map((q) => ({
-      attempt_id: attempt.id,
-      question_id: q.id,
-      answer: answers[q.id] ?? null,
-    }))
-    await supabase.from('attempt_answers').insert(answerRows)
-
-    const res = await fetch('/api/quiz/grade', {
-      method: 'POST',
-      body: JSON.stringify({ attemptId: attempt.id }),
-    })
-    const data = await res.json()
-    setResult(data)
-    setSubmitting(false)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'No se pudo calificar el intento.')
+      setAttemptId(attempt.id)
+      setResult(data)
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'No se pudo enviar. Vuelve a intentar.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (result) {
@@ -79,6 +92,7 @@ export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions,
         <p className="text-sm text-ink-500">
           Umbral de aprobación: {passingScore}%
         </p>
+        {attemptId && <QuizFeedback attemptId={attemptId} />}
       </div>
     )
   }
@@ -191,6 +205,7 @@ export default function QuizRunner({ quizId, quizTitle, enrollmentId, questions,
       >
         {submitting ? 'Enviando...' : 'Enviar respuestas'}
       </button>
+      {submitError && <p role="alert" className="text-red-700">{submitError}</p>}
     </div>
   )
 }

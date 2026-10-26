@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import QuizFeedback from '@/components/QuizFeedback'
 import { CheckCircle2, XCircle, FileText, AlertCircle, RefreshCw } from 'lucide-react'
 
 type Question = {
@@ -15,7 +16,7 @@ type Question = {
 type Props = {
   quizId: string
   enrollmentId: string
-  existingAttempt?: { score: number; passed: boolean; submitted_at: string }
+  existingAttempt?: { id: string; score: number; passed: boolean; needs_review: boolean; submitted_at: string }
   onSubmitted: (attempt: any) => void
 }
 
@@ -28,11 +29,13 @@ export default function QuizInline({ quizId, enrollmentId, existingAttempt, onSu
     existingAttempt ? {
       score: existingAttempt.score,
       passed: existingAttempt.passed,
-      needsReview: false,
+      needsReview: existingAttempt.needs_review,
     } : null
   )
   const [loading, setLoading] = useState(true)
   const [retaking, setRetaking] = useState(false)
+  const [attemptId, setAttemptId] = useState(existingAttempt?.id)
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -51,42 +54,54 @@ export default function QuizInline({ quizId, enrollmentId, existingAttempt, onSu
 
   async function submit() {
     setSubmitting(true)
-    const supabase = createClient()
+    setSubmitError('')
+    try {
+      const supabase = createClient()
 
-    const { data: attempt } = await supabase
-      .from('quiz_attempts')
-      .insert({
-        enrollment_id: enrollmentId,
-        quiz_id: quizId,
-        started_at: new Date().toISOString(),
+      const { data: attempt } = await supabase
+        .from('quiz_attempts')
+        .insert({
+          enrollment_id: enrollmentId,
+          quiz_id: quizId,
+          started_at: new Date().toISOString(),
+        })
+        .select()
+        .single()
+
+      if (!attempt) throw new Error('No se pudo crear el intento. Vuelve a intentar.')
+
+      const answerRows = questions.map((q) => ({
+        attempt_id: attempt.id,
+        question_id: q.id,
+        answer: answers[q.id] ?? null,
+      }))
+      const { error: answersError } = await supabase.from('attempt_answers').insert(answerRows)
+      if (answersError) throw new Error('No se pudieron guardar las respuestas. Vuelve a intentar.')
+
+      const res = await fetch('/api/quiz/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attemptId: attempt.id }),
       })
-      .select()
-      .single()
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'No se pudo calificar el intento.')
+      setAttemptId(attempt.id)
+      setResult(data)
+      setRetaking(false)
 
-    if (!attempt) { setSubmitting(false); return }
-
-    const answerRows = questions.map((q) => ({
-      attempt_id: attempt.id,
-      question_id: q.id,
-      answer: answers[q.id] ?? null,
-    }))
-    await supabase.from('attempt_answers').insert(answerRows)
-
-    const res = await fetch('/api/quiz/grade', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ attemptId: attempt.id }),
-    })
-    const data = await res.json()
-    setResult(data)
-    setSubmitting(false)
-
-    onSubmitted({
-      quiz_id: quizId,
-      score: data.score,
-      passed: data.passed,
-      submitted_at: new Date().toISOString(),
-    })
+      onSubmitted({
+        id: attempt.id,
+        quiz_id: quizId,
+        score: data.score,
+        passed: data.passed,
+        needs_review: data.needsReview,
+        submitted_at: new Date().toISOString(),
+      })
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'No se pudo enviar. Vuelve a intentar.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (loading) {
@@ -161,6 +176,7 @@ export default function QuizInline({ quizId, enrollmentId, existingAttempt, onSu
             Volver a intentar
           </button>
         )}
+        {attemptId && <QuizFeedback attemptId={attemptId} />}
       </div>
     )
   }
@@ -377,6 +393,7 @@ export default function QuizInline({ quizId, enrollmentId, existingAttempt, onSu
       >
         {submitting ? 'Enviando…' : 'Enviar respuestas'}
       </button>
+      {submitError && <p role="alert" style={{ color: '#C2410C', marginTop: 12 }}>{submitError}</p>}
     </div>
   )
 }
