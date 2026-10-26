@@ -45,7 +45,7 @@ function FAQ({ q, a }: { q:string; a:string }) {
   return (
     <div onClick={() => setOpen(!open)} style={{ borderTop:'1px solid var(--border)', padding:'1.8rem 0', cursor:'pointer' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:'1rem' }}>
-        <span style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, letterSpacing:'-.015em' }}>{q}</span>
+        <span className="t-h3">{q}</span>
         <div style={{ width:32, height:32, borderRadius:'50%', background:'#1F1710', color:'#F4ECDF', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', transition:'transform .3s', transform:open?'rotate(45deg)':'none', flexShrink:0 }}>+</div>
       </div>
       <div style={{ maxHeight:open?400:0, overflow:'hidden', transition:'max-height .4s ease', color:'var(--muted)', lineHeight:1.6, paddingTop:open?'1rem':0 }}>
@@ -112,8 +112,8 @@ export default function Servicios() {
           <div className="grid-4col">
             {PROCESS.map((p, i) => (
               <div key={p.num} className="reveal" style={{ background:'rgba(244,236,223,.06)', borderRadius:20, padding:'2rem', transitionDelay:`${i*.1}s` }}>
-                <div style={{ fontFamily:"'Fraunces',serif", fontSize:'3rem', fontWeight:400, color:'#F5D78E', lineHeight:1, marginBottom:'1.5rem' }}>{p.num}</div>
-                <h3 style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.3rem', fontWeight:500, color:'#F4ECDF', marginBottom:'.6rem' }}>{p.title}</h3>
+                <div className="t-stat" style={{ fontSize:'2.75rem', color:'#F5D78E', marginBottom:'1.25rem' }}>{p.num}</div>
+                <h3 className="t-h3" style={{ color:'#F4ECDF', marginBottom:'.6rem' }}>{p.title}</h3>
                 <p style={{ fontSize:'.9rem', color:'rgba(244,236,223,.7)', lineHeight:1.5 }}>{p.desc}</p>
               </div>
             ))}
@@ -136,7 +136,7 @@ export default function Servicios() {
       {/* CTA */}
       <section id="contacto" className="landing-cta-section">
         <div className="reveal">
-          <h2 className="section-title" style={{ maxWidth:860, margin:'0 auto 3rem', fontSize:'clamp(2.8rem,5.5vw,4.5rem)' }}>
+          <h2 className="section-title section-title--cta" style={{ maxWidth:860, margin:'0 auto 3rem' }}>
             Da el <strong>primer paso</strong>
           </h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>

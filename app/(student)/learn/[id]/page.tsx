@@ -102,7 +102,7 @@ export default async function CourseDetailPage({
   // Quizzes del curso — con module_id para intercalarlos
   const { data: quizzes } = await supabase
     .from('quizzes')
-    .select('id, title, type, passing_score, module_id, description')
+    .select('*')  // * incluye "order" para respetar el orden manual del módulo
     .eq('course_id', params.id)
 
   const quizIds = (quizzes || []).map(q => q.id)
@@ -117,7 +117,7 @@ export default async function CourseDetailPage({
   // Assignments
   const { data: assignments } = await supabase
     .from('assignments')
-    .select('id, title, instructions, module_id, fields')
+    .select('*')
     .eq('course_id', params.id)
 
   const assignmentIds = (assignments || []).map(a => a.id)
@@ -138,7 +138,7 @@ export default async function CourseDetailPage({
   // Foros (Fase 3) - tolerante a que la tabla no exista aún
   const forumsRes = await supabase
     .from('course_forums')
-    .select('id, title, description, module_id')
+    .select('*')
     .eq('course_id', params.id)
   const forums = forumsRes.error ? [] : (forumsRes.data || [])
 

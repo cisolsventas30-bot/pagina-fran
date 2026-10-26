@@ -28,6 +28,7 @@ export function Nav() {
   const [hidden, setHidden] = useState(false)
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  useScrollFx()
 
   useEffect(() => {
     let lastScrollY = 0
@@ -206,6 +207,9 @@ const FOOTER_COLS = [
 
 export function Footer() {
   return (
+    // .footer-wrap pinta el borde alrededor de la tarjeta oscura con el mismo
+    // color de la sección anterior (ver globals.css) para que no quede una franja de otro tono
+    <div className="footer-wrap">
     <footer>
       <div style={{ maxWidth: 1400, margin: '0 auto' }}>
 
@@ -282,6 +286,7 @@ export function Footer() {
 
       </div>
     </footer>
+    </div>
   )
 }
 
@@ -299,4 +304,63 @@ export function useReveal() {
     document.querySelectorAll('.reveal').forEach(el => io.observe(el))
     return () => io.disconnect()
   }, [])
+}
+
+/* ── Efectos de scroll del sitio público ──────────────────────────────────
+   Se activa desde <Nav /> (presente en todas las páginas públicas).
+   Agrega la clase `in-view` cuando el elemento entra en pantalla; el CSS
+   (globals.css › "Detalles visuales") dibuja subrayados, líneas, etc.
+   Los elementos con `data-countup` cuentan desde 0 hasta su número.
+   Respeta "reducir movimiento" del sistema operativo. */
+const FX_SELECTOR = '.section-title, .display, .page-header h1, .eyebrow, .fx-line, .stat-item, [data-countup]'
+
+function countUp(el: HTMLElement) {
+  const node = el.firstChild
+  if (!node || node.nodeType !== 3) return
+  const original = node.nodeValue || ''
+  const m = original.match(/^(\D*)(\d+)(.*)$/)
+  if (!m) return
+  const [, pre, num, post] = m
+  const target = parseInt(num, 10)
+  const dur = 1400
+  const t0 = performance.now()
+  const step = (t: number) => {
+    const p = Math.min(1, (t - t0) / dur)
+    const eased = 1 - Math.pow(1 - p, 3)
+    node.nodeValue = p < 1 ? `${pre}${Math.round(target * eased)}${post}` : original
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
+export function useScrollFx() {
+  const pathname = usePathname()
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const seen = new WeakSet<Element>()
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return
+        const el = e.target as HTMLElement
+        el.classList.add('in-view')
+        if (el.hasAttribute('data-countup') && !reduce) countUp(el)
+        io.unobserve(el)
+      })
+    }, { threshold: 0.2, rootMargin: '0px 0px -40px 0px' })
+
+    const scan = () => {
+      document.querySelectorAll(FX_SELECTOR).forEach(el => {
+        if (seen.has(el)) return
+        seen.add(el)
+        if (reduce) el.classList.add('in-view')
+        else io.observe(el)
+      })
+    }
+    scan()
+    // Contenido que llega después (galerías, artículos cargados en el cliente)
+    let raf = 0
+    const mo = new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(scan) })
+    mo.observe(document.body, { childList: true, subtree: true })
+    return () => { io.disconnect(); mo.disconnect(); cancelAnimationFrame(raf) }
+  }, [pathname])
 }

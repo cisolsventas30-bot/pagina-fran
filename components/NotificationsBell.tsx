@@ -66,6 +66,10 @@ export default function NotificationsBell({ variant = 'admin', userId }: Props) 
       const { data } = await supabase
         .from('notifications')
         .select('id, type, title, body, link_url, is_read, created_at')
+        // Filtrar SIEMPRE por el usuario: la política RLS de admins deja leer las
+        // notificaciones de TODOS los admins, y notifyAllAdmins inserta una copia
+        // por admin → sin este filtro cada aviso aparecía repetido.
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(20)
       setItems((data as Notification[]) || [])
@@ -79,7 +83,8 @@ export default function NotificationsBell({ variant = 'admin', userId }: Props) 
       .on('postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => {
-          setItems(prev => [payload.new as Notification, ...prev].slice(0, 20))
+          const n = payload.new as Notification
+          setItems(prev => prev.some(p => p.id === n.id) ? prev : [n, ...prev].slice(0, 20))
         }
       )
       .subscribe()

@@ -67,7 +67,7 @@ function buildUnifiedItems(mod: Module, quizzes: QuizItem[], assignments: Assign
   for (const a of assignments) items.push({ key: `assignment:${a.id}`, type: 'assignment', id: a.id, title: a.title, meta: `${a.fields_count} ${a.fields_count === 1 ? 'campo' : 'campos'}`, order: a.order })
   for (const r of resources) items.push({ key: `resource:${r.id}`, type: 'resource', id: r.id, title: r.title, meta: r.resource_type === 'file' ? 'Archivo' : 'Enlace', order: r.order })
   for (const f of forums) items.push({ key: `forum:${f.id}`, type: 'forum', id: f.id, title: f.title, meta: 'Foro', order: f.order })
-  return items.sort((a, b) => a.order - b.order)
+  return items.sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
 }
 
 function getItemVisual(type: ItemType) {
@@ -226,7 +226,7 @@ function EvaluationItem({ courseId, type, item }: { courseId: string; type: 'qui
 }
 
 /* ── ReorderPanel ── */
-function ReorderPanel({ moduleIndex, moduleId, unifiedItems, onReordered }: { moduleIndex: number; moduleId: string; unifiedItems: UnifiedItem[]; onReordered: () => void }) {
+function ReorderPanel({ moduleIndex, moduleId, unifiedItems, onReordered }: { moduleIndex: number; moduleId: string; unifiedItems: UnifiedItem[]; onReordered: (items: UnifiedItem[]) => void }) {
   const [open, setOpen] = useState(false)
   return (
     <div style={{ marginTop: 10 }}>
@@ -384,7 +384,11 @@ export default function CourseEditor({ course }: { course: Course }) {
     setModules(modules.map(m => {
       if (m.id !== moduleId) return m
       const allOrders = [...m.lessons.map(l => l.order), ...(quizzesByModule[m.id] || []).map(q => q.order), ...(assignmentsByModule[m.id] || []).map(a => a.order), ...(resourcesByModule[m.id] || []).map(r => r.order), ...(forumsByModule[m.id] || []).map(f => f.order)]
-      const maxOrder = allOrders.length > 0 ? Math.max(...allOrders) : -1
+      // Solo órdenes numéricos: evaluaciones/asignaciones/foros pueden venir sin
+      // "order" y Math.max con undefined da NaN → la lección se guardaba sin orden
+      // (NOT NULL) y Supabase respondía 400.
+      const validOrders = allOrders.filter((o): o is number => typeof o === 'number' && Number.isFinite(o))
+      const maxOrder = validOrders.length > 0 ? Math.max(...validOrders) : m.lessons.length - 1
       return { ...m, lessons: [...m.lessons, { id: crypto.randomUUID(), title: '', video_url: '', content: '', duration_minutes: 10, order: maxOrder + 1, _new: true }] }
     }))
   }
@@ -396,8 +400,24 @@ export default function CourseEditor({ course }: { course: Course }) {
     setModules(modules.map(m => m.id === moduleId ? { ...m, lessons: m.lessons.filter(l => l.id !== lessonId) } : m))
     if (expandedLesson === lessonId) setExpandedLesson(null)
   }
+  // El reordenamiento se guarda directo en la DB; hay que copiar el nuevo order de
+  // las lecciones al estado local. Si no, "Guardar cambios" las devolvía al orden
+  // anterior (el estado local no se reinicia con router.refresh()).
+  function applyReorder(moduleId: string, items: UnifiedItem[]) {
+    const orderById = new Map(items.filter(i => i.type === 'lesson').map(i => [i.id, i.order]))
+    setModules(prev => prev.map(m => m.id !== moduleId ? m : {
+      ...m,
+      lessons: m.lessons.map(l => orderById.has(l.id) ? { ...l, order: orderById.get(l.id)! } : l),
+    }))
+  }
   function updateLesson(moduleId: string, lessonId: string, patch: Partial<Lesson>) {
     setModules(modules.map(m => m.id === moduleId ? { ...m, lessons: m.lessons.map(l => l.id === lessonId ? { ...l, ...patch } : l) } : m))
+  }
+
+  // Entero válido para columnas int (NaN/undefined/'' rompen el insert con 400)
+  function safeInt<T>(v: unknown, fallback: T): number | T {
+    const n = typeof v === 'number' ? v : parseInt(String(v), 10)
+    return Number.isFinite(n) ? Math.round(n) : fallback
   }
 
   async function handleSave() {
@@ -406,26 +426,64 @@ export default function CourseEditor({ course }: { course: Course }) {
     const supabase = createClient()
     const { error: courseErr } = await supabase.from('courses').update({ title, description, cover_url: coverUrl, passing_score: passingScore, is_published: isPublished, intro_title: introTitle || null, intro_video_url: introVideoUrl || null, intro_content: introContent || null, cert_preview_url: certPreviewUrl || null, price: price !== '' ? parseFloat(price) : null, price_usd: priceUsd !== '' ? parseFloat(priceUsd) : null, price_label: priceLabel || null, updated_at: new Date().toISOString() }).eq('id', course.id)
     if (courseErr) { setError(courseErr.message); setSaving(false); return }
-    if (deletedModuleIds.length > 0) await supabase.from('modules').delete().in('id', deletedModuleIds)
-    if (deletedLessonIds.length > 0) await supabase.from('lessons').delete().in('id', deletedLessonIds)
+    // Antes los errores de cada insert/update se ignoraban y siempre salía
+    // "guardado"; ahora se juntan y se muestran.
+    const errors: string[] = []
+    if (deletedModuleIds.length > 0) {
+      const { error: e } = await supabase.from('modules').delete().in('id', deletedModuleIds)
+      if (e) errors.push(`Eliminar módulos: ${e.message}`)
+    }
+    if (deletedLessonIds.length > 0) {
+      const { error: e } = await supabase.from('lessons').delete().in('id', deletedLessonIds)
+      if (e) errors.push(`Eliminar lecciones: ${e.message}`)
+    }
+    // Se reconstruye la lista con los IDs reales de la DB y sin la marca _new.
+    // Sin esto, tras guardar las lecciones nuevas seguían marcadas como _new en
+    // pantalla: al editarlas después (p. ej. pegar el link del video) y volver a
+    // guardar, se insertaba una lección duplicada en vez de actualizar la original.
+    const savedModules: Module[] = []
     for (let mi = 0; mi < modules.length; mi++) {
       const mod = modules[mi]
       if (mod._new) {
-        const { data: newMod } = await supabase.from('modules').insert({ course_id: course.id, title: mod.title, description: mod.description, order: mi }).select().single()
-        if (newMod) {
-          const toInsert = mod.lessons.map((l, li) => ({ module_id: newMod.id, title: l.title, video_url: l.video_url, content: l.content, duration_minutes: l.duration_minutes, order: l.order ?? li }))
-          if (toInsert.length > 0) await supabase.from('lessons').insert(toInsert)
-        }
+        const { data: newMod, error: modErr } = await supabase.from('modules').insert({ course_id: course.id, title: mod.title, description: mod.description, order: mi }).select().single()
+        if (modErr || !newMod) { errors.push(`Módulo "${mod.title}": ${modErr?.message || 'no se pudo crear'}`); savedModules.push(mod); continue }
+        const toInsert = mod.lessons.map((l, li) => ({ module_id: newMod.id, title: l.title, video_url: l.video_url, content: l.content, duration_minutes: safeInt(l.duration_minutes, null), order: safeInt(l.order, li) }))
+        const { data: inserted, error: lesErr } = toInsert.length > 0
+          ? await supabase.from('lessons').insert(toInsert).select('id')
+          : { data: [], error: null }
+        if (lesErr) errors.push(`Lecciones de "${mod.title}": ${lesErr.message}`)
+        savedModules.push({
+          ...mod, id: newMod.id, _new: false,
+          lessons: mod.lessons.map((l, li) => inserted?.[li] ? { ...l, id: inserted[li].id, _new: false } : l),
+        })
       } else {
-        await supabase.from('modules').update({ title: mod.title, description: mod.description, order: mi }).eq('id', mod.id)
+        const { error: modErr } = await supabase.from('modules').update({ title: mod.title, description: mod.description, order: mi }).eq('id', mod.id)
+        if (modErr) errors.push(`Módulo "${mod.title}": ${modErr.message}`)
+        const lessons: Lesson[] = []
         for (const lesson of mod.lessons) {
-          if (lesson._new) await supabase.from('lessons').insert({ module_id: mod.id, title: lesson.title, video_url: lesson.video_url, content: lesson.content, duration_minutes: lesson.duration_minutes, order: lesson.order })
-          else await supabase.from('lessons').update({ title: lesson.title, video_url: lesson.video_url, content: lesson.content, duration_minutes: lesson.duration_minutes, order: lesson.order }).eq('id', lesson.id)
+          const fields = { title: lesson.title, video_url: lesson.video_url, content: lesson.content, duration_minutes: safeInt(lesson.duration_minutes, null), order: safeInt(lesson.order, mod.lessons.indexOf(lesson)) }
+          if (lesson._new) {
+            const { data: ins, error: e } = await supabase.from('lessons').insert({ module_id: mod.id, ...fields }).select('id').single()
+            if (e || !ins) { errors.push(`Lección "${lesson.title || 'sin título'}": ${e?.message || 'no se pudo crear'}`); lessons.push(lesson); continue }
+            lessons.push({ ...lesson, id: ins.id, _new: false })
+          } else {
+            const { error: e } = await supabase.from('lessons').update(fields).eq('id', lesson.id)
+            if (e) errors.push(`Lección "${lesson.title || 'sin título'}": ${e.message}`)
+            lessons.push(lesson)
+          }
         }
+        savedModules.push({ ...mod, lessons })
       }
     }
+    setModules(savedModules)
     setDeletedModuleIds([]); setDeletedLessonIds([]); setSaving(false)
-    showToast('Cambios guardados correctamente', 'success'); router.refresh()
+    if (errors.length > 0) {
+      setError(`Algunos cambios no se guardaron: ${errors.join(' · ')}`)
+      showToast('Hubo errores al guardar', 'error')
+    } else {
+      showToast('Cambios guardados correctamente', 'success')
+    }
+    router.refresh()
   }
 
   async function handleDelete() {
@@ -644,7 +702,7 @@ export default function CourseEditor({ course }: { course: Course }) {
                                 <ClipboardList size={12} strokeWidth={2.2} /> Asignación
                               </Link>
                             </div>
-                            <ReorderPanel moduleIndex={mi} moduleId={mod.id} unifiedItems={unifiedItems} onReordered={() => router.refresh()} />
+                            <ReorderPanel moduleIndex={mi} moduleId={mod.id} unifiedItems={unifiedItems} onReordered={items => { applyReorder(mod.id, items); router.refresh() }} />
                           </div>
                         )}
                       </div>

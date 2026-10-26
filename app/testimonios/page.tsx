@@ -104,13 +104,13 @@ export default function Testimonios() {
 
       <section className="dark-section">
         <div className="reveal" style={{ maxWidth:1000, margin:'0 auto', textAlign:'center' }}>
-          <div style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'7rem', lineHeight:.5, color:'#F5D78E', opacity:.45, marginBottom:'1rem' }}>&ldquo;</div>
-          <blockquote style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'clamp(1.8rem,3.2vw,2.8rem)', fontWeight:400, lineHeight:1.15, letterSpacing:'-.02em', color:'#F4ECDF', marginBottom:'3rem' }}>
+          <div style={{ fontFamily:'var(--font-sans)', fontWeight:800, fontSize:'7rem', lineHeight:.5, color:'#F5D78E', opacity:.45, marginBottom:'1rem' }}>&ldquo;</div>
+          <blockquote style={{ fontFamily:'var(--font-sans)', fontSize:'clamp(1.6rem,2.8vw,2.375rem)', fontWeight:600, lineHeight:1.25, letterSpacing:'-.025em', textWrap:'balance', color:'#F4ECDF', marginBottom:'3rem' }}>
             Su explicación es muy detallada, sus métodos son muy dinámicos, además de ser una profesional con mucho carisma. Mi pequeño está feliz de tenerla como su miss Fran y está{' '}
             <em style={{ color:'#F5D78E' }}>avanzando con sus terapias</em>.
           </blockquote>
           <div style={{ display:'inline-flex', alignItems:'center', gap:16 }}>
-            <div style={{ width:56, height:56, borderRadius:'50%', background:'#C8DFB0', color:'#1F1710', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'1.15rem', fontWeight:700 }}>RS</div>
+            <div style={{ width:56, height:56, borderRadius:'50%', background:'#C8DFB0', color:'#1F1710', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.15rem', fontWeight:800 }}>RS</div>
             <div style={{ textAlign:'left' }}>
               <strong style={{ display:'block', color:'#F4ECDF', fontWeight:600 }}>Rosa S. M.</strong>
               <span style={{ color:'rgba(244,236,223,.6)', fontSize:'.9rem' }}>Mamá · Terapia Infantil · Lima, Perú</span>
@@ -185,10 +185,10 @@ export default function Testimonios() {
               </div>
 
               {/* Quote */}
-              <p style={{ fontFamily:"'Poppins', system-ui, sans-serif", fontSize:'.97rem', lineHeight:1.6, color:'#2A2118', margin:0 }}>
-                <span style={{ fontSize:'1.6rem', lineHeight:0, verticalAlign:'-.3em', marginRight:3, color:t.accent, fontFamily:'Georgia,serif' }}>&ldquo;</span>
+              <p style={{ fontSize:'1rem', lineHeight:1.65, color:'#2A2118', margin:0 }}>
+                <span style={{ fontSize:'1.6rem', lineHeight:0, verticalAlign:'-.3em', marginRight:3, color:t.accent, fontWeight:800 }}>&ldquo;</span>
                 {t.quote}
-                <span style={{ fontSize:'1.6rem', lineHeight:0, verticalAlign:'-.3em', marginLeft:3, color:t.accent, fontFamily:'Georgia,serif' }}>&rdquo;</span>
+                <span style={{ fontSize:'1.6rem', lineHeight:0, verticalAlign:'-.3em', marginLeft:3, color:t.accent, fontWeight:800 }}>&rdquo;</span>
               </p>
             </div>
           ))}
@@ -201,7 +201,7 @@ export default function Testimonios() {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'2rem' }}>
             {STATS.map((s,i) => (
               <div key={s.num} className="reveal" style={{ textAlign:'center', transitionDelay:`${i*.1}s` }}>
-                <div style={{ fontFamily:"'Fraunces',serif", fontSize:'clamp(3rem,5vw,4.5rem)', fontWeight:400, letterSpacing:'-.03em', lineHeight:1, marginBottom:'.75rem', color:'#F5D78E' }}>{s.num}</div>
+                <div className="t-stat" data-countup={/^\d/.test(s.num) ? '' : undefined} style={{ marginBottom:'.75rem', color:'#F5D78E' }}>{s.num}</div>
                 <div style={{ fontSize:'1rem', color:'rgba(244,236,223,.7)' }}>{s.label}</div>
               </div>
             ))}
@@ -236,7 +236,7 @@ export default function Testimonios() {
       {/* CTA */}
       <section id="contacto" style={{ background:'#F4ECDF', padding:'8rem 3rem', textAlign:'center' }}>
         <div className="reveal">
-          <h2 className="section-title" style={{ maxWidth:860, margin:'0 auto 3rem', fontSize:'clamp(2.8rem,5.5vw,4.5rem)' }}>¿Listo para iniciar el cambio?</h2>
+          <h2 className="section-title section-title--cta" style={{ maxWidth:860, margin:'0 auto 3rem' }}>¿Listo para iniciar el cambio?</h2>
           <div style={{ display:'flex', gap:'.75rem', justifyContent:'center', flexWrap:'wrap' }}>
             <a href={wa('Hola capyABA, quiero agendar mi primera sesión 🦫')} target="_blank" rel="noopener noreferrer" className="btn-wsp">💬 Agendar primera sesión</a>
             <Link href="/servicios" className="btn-outline">Ver servicios</Link>
@@ -331,7 +331,7 @@ function ReviewForm({ onClose }: { onClose: () => void }) {
         {success ? (
           <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌟</div>
-            <h3 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: '1.6rem', color: '#1F1710', marginBottom: '.6rem' }}>
+            <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-.03em', color: '#1F1710', marginBottom: '.6rem' }}>
               ¡Gracias por tu reseña!
             </h3>
             <p style={{ color: '#6B5E4E', fontSize: '.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
@@ -350,7 +350,7 @@ function ReviewForm({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <>
-            <h3 style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: '1.7rem', color: '#1F1710', marginBottom: '.3rem' }}>
+            <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-.03em', color: '#1F1710', marginBottom: '.3rem' }}>
               Deja tu reseña ✍️
             </h3>
             <p style={{ color: '#6B5E4E', fontSize: '.85rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
