@@ -70,9 +70,10 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
           {answers.map((a, index) => {
             const q = a.questions
             const pending = a.is_correct === null
-            const partial = !pending && a.points_earned != null && a.points_earned > 0 && a.points_earned < q.points
-            const color = pending || partial ? '#8B6F47' : a.is_correct ? '#0F6E56' : '#C2410C'
-            const Icon = pending ? Clock3 : a.is_correct ? CheckCircle2 : XCircle
+            const isCorrect = a.is_correct === true
+            const color = pending ? '#8B6F47' : isCorrect ? '#0F6E56' : '#C2410C'
+            const Icon = pending ? Clock3 : isCorrect ? CheckCircle2 : XCircle
+
             return (
               <article
                 key={a.id}
@@ -89,7 +90,7 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, color, fontWeight: 700, marginBottom: 8 }}>
                   <Icon size={18} aria-hidden="true" />
                   <span>
-                    Pregunta {index + 1} · {pending ? 'Pendiente de revisión' : partial ? 'Parcialmente correcta' : a.is_correct ? 'Correcta' : 'Incorrecta'}
+                    Pregunta {index + 1} · {pending ? 'Pendiente de revisión' : isCorrect ? 'Correcta' : 'Incorrecta'}
                   </span>
                   {!pending && (
                     <span style={{ marginLeft: 'auto', fontSize: 12 }}>
@@ -98,33 +99,31 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
                   )}
                 </div>
 
-                <p style={{ fontWeight: 600, whiteSpace: 'pre-wrap', marginBottom: 12 }}>
+                {/* Enunciado de la pregunta (se muestra siempre) */}
+                <p style={{ fontWeight: 600, whiteSpace: 'pre-wrap', marginBottom: isCorrect ? 12 : 6 }}>
                   {q.question_text}
                 </p>
 
-                <p style={{ whiteSpace: 'pre-wrap' }}>
-                  <strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}
-                </p>
+                {/* BLOQUE EXCLUSIVO PARA PREGUNTAS CORRECTAS */}
+                {isCorrect && (
+                  <>
+                    <p style={{ whiteSpace: 'pre-wrap' }}>
+                      <strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}
+                    </p>
 
-                {/* Solo se muestra la respuesta correcta si el alumno acertó */}
-                {!pending && a.is_correct && q.correct_answer != null && q.correct_answer !== '' && (
-                  <p style={{ color: '#0F6E56', whiteSpace: 'pre-wrap', marginTop: 6 }}>
-                    <strong>Respuesta correcta:</strong> {formatQuizAnswer(q.correct_answer, q)}
-                  </p>
+                    {Boolean(q.explanation?.trim()) && (
+                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
+                        <strong>Explicación:</strong>
+                        <p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
+                      </div>
+                    )}
+                  </>
                 )}
 
-                {/* Solo se muestra la explicación clínica si el alumno acertó */}
-                {a.is_correct && Boolean(q.explanation?.trim()) && (
-                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
-                    <strong>Explicación</strong>
-                    <p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
-                  </div>
-                )}
-
-                {/* Mensaje de refuerzo si falló */}
-                {!pending && !a.is_correct && (
-                  <p style={{ color: '#8B6F47', fontSize: 13, marginTop: 8, fontStyle: 'italic' }}>
-                    💡 Revisa los materiales y lecturas de este módulo sobre este tema antes de tu próximo intento.
+                {/* BLOQUE PARA PREGUNTAS INCORRECTAS: Solo aviso pedagógico, sin respuestas ni explicaciones */}
+                {!pending && !isCorrect && (
+                  <p style={{ color: '#8B6F47', fontSize: 13, marginTop: 6, fontStyle: 'italic' }}>
+                    💡 Esta respuesta no fue correcta. Revisa el contenido del módulo antes de volver a intentar.
                   </p>
                 )}
 
