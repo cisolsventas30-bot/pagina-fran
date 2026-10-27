@@ -24,23 +24,23 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: 'No se pudo cargar el detalle' }, { status: 500 })
   if (!attempt) return NextResponse.json({ error: 'Resultado no encontrado' }, { status: 404 })
-  // Antes de retornar, limpiamos correct_answer y explanation si la respuesta no fue correcta
-  const answers = (attempt.attempt_answers as any[])
-    .filter(a => a.questions)
-    .sort((a, b) => a.questions.order - b.questions.order || a.questions.id.localeCompare(b.questions.id))
-    .map(a => {
-      if (a.is_correct !== true) {
-        return {
-          ...a,
-          questions: {
-            ...a.questions,
-            correct_answer: null,
-            explanation: null,
-          }
+// En app/api/quiz/feedback/route.ts (al final):
+const answers = (attempt.attempt_answers as any[])
+  .filter(a => a.questions)
+  .sort((a, b) => a.questions.order - b.questions.order || a.questions.id.localeCompare(b.questions.id))
+  .map(a => {
+    if (a.is_correct !== true) {
+      return {
+        ...a,
+        questions: {
+          ...a.questions,
+          correct_answer: null, // Oculta la alternativa correcta para que no se filtre por red
+          // explanation se mantiene para que el estudiante lea el apoyo pedagógico
         }
       }
-      return a
-    })
+    }
+    return a
+  })
 
-  return NextResponse.json({ answers }, { headers: { 'Cache-Control': 'private, no-store' } })
+return NextResponse.json({ answers }, { headers: { 'Cache-Control': 'private, no-store' } })
 }
