@@ -71,14 +71,28 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
                   <span>Pregunta {index + 1} · {pending ? 'Pendiente de revisión' : partial ? 'Parcialmente correcta' : a.is_correct ? 'Correcta' : 'Incorrecta'}</span>
                   {!pending && <span style={{ marginLeft: 'auto', fontSize: 12 }}>{a.points_earned ?? 0} / {q.points} puntos</span>}
                 </div>
-                <p style={{ fontWeight: 600, whiteSpace: 'pre-wrap', marginBottom: 12 }}>{q.question_text}</p>
-                <p style={{ whiteSpace: 'pre-wrap' }}><strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}</p>
-                {!pending && q.correct_answer != null && q.correct_answer !== '' && (
-                  <p style={{ color: '#0F6E56', whiteSpace: 'pre-wrap', marginTop: 6 }}><strong>Respuesta correcta:</strong> {formatQuizAnswer(q.correct_answer, q)}</p>
-                )}
-                {q.explanation?.trim() && (
-                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
-                    <strong>Explicación</strong><p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
+                  <p style={{ whiteSpace: 'pre-wrap' }}>
+                    <strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}
+                  </p>
+                {/* Solo mostramos la respuesta correcta si la acertó */}
+                {!pending && a.is_correct && q.correct_answer != null && q.correct_answer !== '' && (
+                <p style={{ color: '#0F6E56', whiteSpace: 'pre-wrap', marginTop: 6 }}>
+                  <strong>Respuesta correcta:</strong> {formatQuizAnswer(q.correct_answer, q)}
+                </p>
+              )}
+                {/* Solo mostramos la explicación clínica si la acertó (para reforzar) */}
+                {a.is_correct && q.explanation?.trim() && (
+                <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
+                  <strong>Explicación</strong>
+                  <p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
+                </div>
+              )}            
+                {/* Mensaje pedagógico si falló */}
+                {!pending && !a.is_correct && (
+                <p style={{ color: '#8B6F47', fontSize: 13, marginTop: 8, fontStyle: 'italic' }}>
+                  💡 Revisa los materiales y lecturas de este módulo sobre este tema antes de tu próximo intento.
+                </p>
+              )}
                   </div>
                 )}
                 {a.feedback?.trim() && <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}><strong>Comentario del instructor:</strong> {a.feedback}</p>}
