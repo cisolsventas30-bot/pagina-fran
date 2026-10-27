@@ -54,9 +54,18 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
   return (
     <section aria-label="Detalle de tus respuestas" style={{ marginTop: 32, textAlign: 'left', borderTop: '1px solid #EDE4D4', paddingTop: 24 }}>
       <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1F1710', marginBottom: 8 }}>Revisa tus respuestas</h3>
-      {loading ? <p role="status">Cargando respuestas…</p> : error ? (
-        <div role="alert"><p>{error}</p><button type="button" onClick={() => setRetry(n => n + 1)} className="underline mt-2">Volver a cargar</button></div>
-      ) : answers.length === 0 ? <p>No hay respuestas guardadas para este intento.</p> : (
+      {loading ? (
+        <p role="status">Cargando respuestas…</p>
+      ) : error ? (
+        <div role="alert">
+          <p>{error}</p>
+          <button type="button" onClick={() => setRetry(n => n + 1)} className="underline mt-2">
+            Volver a cargar
+          </button>
+        </div>
+      ) : answers.length === 0 ? (
+        <p>No hay respuestas guardadas para este intento.</p>
+      ) : (
         <div style={{ display: 'grid', gap: 16 }}>
           {answers.map((a, index) => {
             const q = a.questions
@@ -65,37 +74,65 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
             const color = pending || partial ? '#8B6F47' : a.is_correct ? '#0F6E56' : '#C2410C'
             const Icon = pending ? Clock3 : a.is_correct ? CheckCircle2 : XCircle
             return (
-              <article key={a.id} style={{ padding: 18, border: '1px solid #EDE4D4', borderRadius: 10, background: '#FAF7F2', fontSize: 14, lineHeight: 1.6, overflowWrap: 'anywhere' }}>
+              <article
+                key={a.id}
+                style={{
+                  padding: 18,
+                  border: '1px solid #EDE4D4',
+                  borderRadius: 10,
+                  background: '#FAF7F2',
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  overflowWrap: 'anywhere',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, color, fontWeight: 700, marginBottom: 8 }}>
                   <Icon size={18} aria-hidden="true" />
-                  <span>Pregunta {index + 1} · {pending ? 'Pendiente de revisión' : partial ? 'Parcialmente correcta' : a.is_correct ? 'Correcta' : 'Incorrecta'}</span>
-                  {!pending && <span style={{ marginLeft: 'auto', fontSize: 12 }}>{a.points_earned ?? 0} / {q.points} puntos</span>}
+                  <span>
+                    Pregunta {index + 1} · {pending ? 'Pendiente de revisión' : partial ? 'Parcialmente correcta' : a.is_correct ? 'Correcta' : 'Incorrecta'}
+                  </span>
+                  {!pending && (
+                    <span style={{ marginLeft: 'auto', fontSize: 12 }}>
+                      {a.points_earned ?? 0} / {q.points} puntos
+                    </span>
+                  )}
                 </div>
-                  <p style={{ whiteSpace: 'pre-wrap' }}>
-                    <strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}
-                  </p>
-                {/* Solo mostramos la respuesta correcta si la acertó */}
+
+                <p style={{ fontWeight: 600, whiteSpace: 'pre-wrap', marginBottom: 12 }}>
+                  {q.question_text}
+                </p>
+
+                <p style={{ whiteSpace: 'pre-wrap' }}>
+                  <strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}
+                </p>
+
+                {/* Solo se muestra la respuesta correcta si el alumno acertó */}
                 {!pending && a.is_correct && q.correct_answer != null && q.correct_answer !== '' && (
-                <p style={{ color: '#0F6E56', whiteSpace: 'pre-wrap', marginTop: 6 }}>
-                  <strong>Respuesta correcta:</strong> {formatQuizAnswer(q.correct_answer, q)}
-                </p>
-              )}
-                {/* Solo mostramos la explicación clínica si la acertó (para reforzar) */}
-                {a.is_correct && q.explanation?.trim() && (
-                <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
-                  <strong>Explicación</strong>
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
-                </div>
-              )}            
-                {/* Mensaje pedagógico si falló */}
-                {!pending && !a.is_correct && (
-                <p style={{ color: '#8B6F47', fontSize: 13, marginTop: 8, fontStyle: 'italic' }}>
-                  💡 Revisa los materiales y lecturas de este módulo sobre este tema antes de tu próximo intento.
-                </p>
-              )}
+                  <p style={{ color: '#0F6E56', whiteSpace: 'pre-wrap', marginTop: 6 }}>
+                    <strong>Respuesta correcta:</strong> {formatQuizAnswer(q.correct_answer, q)}
+                  </p>
+                )}
+
+                {/* Solo se muestra la explicación clínica si el alumno acertó */}
+                {a.is_correct && Boolean(q.explanation?.trim()) && (
+                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
+                    <strong>Explicación</strong>
+                    <p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
                   </div>
                 )}
-                {a.feedback?.trim() && <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}><strong>Comentario del instructor:</strong> {a.feedback}</p>}
+
+                {/* Mensaje de refuerzo si falló */}
+                {!pending && !a.is_correct && (
+                  <p style={{ color: '#8B6F47', fontSize: 13, marginTop: 8, fontStyle: 'italic' }}>
+                    💡 Revisa los materiales y lecturas de este módulo sobre este tema antes de tu próximo intento.
+                  </p>
+                )}
+
+                {a.feedback?.trim() && (
+                  <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>
+                    <strong>Comentario del instructor:</strong> {a.feedback}
+                  </p>
+                )}
               </article>
             )
           })}
