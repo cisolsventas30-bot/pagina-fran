@@ -30,6 +30,15 @@ export function formatQuizAnswer(value: unknown, question: Answer['questions']):
   return question.options?.find(option => option.id === value)?.text ?? String(value)
 }
 
+// Limpia menciones como "Respuesta correcta: D, Justificación clínica:" si se equivocó
+function formatExplanation(text: string | null | undefined, isCorrect: boolean): string {
+  if (!text) return ''
+  const trimmed = text.trim()
+  if (isCorrect) return trimmed
+  // Si falló, filtramos el prefijo que delata la letra de la respuesta correcta
+  return trimmed.replace(/^Respuesta correcta:\s*[A-Za-z0-9]+[\s,.:-]*(Justificación clínica:\s*|Explicación:\s*)?/i, '')
+}
+
 export default function QuizFeedback({ attemptId }: { attemptId: string }) {
   const [answers, setAnswers] = useState<Answer[]>([])
   const [loading, setLoading] = useState(true)
@@ -73,6 +82,7 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
             const isCorrect = a.is_correct === true
             const color = pending ? '#8B6F47' : isCorrect ? '#0F6E56' : '#C2410C'
             const Icon = pending ? Clock3 : isCorrect ? CheckCircle2 : XCircle
+            const explanationText = formatExplanation(q.explanation, isCorrect)
 
             return (
               <article
@@ -87,6 +97,7 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
                   overflowWrap: 'anywhere',
                 }}
               >
+                {/* Encabezado de la pregunta */}
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, color, fontWeight: 700, marginBottom: 8 }}>
                   <Icon size={18} aria-hidden="true" />
                   <span>
@@ -99,34 +110,46 @@ export default function QuizFeedback({ attemptId }: { attemptId: string }) {
                   )}
                 </div>
 
-                {/* Enunciado de la pregunta (se muestra siempre) */}
-                <p style={{ fontWeight: 600, whiteSpace: 'pre-wrap', marginBottom: isCorrect ? 12 : 6 }}>
+                {/* Enunciado de la pregunta */}
+                <p style={{ fontWeight: 600, whiteSpace: 'pre-wrap', marginBottom: 12 }}>
                   {q.question_text}
                 </p>
 
-                {/* BLOQUE EXCLUSIVO PARA PREGUNTAS CORRECTAS */}
+                {/* SI FUE CORRECTA: Muestra las alternativas confirmadas y la justificación completa */}
                 {isCorrect && (
                   <>
                     <p style={{ whiteSpace: 'pre-wrap' }}>
                       <strong>Tu respuesta:</strong> {formatQuizAnswer(a.answer, q)}
                     </p>
-
-                    {Boolean(q.explanation?.trim()) && (
-                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #EDE4D4' }}>
-                        <strong>Explicación:</strong>
-                        <p style={{ whiteSpace: 'pre-wrap' }}>{q.explanation}</p>
-                      </div>
+                    {q.correct_answer != null && q.correct_answer !== '' && (
+                      <p style={{ color: '#0F6E56', whiteSpace: 'pre-wrap', marginTop: 4 }}>
+                        <strong>Respuesta correcta:</strong> {formatQuizAnswer(q.correct_answer, q)}
+                      </p>
                     )}
                   </>
                 )}
 
-                {/* BLOQUE PARA PREGUNTAS INCORRECTAS: Solo aviso pedagógico, sin respuestas ni explicaciones */}
-                {!pending && !isCorrect && (
-                  <p style={{ color: '#8B6F47', fontSize: 13, marginTop: 6, fontStyle: 'italic' }}>
-                    💡 Esta respuesta no fue correcta. Revisa el contenido del módulo antes de volver a intentar.
-                  </p>
+                {/* RETROALIMENTACIÓN / EXPLICACIÓN: Se muestra en AMBOS casos */}
+                {Boolean(explanationText) && (
+                  <div
+                    style={{
+                      marginTop: 12,
+                      padding: '12px 14px',
+                      background: isCorrect ? '#F0FDF4' : '#FFFBEB',
+                      borderRadius: 8,
+                      borderLeft: `3px solid ${isCorrect ? '#0F6E56' : '#D97706'}`,
+                    }}
+                  >
+                    <strong style={{ display: 'block', marginBottom: 4, color: isCorrect ? '#0F6E56' : '#92400E' }}>
+                      {isCorrect ? 'Explicación:' : 'Retroalimentación pedagógica:'}
+                    </strong>
+                    <p style={{ whiteSpace: 'pre-wrap', margin: 0, color: '#1F1710' }}>
+                      {explanationText}
+                    </p>
+                  </div>
                 )}
 
+                {/* Comentario manual si un docente lo revisó */}
                 {a.feedback?.trim() && (
                   <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>
                     <strong>Comentario del instructor:</strong> {a.feedback}
